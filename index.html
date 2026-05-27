@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CYBERPUNK 2077 — NIGHT CITY ONLINE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #060609;
+      --cyan:    #00f5ff;
+      --mag:     #ff00aa;
+      --yellow:  #ffe600;
+      --orange:  #ff6b00;
+      --white:   #e8f4f8;
+      --dim:     #1e2a3a;
+      --tdim:    #3a5060;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--cyan); }
+
+    /* ── OVERLAYS ── */
+    .scanlines {
+      position: fixed; inset: 0; z-index: 9000; pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,0,0,.07) 2px, rgba(0,0,0,.07) 4px
+      );
+    }
+    .crt-vignette {
+      position: fixed; inset: 0; z-index: 8999; pointer-events: none;
+      background: radial-gradient(ellipse at center,
+        transparent 55%, rgba(0,0,0,.65) 100%);
+    }
+
+    /* ── CURSOR ── */
+    .cur-dot {
+      position: fixed; z-index: 10003; pointer-events: none;
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--cyan); box-shadow: 0 0 10px var(--cyan);
+      top: 0; left: 0; will-change: transform;
+    }
+    .cur-h {
+      position: fixed; z-index: 10002; pointer-events: none;
+      width: 22px; height: 1px; background: var(--cyan);
+      box-shadow: 0 0 6px var(--cyan);
+      top: 0; left: 0; will-change: transform;
+    }
+    .cur-v {
+      position: fixed; z-index: 10002; pointer-events: none;
+      width: 1px; height: 22px; background: var(--cyan);
+      box-shadow: 0 0 6px var(--cyan);
+      top: 0; left: 0; will-change: transform;
+    }
+    .cur-ring {
+      position: fixed; z-index: 10001; pointer-events: none;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(0,245,255,.55); border-radius: 50%;
+      top: 0; left: 0; will-change: transform;
+      transition: width .3s, height .3s, border-color .3s;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; inset: 0 0 auto 0; z-index: 500;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 3.5rem;
+      background: rgba(6,6,9,.88);
+      border-bottom: 1px solid rgba(0,245,255,.1);
+      backdrop-filter: blur(14px);
+    }
+    .logo {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.15rem; font-weight: 900; letter-spacing: .12em;
+      color: var(--cyan);
+      text-shadow: 0 0 18px var(--cyan), 0 0 35px rgba(0,245,255,.35);
+      cursor: none;
+    }
+    .logo span { color: var(--yellow); text-shadow: 0 0 18px var(--yellow); }
+    nav ul { display: flex; gap: 2.8rem; list-style: none; }
+    nav a {
+      font-size: .78rem; letter-spacing: .22em; text-transform: uppercase;
+      color: rgba(232,244,248,.38); text-decoration: none;
+      position: relative; transition: color .3s; cursor: none;
+    }
+    nav a::after {
+      content: ''; position: absolute; bottom: -3px; left: 0;
+      width: 0; height: 1px;
+      background: var(--cyan); box-shadow: 0 0 6px var(--cyan);
+      transition: width .3s;
+    }
+    nav a:hover { color: var(--cyan); }
+    nav a:hover::after { width: 100%; }
+    .net-status {
+      display: flex; align-items: center; gap: .5rem;
+      font-size: .62rem; letter-spacing: .25em; text-transform: uppercase;
+      color: var(--tdim);
+    }
+    .net-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #00ff55; box-shadow: 0 0 8px #00ff55;
+      animation: blink 1.8s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; height: 100vh; min-height: 700px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    #rain { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .38; }
+
+    .hero-grid-lines {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(0,245,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,245,255,.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .hero-glow-l {
+      position: absolute; left: -100px; top: 50%;
+      transform: translateY(-50%);
+      width: 500px; height: 800px;
+      background: radial-gradient(ellipse, rgba(0,245,255,.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-glow-r {
+      position: absolute; right: -100px; top: 50%;
+      transform: translateY(-50%);
+      width: 500px; height: 800px;
+      background: radial-gradient(ellipse, rgba(255,0,170,.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; z-index: 10; text-align: center; padding: 2rem; }
+
+    .hero-chip {
+      display: inline-flex; align-items: center; gap: .7rem;
+      font-size: .62rem; letter-spacing: .48em; text-transform: uppercase;
+      color: var(--yellow); border: 1px solid rgba(255,230,0,.22);
+      padding: .38rem 1.3rem; margin-bottom: 2.4rem;
+      text-shadow: 0 0 10px var(--yellow);
+      opacity: 0; animation: aFade .6s ease .3s forwards;
+    }
+    .chip-square { width: 5px; height: 5px; background: var(--yellow); }
+
+    .hero-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(2.8rem, 9vw, 7.5rem);
+      font-weight: 900; line-height: .88; letter-spacing: -.02em;
+      color: var(--white);
+      text-shadow: 0 0 25px rgba(0,245,255,.5), 0 0 55px rgba(0,245,255,.25);
+      position: relative;
+      opacity: 0; animation: aTitle 1.3s cubic-bezier(.16,1,.3,1) .5s forwards;
+    }
+
+    /* Glitch layers */
+    .glitch-wrap { position: relative; display: block; }
+    .glitch-wrap::before, .glitch-wrap::after {
+      content: attr(data-text);
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      clip-path: inset(0 0 100% 0);
+    }
+    .glitch-wrap::before {
+      color: var(--cyan); left: 3px;
+      animation: gc1 5s infinite linear;
+    }
+    .glitch-wrap::after {
+      color: var(--mag); left: -3px;
+      animation: gc2 5s infinite linear;
+    }
+    @keyframes gc1 {
+      0%,72%,100% { clip-path: inset(0 0 100% 0); transform: none; }
+      73% { clip-path: inset(5% 0 75% 0);  transform: translateX(5px);  }
+      75% { clip-path: inset(55% 0 20% 0); transform: translateX(-5px); }
+      77% { clip-path: inset(28% 0 50% 0); transform: translateX(3px);  }
+      79% { clip-path: inset(0 0 100% 0); }
+      86% { clip-path: inset(62% 0 10% 0); transform: translateX(-4px); }
+      88% { clip-path: inset(0 0 100% 0); }
+      92% { clip-path: inset(38% 0 40% 0); transform: translateX(6px);  }
+      94% { clip-path: inset(0 0 100% 0); }
+    }
+    @keyframes gc2 {
+      0%,28%,58%,100% { clip-path: inset(0 0 100% 0); transform: none; }
+      29% { clip-path: inset(60% 0 18% 0); transform: translateX(-6px); }
+      31% { clip-path: inset(18% 0 65% 0); transform: translateX(6px);  }
+      33% { clip-path: inset(0 0 100% 0); }
+      59% { clip-path: inset(35% 0 45% 0); transform: translateX(4px);  }
+      61% { clip-path: inset(72% 0 8% 0);  transform: translateX(-4px); }
+      63% { clip-path: inset(0 0 100% 0); }
+    }
+    @keyframes aTitle {
+      from { opacity:0; transform:scale(.88); filter:blur(22px); }
+      to   { opacity:1; transform:scale(1);   filter:blur(0); }
+    }
+    @keyframes aFade { from{opacity:0} to{opacity:1} }
+
+    .hero-year {
+      display: block;
+      font-size: clamp(4.5rem, 17vw, 14rem);
+      line-height: .82;
+      background: linear-gradient(140deg, var(--cyan) 0%, var(--mag) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 35px rgba(0,245,255,.45));
+    }
+
+    .hero-sub {
+      font-size: .95rem; letter-spacing: .3em; text-transform: uppercase;
+      color: rgba(232,244,248,.38); margin-top: 2rem;
+      opacity: 0; animation: aFade 1s ease 1.3s forwards;
+    }
+    .hero-badges {
+      display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap;
+      margin-top: 2.2rem;
+      opacity: 0; animation: aFade 1s ease 1.6s forwards;
+    }
+    .hbadge {
+      font-size: .6rem; letter-spacing: .28em; text-transform: uppercase;
+      padding: .32rem 1rem; border: 1px solid;
+    }
+    .hb-c { border-color: rgba(0,245,255,.3);  color: var(--cyan); }
+    .hb-m { border-color: rgba(255,0,170,.3);  color: var(--mag);  }
+    .hb-y { border-color: rgba(255,230,0,.3);  color: var(--yellow); }
+
+    .hero-btns {
+      display: flex; gap: 1rem; justify-content: center; margin-top: 2.8rem;
+      opacity: 0; animation: aFade 1s ease 1.9s forwards;
+    }
+    .btn {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: .78rem; letter-spacing: .2em; text-transform: uppercase;
+      font-weight: 700; padding: .82rem 2.2rem;
+      text-decoration: none; cursor: none; transition: all .3s;
+      position: relative; overflow: hidden;
+    }
+    .btn::before {
+      content: ''; position: absolute; top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);
+      transition: left .5s;
+    }
+    .btn:hover::before { left: 100%; }
+    .btn-c {
+      background: transparent; color: var(--cyan);
+      border: 1px solid var(--cyan);
+      box-shadow: 0 0 18px rgba(0,245,255,.18), inset 0 0 18px rgba(0,245,255,.04);
+    }
+    .btn-c:hover {
+      background: rgba(0,245,255,.1);
+      box-shadow: 0 0 40px rgba(0,245,255,.4), inset 0 0 30px rgba(0,245,255,.1);
+      transform: translateY(-2px);
+    }
+    .btn-s {
+      background: var(--cyan); color: #060609; font-weight: 900; border: none;
+    }
+    .btn-s:hover {
+      background: var(--mag);
+      box-shadow: 0 0 40px rgba(255,0,170,.5);
+      transform: translateY(-2px);
+    }
+
+    .hero-scroll {
+      position: absolute; bottom: 2.4rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: .5rem;
+      opacity: 0; animation: aFade 1s ease 2.4s forwards;
+    }
+    .hero-scroll span {
+      font-size: .56rem; letter-spacing: .45em; text-transform: uppercase;
+      color: rgba(232,244,248,.2);
+    }
+    .scroll-bar {
+      width: 1px; height: 44px;
+      background: linear-gradient(to bottom, var(--cyan), transparent);
+      position: relative; overflow: hidden;
+    }
+    .scroll-bar::after {
+      content: ''; position: absolute; top: -100%; left: 0;
+      width: 100%; height: 100%;
+      background: linear-gradient(to bottom,transparent,var(--cyan),transparent);
+      animation: sDrop 2s ease infinite;
+    }
+    @keyframes sDrop { from{top:-100%} to{top:200%} }
+
+    /* ── STATS ── */
+    .stats-wrap {
+      border-top: 1px solid rgba(0,245,255,.08);
+      border-bottom: 1px solid rgba(0,245,255,.08);
+      background: rgba(0,245,255,.02);
+      padding: 4.5rem 2rem;
+    }
+    .stats-row {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 1px; background: rgba(0,245,255,.06);
+      border: 1px solid rgba(0,245,255,.06);
+      max-width: 900px; margin: 0 auto;
+    }
+    .sbox {
+      background: var(--bg); text-align: center;
+      padding: 2.5rem 1rem; transition: background .3s;
+    }
+    .sbox:hover { background: rgba(0,245,255,.04); }
+    .snum {
+      font-family: 'Orbitron', monospace;
+      font-size: 2.6rem; font-weight: 900;
+      color: var(--cyan);
+      text-shadow: 0 0 18px var(--cyan), 0 0 38px rgba(0,245,255,.28);
+    }
+    .slbl {
+      font-size: .62rem; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--tdim); margin-top: .5rem;
+    }
+
+    /* ── CHARACTERS ── */
+    .chars-sec {
+      padding: 7rem 2rem;
+      background: linear-gradient(180deg, var(--bg) 0%, #07080f 50%, var(--bg) 100%);
+    }
+    .sec-head { text-align: center; margin-bottom: 4.5rem; }
+    .sec-label {
+      font-size: .62rem; letter-spacing: .5em; text-transform: uppercase;
+      color: var(--cyan); margin-bottom: 1rem;
+      text-shadow: 0 0 10px var(--cyan);
+    }
+    .sec-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 900; line-height: 1.05;
+    }
+
+    .chars-grid {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 1.2rem; max-width: 1200px; margin: 0 auto;
+    }
+    .ccard {
+      position: relative; overflow: hidden;
+      aspect-ratio: 3/4; border: 1px solid transparent;
+      cursor: none; background: rgba(6,6,9,.9);
+      transition: transform .5s cubic-bezier(.34,1.56,.64,1), box-shadow .5s;
+    }
+    .ccard:hover { transform: translateY(-16px) scale(1.02); }
+
+    /* corner brackets */
+    .ccard::before, .ccard::after {
+      content: ''; position: absolute;
+      width: 18px; height: 18px; z-index: 10;
+      transition: width .3s, height .3s;
+    }
+    .ccard::before { top: 8px; left: 8px; border-top: 2px solid; border-left: 2px solid; }
+    .ccard::after  { bottom: 8px; right: 8px; border-bottom: 2px solid; border-right: 2px solid; }
+    .ccard:hover::before, .ccard:hover::after { width: 26px; height: 26px; }
+
+    .ccard-img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: contain; object-position: bottom center;
+      filter: drop-shadow(0 0 12px rgba(0,0,0,.7));
+      transition: transform .6s ease, filter .4s;
+    }
+    .ccard:hover .ccard-img {
+      transform: scale(1.06);
+      filter: drop-shadow(0 0 22px rgba(0,0,0,.8)) brightness(1.06);
+    }
+    .ccard-tint {
+      position: absolute; inset: 0;
+      pointer-events: none; z-index: 3;
+      background: linear-gradient(to top, rgba(0,0,0,.82) 0%, rgba(0,0,0,.12) 50%, transparent 100%);
+      transition: opacity .4s;
+    }
+
+    .ccard-scan {
+      position: absolute; left: 0; right: 0; height: 3px;
+      background: rgba(255,255,255,.15);
+      transform: translateY(-100%); pointer-events: none; z-index: 8;
+    }
+    .ccard:hover .ccard-scan { animation: scanLine .7s ease forwards; }
+    @keyframes scanLine {
+      from { transform: translateY(-5px); top: 0; }
+      to   { transform: translateY(0);    top: 100%; }
+    }
+
+    .ccard-info {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 1.5rem 1.3rem; z-index: 5;
+      background: linear-gradient(to top,rgba(6,6,9,.98) 0%,rgba(6,6,9,.55) 65%,transparent 100%);
+    }
+    .ccard-id   { font-size: .56rem; letter-spacing: .38em; text-transform: uppercase; opacity: .35; margin-bottom: .35rem; }
+    .ccard-name { font-family: 'Orbitron', monospace; font-size: 1.15rem; font-weight: 800; line-height: 1.1; }
+    .ccard-role { font-size: .7rem; letter-spacing: .15em; text-transform: uppercase; opacity: .45; margin-top: .35rem; }
+    .ccard-tags { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .7rem; }
+    .ctag {
+      font-size: .54rem; letter-spacing: .14em; text-transform: uppercase;
+      padding: .16rem .55rem; border: 1px solid;
+    }
+
+    /* ── CARD OPEN HINT ── */
+    .ccard-open {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 6;
+      display: flex; align-items: center; justify-content: center;
+      padding: .6rem;
+      font-family: 'Orbitron', monospace;
+      font-size: .55rem; letter-spacing: .35em; text-transform: uppercase;
+      background: rgba(0,0,0,.0); color: transparent;
+      transition: background .35s, color .35s, padding .35s;
+      pointer-events: none;
+    }
+    .ccard:hover .ccard-open {
+      background: rgba(0,0,0,.55);
+      padding: .85rem;
+    }
+    .cv:hover .ccard-open  { color: var(--cyan);   text-shadow: 0 0 10px var(--cyan); }
+    .cj:hover .ccard-open  { color: #ff1a4a;       text-shadow: 0 0 10px #ff1a4a; }
+    .cju:hover .ccard-open { color: var(--yellow);  text-shadow: 0 0 10px var(--yellow); }
+    .cpa:hover .ccard-open { color: var(--orange);  text-shadow: 0 0 10px var(--orange); }
+
+    .cv { border-color: rgba(0,245,255,.28); }
+    .cv:hover { box-shadow: 0 20px 80px rgba(0,245,255,.18); border-color: rgba(0,245,255,.65); }
+    .cv::before, .cv::after { border-color: var(--cyan); }
+    .cv .ccard-tint { background: linear-gradient(to top, rgba(0,0,0,.9) 0%, rgba(0,245,255,.07) 55%, transparent 100%); }
+    .cv .ccard-name { color: var(--cyan); text-shadow: 0 0 18px var(--cyan); }
+    .cv .ctag { border-color: rgba(0,245,255,.35); color: var(--cyan); }
+
+    .cj { border-color: rgba(255,0,170,.28); }
+    .cj:hover { box-shadow: 0 20px 80px rgba(255,0,170,.18); border-color: rgba(255,0,170,.65); }
+    .cj::before, .cj::after { border-color: var(--mag); }
+    .cj .ccard-tint { background: linear-gradient(to top, rgba(0,0,0,.9) 0%, rgba(255,0,170,.07) 55%, transparent 100%); }
+    .cj .ccard-name { color: var(--mag); text-shadow: 0 0 18px var(--mag); }
+    .cj .ctag { border-color: rgba(255,0,170,.35); color: var(--mag); }
+
+    .cju { border-color: rgba(255,230,0,.28); }
+    .cju:hover { box-shadow: 0 20px 80px rgba(255,230,0,.14); border-color: rgba(255,230,0,.65); }
+    .cju::before, .cju::after { border-color: var(--yellow); }
+    .cju .ccard-tint { background: linear-gradient(to top, rgba(0,0,0,.9) 0%, rgba(255,230,0,.06) 55%, transparent 100%); }
+    .cju .ccard-name { color: var(--yellow); text-shadow: 0 0 18px var(--yellow); }
+    .cju .ctag { border-color: rgba(255,230,0,.35); color: var(--yellow); }
+
+    .cpa { border-color: rgba(255,107,0,.28); }
+    .cpa:hover { box-shadow: 0 20px 80px rgba(255,107,0,.18); border-color: rgba(255,107,0,.65); }
+    .cpa::before, .cpa::after { border-color: var(--orange); }
+    .cpa .ccard-tint { background: linear-gradient(to top, rgba(0,0,0,.9) 0%, rgba(255,107,0,.07) 55%, transparent 100%); }
+    .cpa .ccard-name { color: var(--orange); text-shadow: 0 0 18px var(--orange); }
+    .cpa .ctag { border-color: rgba(255,107,0,.35); color: var(--orange); }
+
+    /* ── DYNAMIC CARD COLOR SYSTEM ── */
+    .ccard-dyn { --cc: #00f5ff; border-color: color-mix(in srgb, var(--cc) 28%, transparent); }
+    .ccard-dyn:hover { box-shadow: 0 20px 80px color-mix(in srgb, var(--cc) 18%, transparent); border-color: color-mix(in srgb, var(--cc) 65%, transparent); }
+    .ccard-dyn::before,.ccard-dyn::after { border-color: var(--cc); }
+    .ccard-dyn .ccard-tint { background: linear-gradient(to top, rgba(0,0,0,.9) 0%, color-mix(in srgb, var(--cc) 8%, transparent) 55%, transparent 100%); }
+    .ccard-dyn .ccard-name { color: var(--cc); text-shadow: 0 0 18px var(--cc); }
+    .ccard-dyn .ctag { border-color: color-mix(in srgb, var(--cc) 35%, transparent); color: var(--cc); }
+    .ccard-dyn:hover .ccard-open { color: var(--cc); text-shadow: 0 0 10px var(--cc); }
+
+    /* ── SHOW MORE ── */
+    .ccard.more { display: none; }
+    .show-more-wrap { text-align: center; margin-top: 3.5rem; }
+    .show-more-btn {
+      font-family: 'Orbitron', monospace;
+      font-size: .72rem; letter-spacing: .3em; text-transform: uppercase;
+      font-weight: 700; padding: 1.1rem 3.5rem;
+      background: transparent; color: var(--cyan);
+      border: 1px solid rgba(0,245,255,.35);
+      box-shadow: 0 0 20px rgba(0,245,255,.08), inset 0 0 20px rgba(0,245,255,.03);
+      cursor: none; transition: all .4s; position: relative; overflow: hidden;
+    }
+    .show-more-btn::before {
+      content:''; position:absolute; top:0; left:-100%;
+      width:100%; height:100%;
+      background:linear-gradient(90deg,transparent,rgba(0,245,255,.12),transparent);
+      transition:left .5s;
+    }
+    .show-more-btn:hover::before { left:100%; }
+    .show-more-btn:hover {
+      background: rgba(0,245,255,.07);
+      box-shadow: 0 0 45px rgba(0,245,255,.28), inset 0 0 30px rgba(0,245,255,.07);
+      border-color: rgba(0,245,255,.75);
+    }
+
+    /* ── NIGHT CITY ── */
+    .city-sec { padding: 7rem 2rem; background: var(--bg); }
+    .city-grid {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 1rem; max-width: 1200px; margin: 0 auto;
+    }
+    .lcrd {
+      position: relative; overflow: hidden;
+      aspect-ratio: 16/9; border: 1px solid rgba(0,245,255,.1);
+      cursor: none;
+      transition: transform .4s, border-color .4s, box-shadow .4s;
+    }
+    .lcrd-wide { grid-column: span 2; }
+    .lcrd:hover {
+      transform: scale(1.02);
+      border-color: rgba(0,245,255,.4);
+      box-shadow: 0 0 50px rgba(0,245,255,.1);
+    }
+    .lcrd-img {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: brightness(.5) saturate(1.3) contrast(1.1);
+      transition: filter .4s, transform .4s;
+    }
+    .lcrd:hover .lcrd-img { filter: brightness(.65) saturate(1.5) contrast(1.15); transform: scale(1.06); }
+    .lcrd-neon {
+      position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(135deg,
+        rgba(0,245,255,.1) 0%, transparent 40%,
+        rgba(255,0,170,.08) 100%);
+    }
+    .lcrd-info {
+      position: absolute; bottom: 0; left: 0; right: 0; padding: 1.4rem;
+      background: linear-gradient(to top,rgba(6,6,9,.95) 0%,transparent 100%);
+    }
+    .lcrd-dist { font-size: .56rem; letter-spacing: .38em; text-transform: uppercase; color: var(--cyan); opacity: .7; }
+    .lcrd-name { font-family: 'Orbitron', monospace; font-size: 1.05rem; font-weight: 700; margin-top: .25rem; }
+    .lcrd-desc { font-size: .72rem; color: rgba(232,244,248,.4); margin-top: .35rem; }
+    .lcrd-tag {
+      display: inline-block; margin-top: .5rem; padding: .2rem .55rem;
+      font-size: .52rem; letter-spacing: .22em; text-transform: uppercase;
+      border: 1px solid; border-radius: 2px; opacity: .7;
+    }
+
+    /* ── GANGS ── */
+    .gangs-sec {
+      padding: 7rem 2rem;
+      background: linear-gradient(180deg, var(--bg) 0%, #040407 50%, var(--bg) 100%);
+      position: relative; overflow: hidden;
+    }
+    .gangs-sec::before {
+      content: 'GANG';
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      font-family: 'Orbitron', monospace; font-size: 28vw; font-weight: 900;
+      color: rgba(255,0,170,.014); pointer-events: none; user-select: none; letter-spacing: -.04em;
+    }
+    .gangs-grid {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 1rem; max-width: 1200px; margin: 0 auto;
+    }
+    .gang-card {
+      position: relative; overflow: hidden;
+      padding: 1.6rem 1.4rem 1.4rem;
+      border: 1px solid; cursor: none;
+      background: rgba(6,6,9,.92);
+      transition: transform .4s cubic-bezier(.34,1.56,.64,1), box-shadow .4s;
+      --gc: #00f5ff;
+      border-color: color-mix(in srgb, var(--gc) 22%, transparent);
+    }
+    .gang-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 60px color-mix(in srgb, var(--gc) 18%, transparent);
+      border-color: color-mix(in srgb, var(--gc) 55%, transparent);
+    }
+    .gang-card::before, .gang-card::after {
+      content: ''; position: absolute; width: 14px; height: 14px; transition: width .3s, height .3s;
+    }
+    .gang-card::before { top: 6px; left: 6px; border-top: 2px solid var(--gc); border-left: 2px solid var(--gc); }
+    .gang-card::after  { bottom: 6px; right: 6px; border-bottom: 2px solid var(--gc); border-right: 2px solid var(--gc); }
+    .gang-card:hover::before, .gang-card:hover::after { width: 22px; height: 22px; }
+    .gang-accent { width: 28px; height: 2px; background: var(--gc); box-shadow: 0 0 8px var(--gc); margin-bottom: 1.1rem; }
+    .gang-district { font-size: .54rem; letter-spacing: .38em; text-transform: uppercase; color: var(--gc); opacity: .65; margin-bottom: .4rem; }
+    .gang-name { font-family: 'Orbitron', monospace; font-size: 1.05rem; font-weight: 800; color: var(--gc); text-shadow: 0 0 14px var(--gc); margin-bottom: .6rem; line-height: 1.15; }
+    .gang-desc { font-size: .72rem; line-height: 1.7; color: rgba(232,244,248,.5); }
+    .gang-tag { display: inline-block; margin-top: .8rem; font-size: .52rem; letter-spacing: .2em; text-transform: uppercase; padding: .18rem .55rem; border: 1px solid color-mix(in srgb, var(--gc) 35%, transparent); color: var(--gc); opacity: .7; }
+    .gang-glow { position: absolute; bottom: -20px; right: -20px; width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--gc) 10%, transparent) 0%, transparent 70%); pointer-events: none; }
+    .gangs-cta { text-align: center; margin-top: 3.5rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 4.5rem 2rem 2.5rem; text-align: center;
+      border-top: 1px solid rgba(0,245,255,.08);
+    }
+    .foot-logo {
+      font-family: 'Orbitron', monospace; font-size: 1.7rem; font-weight: 900; letter-spacing: .08em;
+      color: var(--cyan); text-shadow: 0 0 28px var(--cyan), 0 0 55px rgba(0,245,255,.28);
+    }
+    .foot-logo span { color: var(--yellow); text-shadow: 0 0 22px var(--yellow); }
+    .foot-sub { font-size: .65rem; letter-spacing: .4em; text-transform: uppercase; color: var(--tdim); margin-top: .5rem; }
+    .foot-div { width: 55px; height: 1px; margin: 1.8rem auto; background: linear-gradient(to right,transparent,var(--cyan),transparent); }
+    .foot-nav { display: flex; gap: 2.5rem; justify-content: center; list-style: none; margin-bottom: 2rem; }
+    .foot-nav a { font-size: .68rem; letter-spacing: .2em; text-transform: uppercase; color: var(--tdim); text-decoration: none; transition: color .3s; }
+    .foot-nav a:hover { color: var(--cyan); }
+    .foot-copy { font-size: .58rem; color: rgba(58,80,96,.4); letter-spacing: .08em; }
+
+    /* ── REVEAL ── */
+    .rv { opacity:0; transform:translateY(36px); transition:opacity .9s ease, transform .9s cubic-bezier(.16,1,.3,1); }
+    .rv.in { opacity:1; transform:none; }
+    .d1{transition-delay:.1s} .d2{transition-delay:.2s} .d3{transition-delay:.3s} .d4{transition-delay:.4s}
+
+    /* ── HAMBURGER ── */
+    .nav-burger {
+      display: none; flex-direction: column; justify-content: center; gap: 5px;
+      background: none; border: 1px solid rgba(0,245,255,.22); padding: .45rem .58rem;
+      cursor: none; z-index: 601;
+    }
+    .nav-burger span { display: block; width: 18px; height: 1.5px; background: var(--cyan); transition: transform .3s, opacity .3s; }
+    .nav-burger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .nav-burger.open span:nth-child(2) { opacity: 0; }
+    .nav-burger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    /* ── MOBILE NAV OVERLAY ── */
+    .mob-nav {
+      position: fixed; inset: 0; z-index: 600;
+      background: rgba(4,4,7,.98);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2.5rem;
+      opacity: 0; pointer-events: none;
+      transition: opacity .35s;
+    }
+    .mob-nav.open { opacity: 1; pointer-events: all; }
+    .mob-nav a {
+      font-family: 'Orbitron', monospace; font-size: 1.1rem; letter-spacing: .28em; text-transform: uppercase;
+      color: rgba(232,244,248,.45); text-decoration: none; transition: color .3s, text-shadow .3s;
+    }
+    .mob-nav a:hover { color: var(--cyan); text-shadow: 0 0 22px var(--cyan); }
+    .mob-nav-close {
+      position: absolute; top: 1.4rem; right: 1.6rem;
+      font-family: 'Orbitron', monospace; font-size: .6rem; letter-spacing: .3em;
+      background: none; border: 1px solid rgba(0,245,255,.22); color: rgba(0,245,255,.5);
+      padding: .38rem .9rem; cursor: none; transition: all .3s;
+    }
+    .mob-nav-close:hover { color: var(--cyan); border-color: var(--cyan); }
+
+    @media (max-width: 960px) {
+      .chars-grid { grid-template-columns: repeat(2,1fr); }
+      .city-grid  { grid-template-columns: repeat(2,1fr); }
+      .lcrd-wide  { grid-column: span 2; }
+      .stats-row  { grid-template-columns: repeat(2,1fr); }
+      nav ul { display: none; }
+      nav { padding: 1rem 1.5rem; }
+      .nav-burger { display: flex; }
+      .net-status { display: none; }
+      .gangs-grid { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 520px) {
+      .chars-grid { grid-template-columns: 1fr; }
+      .city-grid  { grid-template-columns: 1fr; }
+      .lcrd-wide  { grid-column: span 1; }
+      .gangs-grid { grid-template-columns: 1fr; }
+      .hero-btns  { flex-direction: column; align-items: center; }
+      .stats-row  { grid-template-columns: repeat(2,1fr); }
+    }
+
+    /* ── MUSIC PLAYER ── */
+    .mp-wrap {
+      position: fixed; bottom: 1.8rem; left: 1.8rem; z-index: 9999;
+      width: 270px;
+      background: rgba(4,4,7,.92);
+      border: 1px solid rgba(0,245,255,.22);
+      box-shadow: 0 0 30px rgba(0,245,255,.07), inset 0 0 20px rgba(0,0,0,.4);
+      backdrop-filter: blur(14px);
+      font-family: 'Rajdhani', sans-serif;
+      transition: box-shadow .4s;
+    }
+    .mp-wrap.playing {
+      border-color: rgba(0,245,255,.5);
+      box-shadow: 0 0 40px rgba(0,245,255,.15), 0 0 80px rgba(0,245,255,.05);
+    }
+    .mp-top {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .75rem 1rem;
+    }
+    .mp-btn {
+      flex-shrink: 0; width: 36px; height: 36px;
+      border: 1px solid rgba(0,245,255,.4); background: transparent;
+      color: var(--cyan); font-size: .9rem; cursor: none;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .3s, box-shadow .3s;
+    }
+    .mp-btn:hover {
+      background: rgba(0,245,255,.1);
+      box-shadow: 0 0 14px rgba(0,245,255,.3);
+    }
+    .mp-info { flex: 1; min-width: 0; }
+    .mp-title-wrap { overflow: hidden; white-space: nowrap; }
+    .mp-title {
+      display: inline-block;
+      font-family: 'Orbitron', monospace; font-size: .52rem;
+      font-weight: 700; letter-spacing: .12em; color: var(--cyan);
+    }
+    .mp-title.scrolling { animation: mpScroll 12s linear infinite; }
+    @keyframes mpScroll {
+      0%   { transform: translateX(0); }
+      30%  { transform: translateX(0); }
+      70%  { transform: translateX(var(--scroll-dist, -60px)); }
+      100% { transform: translateX(var(--scroll-dist, -60px)); }
+    }
+    .mp-artist { font-size: .58rem; letter-spacing: .14em; color: var(--tdim); margin-top: .15rem; }
+    .mp-bars {
+      flex-shrink: 0; display: flex; align-items: flex-end; gap: 2px; height: 18px;
+    }
+    .mp-bars span {
+      display: block; width: 3px; background: var(--cyan);
+      border-radius: 1px; height: 4px;
+      transition: height .1s;
+    }
+    .mp-wrap.playing .mp-bars span:nth-child(1) { animation: bar 0.8s ease-in-out infinite; }
+    .mp-wrap.playing .mp-bars span:nth-child(2) { animation: bar 0.6s ease-in-out infinite .1s; }
+    .mp-wrap.playing .mp-bars span:nth-child(3) { animation: bar 1.0s ease-in-out infinite .2s; }
+    .mp-wrap.playing .mp-bars span:nth-child(4) { animation: bar 0.7s ease-in-out infinite .05s; }
+    .mp-wrap.playing .mp-bars span:nth-child(5) { animation: bar 0.9s ease-in-out infinite .15s; }
+    @keyframes bar {
+      0%,100% { height: 4px; }
+      50%      { height: 16px; opacity: .9; }
+    }
+    .mp-prog {
+      height: 2px; background: rgba(0,245,255,.08);
+      position: relative; overflow: hidden;
+    }
+    .mp-prog-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(to right, var(--cyan), var(--mag));
+      transition: width .5s linear;
+    }
+    .mp-label {
+      font-size: .44rem; letter-spacing: .3em; text-transform: uppercase;
+      color: rgba(0,245,255,.35); padding: .3rem 1rem;
+      border-top: 1px solid rgba(0,245,255,.06);
+    }
+  </style>
+</head>
+<body>
+
+<div class="scanlines"></div>
+<div class="crt-vignette"></div>
+
+<!-- Cursor -->
+<div class="cur-dot"  id="cDot"></div>
+<div class="cur-h"    id="cH"></div>
+<div class="cur-v"    id="cV"></div>
+<div class="cur-ring" id="cRing"></div>
+
+<!-- MOBILE NAV OVERLAY -->
+<div class="mob-nav" id="mobNav">
+  <button class="mob-nav-close" id="mobNavClose">✕ ЗАКРЫТЬ</button>
+  <a href="#chars" class="mob-nav-link">Персонажи</a>
+  <a href="#city" class="mob-nav-link">Night City</a>
+  <a href="rippers.html" class="mob-nav-link">Риперы</a>
+  <a href="weapons.html" class="mob-nav-link">Оружие</a>
+  <a href="cyberware.html" class="mob-nav-link">Киберимпланты</a>
+  <a href="gangs.html" class="mob-nav-link">Банды</a>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">CYBER<span>PUNK</span>&nbsp;2077</div>
+  <ul>
+    <li><a href="#chars">Персонажи</a></li>
+    <li><a href="#city">Night City</a></li>
+    <li><a href="rippers.html">Риперы</a></li>
+    <li><a href="weapons.html">Оружие</a></li>
+    <li><a href="cyberware.html">Киберимпланты</a></li>
+    <li><a href="gangs.html">Банды</a></li>
+  </ul>
+  <div style="display:flex;align-items:center;gap:.8rem">
+    <div class="net-status"><div class="net-dot"></div>NET_ONLINE</div>
+    <button class="nav-burger" id="navBurger" aria-label="Меню">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <canvas id="rain"></canvas>
+  <div class="hero-grid-lines"></div>
+  <div class="hero-glow-l"></div>
+  <div class="hero-glow-r"></div>
+
+  <div class="hero-content">
+    <div class="hero-chip"><div class="chip-square"></div>WAKE THE F*CK UP, SAMURAI</div>
+
+    <h1 class="hero-title">
+      <span class="glitch-wrap" data-text="CYBERPUNK">CYBERPUNK</span>
+      <span class="hero-year">2077</span>
+    </h1>
+
+    <p class="hero-sub">Мы сожжём этот мир дотла</p>
+
+    <div class="hero-badges">
+      <span class="hbadge hb-c">NIGHT CITY</span>
+      <span class="hbadge hb-m">CORPO · STREET KID · NOMAD</span>
+      <span class="hbadge hb-y">// SAMURAI //</span>
+    </div>
+
+    <div class="hero-btns">
+      <a href="#chars" class="btn btn-s">Войти в сеть</a>
+      <a href="gangs.html" class="btn btn-c">// Банды</a>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <span>SCROLL</span>
+    <div class="scroll-bar"></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-wrap">
+  <div class="stats-row">
+    <div class="sbox rv">
+      <div class="snum" data-target="77"  data-sfx="">0</div>
+      <div class="slbl">Districts of Night City</div>
+    </div>
+    <div class="sbox rv d1">
+      <div class="snum" data-target="500" data-sfx="+">0</div>
+      <div class="slbl">Уникальных заданий</div>
+    </div>
+    <div class="sbox rv d2">
+      <div class="snum" data-target="50"  data-sfx="+">0</div>
+      <div class="slbl">Видов оружия</div>
+    </div>
+    <div class="sbox rv d3">
+      <div class="snum" data-target="13"  data-sfx="M">0</div>
+      <div class="slbl">Миллионов копий продано</div>
+    </div>
+  </div>
+</div>
+
+<!-- CHARACTERS -->
+<section class="chars-sec" id="chars">
+  <div class="sec-head">
+    <div class="sec-label rv">// IDENT — ПЕРСОНАЖИ</div>
+    <h2 class="sec-title rv d1">ЖИТЕЛИ <span style="color:var(--cyan);text-shadow:0 0 18px var(--cyan)">НАЙТ СИТИ</span></h2>
+  </div>
+
+  <div class="chars-grid">
+    <!-- V -->
+    <div class="ccard cv rv d1" onclick="location.href='v.html'">
+      <img class="ccard-img" src="https://www.cyberpunk.net/build/images/cosplay-guides/b10eb16531-413ded7a.png" alt="V">
+      <div class="ccard-tint"></div>
+      <div class="ccard-scan"></div>
+      <div class="ccard-info">
+        <div class="ccard-id">// ID-001 · ACTIVE</div>
+        <div class="ccard-name">V</div>
+        <div class="ccard-role">Наёмник · Night City</div>
+        <div class="ccard-tags">
+          <span class="ctag">Нетраннер</span>
+          <span class="ctag">Техник</span>
+          <span class="ctag">Соло</span>
+        </div>
+      </div>
+      <div class="ccard-open">// ОТКРЫТЬ ДОСЬЕ</div>
+    </div>
+
+    <!-- JOHNNY -->
+    <div class="ccard cj rv d2" onclick="location.href='johnny.html'">
+      <img class="ccard-img" src="https://www.cyberpunk.net/build/images/cosplay-guides/05da9d5874-2b9f289a.png" alt="Johnny Silverhand">
+      <div class="ccard-tint"></div>
+      <div class="ccard-scan"></div>
+      <div class="ccard-info">
+        <div class="ccard-id">// ID-002 · ENGRAM</div>
+        <div class="ccard-name">JOHNNY<br>SILVERHAND</div>
+        <div class="ccard-role">Рокербой · Легенда</div>
+        <div class="ccard-tags">
+          <span class="ctag">Милитех</span>
+          <span class="ctag">Samurai</span>
+          <span class="ctag">Призрак</span>
+        </div>
+      </div>
+      <div class="ccard-open">// ОТКРЫТЬ ДОСЬЕ</div>
+    </div>
+
+    <!-- JUDY -->
+    <div class="ccard cju rv d3" onclick="location.href='judy.html'">
+      <img class="ccard-img" src="https://www.cyberpunk.net/build/images/cosplay-guides/c6a1ca47b6-91c3eb1b.png" alt="Judy Alvarez">
+      <div class="ccard-tint"></div>
+      <div class="ccard-scan"></div>
+      <div class="ccard-info">
+        <div class="ccard-id">// ID-003 · ONLINE</div>
+        <div class="ccard-name">JUDY<br>ALVAREZ</div>
+        <div class="ccard-role">Брейндансер · Мокс</div>
+        <div class="ccard-tags">
+          <span class="ctag">BD-Техник</span>
+          <span class="ctag">Хакер</span>
+          <span class="ctag">Мокс</span>
+        </div>
+      </div>
+      <div class="ccard-open">// ОТКРЫТЬ ДОСЬЕ</div>
+    </div>
+
+    <!-- PANAM -->
+    <div class="ccard cpa rv d4" onclick="location.href='panam.html'">
+      <img class="ccard-img" src="https://www.cyberpunk.net/build/images/cosplay-guides/117c240d49-be31687e.png" alt="Panam Palmer">
+      <div class="ccard-tint"></div>
+      <div class="ccard-scan"></div>
+      <div class="ccard-info">
+        <div class="ccard-id">// ID-004 · NOMAD</div>
+        <div class="ccard-name">PANAM<br>PALMER</div>
+        <div class="ccard-role">Номад · Альдекальдо</div>
+        <div class="ccard-tags">
+          <span class="ctag">Снайпер</span>
+          <span class="ctag">Водитель</span>
+          <span class="ctag">Кочевник</span>
+        </div>
+      </div>
+      <div class="ccard-open">// ОТКРЫТЬ ДОСЬЕ</div>
+    </div>
+
+    <!-- JACKIE -->
+    <div class="ccard ccard-dyn more rv d1" style="--cc:#ff5500" onclick="location.href='jackie.html'">
+      <img class="ccard-img" src="https://www.cyberpunk.net/build/images/cosplay-guides/81a57538be-5ffc06b3.png" alt="Jackie Welles">
+      <div class="ccard-tint"></div><div class="ccard-scan"></div>
+      <div class="ccard-info">
+        <div class="ccard-id">// ID-005 · KIA</div>
+        <div class="ccard-name">JACKIE<br>WELLES</div>
+        <div class="ccard-role">Наёмник · Хейвуд</div>
+        <div class="ccard-tags"><span class="ctag">Соло</span><span class="ctag">Боец</span><span class="ctag">Верный</span></div>
+      </div>
+      <div class="ccard-open">// ОТКРЫТЬ ДОСЬЕ</div>
+    </div>
+
+    <!-- ROGUE -->
+    <div class="ccard ccard-dyn more rv d2" style="--cc:#9944ff" onclick="location.href='rogue.html'">
+      <img class="ccard-img" src="https://www.cyberpunk.net/build/images/cosplay-guides/4ae3f10f9a-9b80c7c6.png" alt="Rogue Amendiares">
+      <div class="ccard-tint"></div><div class="ccard-scan"></div>
+      <div class="ccard-info">
+        <div class="ccard-id">// ID-006 · LEGEND</div>
+        <div class="ccard-name">ROGUE<br>AMENDIARES</div>
+        <div class="ccard-role">Фиксер · The Afterlife</div>
+        <div class="ccard-tags"><span class="ctag">Нетраннер</span><span class="ctag">Фиксер</span><span class="ctag">Ветеран</span></div>
+      </div>
+      <div class="ccard-open">// ОТКРЫТЬ ДОСЬЕ</div>
+    </div>
+
+    <!-- VIKTOR -->
+    <div class="ccard ccard-dyn more rv d3" style="--cc:#0099ff" onclick="location.href='viktor.html'">
+      <img class="ccard-img" src="https://www.cyberpunk.net/build/images/cosplay-guides/4e3c1f58d4-a95cb67f.png" alt="Viktor Vector">
+      <div class="ccard-tint"></div><div class="ccard-scan"></div>
+      <div class="ccard-info">
+        <div class="ccard-id">// ID-007 · ACTIVE</div>
+        <div class="ccard-name">VIKTOR<br>VECTOR</div>
+        <div class="ccard-role">Риппердок · Уотсон</div>
+        <div class="ccard-tags"><span class="ctag">Медик</span><span class="ctag">Техник</span><span class="ctag">Союзник</span></div>
+      </div>
+      <div class="ccard-open">// ОТКРЫТЬ ДОСЬЕ</div>
+    </div>
+
+    <!-- RIVER -->
+    <div class="ccard ccard-dyn more rv d4" style="--cc:#44cc22" onclick="location.href='river.html'">
+      <img class="ccard-img" src="https://static.wikia.nocookie.net/cyberpunk/images/6/6f/River_Ward_Infobox_CP2077.png" alt="River Ward">
+      <div class="ccard-tint"></div><div class="ccard-scan"></div>
+      <div class="ccard-info">
+        <div class="ccard-id">// ID-008 · NCPD</div>
+        <div class="ccard-name">RIVER<br>WARD</div>
+        <div class="ccard-role">Детектив · NCPD</div>
+        <div class="ccard-tags"><span class="ctag">Коп</span><span class="ctag">Детектив</span><span class="ctag">Защитник</span></div>
+      </div>
+      <div class="ccard-open">// ОТКРЫТЬ ДОСЬЕ</div>
+    </div>
+
+    <!-- KERRY -->
+    <div class="ccard ccard-dyn more rv d1" style="--cc:#4455ff" onclick="location.href='kerry.html'">
+      <img class="ccard-img" src="https://www.cyberpunk.net/build/images/cosplay-guides/b2f7d28f74-874f3173.png" alt="Kerry Eurodyne">
+      <div class="ccard-tint"></div><div class="ccard-scan"></div>
+      <div class="ccard-info">
+        <div class="ccard-id">// ID-009 · ACTIVE</div>
+        <div class="ccard-name">KERRY<br>EURODYNE</div>
+        <div class="ccard-role">Рокстар · Самурай</div>
+        <div class="ccard-tags"><span class="ctag">Музыкант</span><span class="ctag">Самурай</span><span class="ctag">Легенда</span></div>
+      </div>
+      <div class="ccard-open">// ОТКРЫТЬ ДОСЬЕ</div>
+    </div>
+
+    <!-- TAKEMURA -->
+    <div class="ccard ccard-dyn more rv d2" style="--cc:#cc1111" onclick="location.href='takemura.html'">
+      <img class="ccard-img" src="https://www.cyberpunk.net/build/images/cosplay-guides/6753e3c246-ac063c50.png" alt="Goro Takemura">
+      <div class="ccard-tint"></div><div class="ccard-scan"></div>
+      <div class="ccard-info">
+        <div class="ccard-id">// ID-010 · CORPO</div>
+        <div class="ccard-name">GORO<br>TAKEMURA</div>
+        <div class="ccard-role">Телохранитель · Арасака</div>
+        <div class="ccard-tags"><span class="ctag">Корпо</span><span class="ctag">Честь</span><span class="ctag">Боец</span></div>
+      </div>
+      <div class="ccard-open">// ОТКРЫТЬ ДОСЬЕ</div>
+    </div>
+
+    <!-- MISTY -->
+    <div class="ccard ccard-dyn more rv d3" style="--cc:#ff44aa" onclick="location.href='misty.html'">
+      <img class="ccard-img" src="https://www.cyberpunk.net/build/images/cosplay-guides/d1a0a11b77-308b321e.png" alt="Misty Olszewski">
+      <div class="ccard-tint"></div><div class="ccard-scan"></div>
+      <div class="ccard-info">
+        <div class="ccard-id">// ID-011 · MYSTIC</div>
+        <div class="ccard-name">MISTY<br>OLSZEWSKI</div>
+        <div class="ccard-role">Мистик · Эль Корона</div>
+        <div class="ccard-tags"><span class="ctag">Медик</span><span class="ctag">Провидец</span><span class="ctag">Союзник</span></div>
+      </div>
+      <div class="ccard-open">// ОТКРЫТЬ ДОСЬЕ</div>
+    </div>
+
+    <!-- ADAM SMASHER -->
+    <div class="ccard ccard-dyn more rv d4" style="--cc:#778899" onclick="location.href='adam.html'">
+      <img class="ccard-img" src="https://static.wikia.nocookie.net/cyberpunk/images/5/51/Char_profile_adamsmash2077.png" alt="Adam Smasher">
+      <div class="ccard-tint"></div><div class="ccard-scan"></div>
+      <div class="ccard-info">
+        <div class="ccard-id">// ID-012 · FULL-BORG</div>
+        <div class="ccard-name">ADAM<br>SMASHER</div>
+        <div class="ccard-role">МБТ · Арасака</div>
+        <div class="ccard-tags"><span class="ctag">Киборг</span><span class="ctag">Убийца</span><span class="ctag">Арасака</span></div>
+      </div>
+      <div class="ccard-open">// ОТКРЫТЬ ДОСЬЕ</div>
+    </div>
+
+    <!-- T-BUG -->
+    <div class="ccard ccard-dyn more rv d1" style="--cc:#00ff88" onclick="location.href='tbug.html'">
+      <img class="ccard-img" src="https://static.wikia.nocookie.net/cyberpunk/images/9/9f/T-Bug_Infobox_CP2077.png" alt="T-Bug">
+      <div class="ccard-tint"></div><div class="ccard-scan"></div>
+      <div class="ccard-info">
+        <div class="ccard-id">// ID-013 · FLATLINED</div>
+        <div class="ccard-name">T-BUG</div>
+        <div class="ccard-role">Нетраннер · Призрак</div>
+        <div class="ccard-tags"><span class="ctag">Хакер</span><span class="ctag">Призрак</span><span class="ctag">ICE</span></div>
+      </div>
+      <div class="ccard-open">// ОТКРЫТЬ ДОСЬЕ</div>
+    </div>
+
+    <!-- ALT CUNNINGHAM -->
+    <div class="ccard ccard-dyn more rv d2" style="--cc:#9999ff" onclick="location.href='alt.html'">
+      <img class="ccard-img" src="https://www.cyberpunk.net/build/images/cosplay-guides/34823136d0-0da7c872.png" alt="Alt Cunningham">
+      <div class="ccard-tint"></div><div class="ccard-scan"></div>
+      <div class="ccard-info">
+        <div class="ccard-id">// ID-014 · BLACKWALL</div>
+        <div class="ccard-name">ALT<br>CUNNINGHAM</div>
+        <div class="ccard-role">Нетраннер · ИИ · Blackwall</div>
+        <div class="ccard-tags"><span class="ctag">АИ</span><span class="ctag">Призрак</span><span class="ctag">Сеть</span></div>
+      </div>
+      <div class="ccard-open">// ОТКРЫТЬ ДОСЬЕ</div>
+    </div>
+
+    <!-- EVELYN -->
+    <div class="ccard ccard-dyn more rv d3" style="--cc:#cc2255" onclick="location.href='evelyn.html'">
+      <img class="ccard-img" src="https://www.cyberpunk.net/build/images/cosplay-guides/8fbb8264c5-b3ebcd15.png" alt="Evelyn Parker">
+      <div class="ccard-tint"></div><div class="ccard-scan"></div>
+      <div class="ccard-info">
+        <div class="ccard-id">// ID-015 · DECEASED</div>
+        <div class="ccard-name">EVELYN<br>PARKER</div>
+        <div class="ccard-role">Дольщица · Мокс</div>
+        <div class="ccard-tags"><span class="ctag">Шпион</span><span class="ctag">Мокс</span><span class="ctag">Агент</span></div>
+      </div>
+      <div class="ccard-open">// ОТКРЫТЬ ДОСЬЕ</div>
+    </div>
+
+    <!-- DELAMAIN -->
+    <div class="ccard ccard-dyn more rv d4" style="--cc:#ffc200" onclick="location.href='delamain.html'">
+      <img class="ccard-img" src="https://static.wikia.nocookie.net/cyberpunk/images/d/de/Delamain_Infobox_CP2077.png" alt="Delamain">
+      <div class="ccard-tint"></div><div class="ccard-scan"></div>
+      <div class="ccard-info">
+        <div class="ccard-id">// ID-016 · AI</div>
+        <div class="ccard-name">DELAMAIN</div>
+        <div class="ccard-role">ИИ · Delamain Co.</div>
+        <div class="ccard-tags"><span class="ctag">ИИ</span><span class="ctag">Водитель</span><span class="ctag">Сознание</span></div>
+      </div>
+      <div class="ccard-open">// ОТКРЫТЬ ДОСЬЕ</div>
+    </div>
+  </div>
+
+  <div class="show-more-wrap">
+    <button class="show-more-btn" id="showMoreBtn">// ПОКАЗАТЬ ЕЩЁ — 12 ОПЕРАТИВНИКОВ</button>
+  </div>
+</section>
+
+<!-- NIGHT CITY -->
+<section class="city-sec" id="city">
+  <div class="sec-head">
+    <div class="sec-label rv">// LOCATIONS — РАЙОНЫ</div>
+    <h2 class="sec-title rv d1">ДОБРО ПОЖАЛОВАТЬ <span style="color:var(--mag);text-shadow:0 0 18px var(--mag)">В АД</span></h2>
+  </div>
+  <div class="city-grid">
+
+    <!-- WATSON — spans 2 cols -->
+    <div class="lcrd lcrd-wide rv d1">
+      <img class="lcrd-img" src="districts/watson_hq_comp.jpg" alt="Watson">
+      <div class="lcrd-neon"></div>
+      <div class="lcrd-info">
+        <div class="lcrd-dist">// DISTRICT-01</div>
+        <div class="lcrd-name">WATSON</div>
+        <div class="lcrd-desc">Промышленное гетто. Рынок Кабуки, логово Малестрома.</div>
+        <span class="lcrd-tag" style="color:var(--cyan);border-color:var(--cyan)">Maelstrom · Tyger Claws</span>
+      </div>
+    </div>
+
+    <!-- CITY CENTER -->
+    <div class="lcrd rv d2">
+      <img class="lcrd-img" src="districts/citycenter.jpg" alt="City Center">
+      <div class="lcrd-neon"></div>
+      <div class="lcrd-info">
+        <div class="lcrd-dist">// DISTRICT-02</div>
+        <div class="lcrd-name">CITY CENTER</div>
+        <div class="lcrd-desc">Корпо-сердце. Башни Арасаки над облаками.</div>
+        <span class="lcrd-tag" style="color:#e8f4f8;border-color:#e8f4f8">Corpo · Arasaka</span>
+      </div>
+    </div>
+
+    <!-- WESTBROOK -->
+    <div class="lcrd rv d3">
+      <img class="lcrd-img" src="districts/westbrook.jpg" alt="Westbrook">
+      <div class="lcrd-neon"></div>
+      <div class="lcrd-info">
+        <div class="lcrd-dist">// DISTRICT-03</div>
+        <div class="lcrd-name">WESTBROOK</div>
+        <div class="lcrd-desc">Японтаун и неоновые бары. Территория богачей.</div>
+        <span class="lcrd-tag" style="color:var(--mag);border-color:var(--mag)">Tyger Claws · Charter Hill</span>
+      </div>
+    </div>
+
+    <!-- HEYWOOD -->
+    <div class="lcrd rv d1">
+      <img class="lcrd-img" src="districts/heywood.jpg" alt="Heywood">
+      <div class="lcrd-neon"></div>
+      <div class="lcrd-info">
+        <div class="lcrd-dist">// DISTRICT-04</div>
+        <div class="lcrd-name">HEYWOOD</div>
+        <div class="lcrd-desc">Зелёные парки на севере, смертоносные трущобы на юге.</div>
+        <span class="lcrd-tag" style="color:#44cc22;border-color:#44cc22">Valentinos · 6th Street</span>
+      </div>
+    </div>
+
+    <!-- PACIFICA -->
+    <div class="lcrd rv d2">
+      <img class="lcrd-img" src="districts/pacifica.jpg" alt="Pacifica">
+      <div class="lcrd-neon"></div>
+      <div class="lcrd-info">
+        <div class="lcrd-dist">// DISTRICT-05</div>
+        <div class="lcrd-name">PACIFICA</div>
+        <div class="lcrd-desc">Заброшенный курорт. Зона Вуду Бойз без закона.</div>
+        <span class="lcrd-tag" style="color:#9944ff;border-color:#9944ff">Voodoo Boys · Combat Zone</span>
+      </div>
+    </div>
+
+    <!-- SANTO DOMINGO -->
+    <div class="lcrd rv d3">
+      <img class="lcrd-img" src="districts/santodomingo_comp.jpg" alt="Santo Domingo">
+      <div class="lcrd-neon"></div>
+      <div class="lcrd-info">
+        <div class="lcrd-dist">// DISTRICT-06</div>
+        <div class="lcrd-name">SANTO DOMINGO</div>
+        <div class="lcrd-desc">Промышленные зоны и заводы. Владения Шестой Улицы.</div>
+        <span class="lcrd-tag" style="color:#ff6b00;border-color:#ff6b00">6th Street · Animals</span>
+      </div>
+    </div>
+
+    <!-- BADLANDS -->
+    <div class="lcrd rv d4">
+      <img class="lcrd-img" src="districts/badlands.jpg" alt="Badlands">
+      <div class="lcrd-neon"></div>
+      <div class="lcrd-info">
+        <div class="lcrd-dist">// OUTSKIRTS</div>
+        <div class="lcrd-name">BADLANDS</div>
+        <div class="lcrd-desc">Пустоши за городом. Территория номадов и Призраков.</div>
+        <span class="lcrd-tag" style="color:var(--yellow);border-color:var(--yellow)">Nomads · Wraiths</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- GANGS -->
+<section class="gangs-sec" id="gangs">
+  <div class="sec-head">
+    <div class="sec-label rv">// THREAT DATABASE — УЛИЧНЫЕ БАНДЫ</div>
+    <h2 class="sec-title rv d1">БАНДЫ <span style="color:var(--mag);text-shadow:0 0 18px var(--mag)">НАЙТ СИТИ</span></h2>
+  </div>
+  <div class="gangs-grid">
+
+    <div class="gang-card rv d1" style="--gc:#ffaa00" onclick="location.href='gangs.html'">
+      <div class="gang-accent"></div>
+      <div class="gang-district">// HEYWOOD</div>
+      <div class="gang-name">VALENTINOS</div>
+      <div class="gang-desc">Крупнейшая банда города. Честь, религия, семья — их кодекс нерушим.</div>
+      <span class="gang-tag">Latino · Heywood</span>
+      <div class="gang-glow"></div>
+    </div>
+
+    <div class="gang-card rv d2" style="--gc:#ff2244" onclick="location.href='gangs.html'">
+      <div class="gang-accent"></div>
+      <div class="gang-district">// WATSON</div>
+      <div class="gang-name">MAELSTROM</div>
+      <div class="gang-desc">Фанатики хрома. Превращают своё тело в оружие, теряя рассудок.</div>
+      <span class="gang-tag">Киберпсихоз · Watson</span>
+      <div class="gang-glow"></div>
+    </div>
+
+    <div class="gang-card rv d3" style="--gc:#ff00cc" onclick="location.href='gangs.html'">
+      <div class="gang-accent"></div>
+      <div class="gang-district">// WESTBROOK</div>
+      <div class="gang-name">TYGER CLAWS</div>
+      <div class="gang-desc">Японская ОПГ. Катаны, неон и полный контроль над Японтауном.</div>
+      <span class="gang-tag">Japontown · Westbrook</span>
+      <div class="gang-glow"></div>
+    </div>
+
+    <div class="gang-card rv d4" style="--gc:#9944ff" onclick="location.href='gangs.html'">
+      <div class="gang-accent"></div>
+      <div class="gang-district">// PACIFICA</div>
+      <div class="gang-name">VOODOO BOYS</div>
+      <div class="gang-desc">Нетраннеры из Пасифики. Взламывают Blackwall, ища богов за стеной.</div>
+      <span class="gang-tag">Netrunner · Pacifica</span>
+      <div class="gang-glow"></div>
+    </div>
+
+    <div class="gang-card rv d1" style="--gc:#44dd22" onclick="location.href='gangs.html'">
+      <div class="gang-accent"></div>
+      <div class="gang-district">// SANTO DOMINGO</div>
+      <div class="gang-name">ANIMALS</div>
+      <div class="gang-desc">Никакого хрома. Только мышцы, бойцовские стимуляторы и ярость.</div>
+      <span class="gang-tag">Без хрома · S. Domingo</span>
+      <div class="gang-glow"></div>
+    </div>
+
+    <div class="gang-card rv d2" style="--gc:#4488ff" onclick="location.href='gangs.html'">
+      <div class="gang-accent"></div>
+      <div class="gang-district">// SANTO DOMINGO</div>
+      <div class="gang-name">6TH STREET</div>
+      <div class="gang-desc">Ветераны НСАПР. Считают себя последними защитниками города.</div>
+      <span class="gang-tag">Военные · S. Domingo</span>
+      <div class="gang-glow"></div>
+    </div>
+
+    <div class="gang-card rv d3" style="--gc:#ccaa00" onclick="location.href='gangs.html'">
+      <div class="gang-accent"></div>
+      <div class="gang-district">// BADLANDS</div>
+      <div class="gang-name">WRAITHS</div>
+      <div class="gang-desc">Отщепенцы-номады. Самые жестокие и безжалостные в пустошах.</div>
+      <span class="gang-tag">Nomad · Badlands</span>
+      <div class="gang-glow"></div>
+    </div>
+
+    <div class="gang-card rv d4" style="--gc:#ff8800" onclick="location.href='gangs.html'">
+      <div class="gang-accent"></div>
+      <div class="gang-district">// BADLANDS</div>
+      <div class="gang-name">ALDECALDOS</div>
+      <div class="gang-desc">Клан свободных номадов. Семья, дорога и взаимная поддержка.</div>
+      <span class="gang-tag">Nomad · Clan</span>
+      <div class="gang-glow"></div>
+    </div>
+
+  </div>
+  <div class="gangs-cta rv">
+    <a href="gangs.html" class="btn btn-c" style="cursor:none">// ОТКРЫТЬ БАЗУ ДАННЫХ БАНД</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-logo">CYBER<span>PUNK</span> 2077</div>
+  <div class="foot-sub">Night City — The City of Dreams // Est. 2077</div>
+  <div class="foot-div"></div>
+  <ul class="foot-nav">
+    <li><a href="#chars">Персонажи</a></li>
+    <li><a href="#city">Night City</a></li>
+    <li><a href="gangs.html">Банды</a></li>
+  </ul>
+  <p class="foot-copy">© 2077 ARASAKA CORPORATION · NIGHT CITY NETWORK · Cyberpunk 2077 © CD PROJEKT RED</p>
+</footer>
+
+<!-- MUSIC PLAYER -->
+<div class="mp-wrap" id="mpWrap">
+  <div class="mp-top">
+    <button class="mp-btn" id="mpBtn" aria-label="Play / Pause">▶</button>
+    <div class="mp-info">
+      <div class="mp-title-wrap">
+        <span class="mp-title" id="mpTitle">I REALLY WANT TO STAY AT YOUR HOUSE</span>
+      </div>
+      <div class="mp-artist">ROSA WALTON · EDGERUNNERS OST</div>
+    </div>
+    <div class="mp-bars">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+  </div>
+  <div class="mp-prog"><div class="mp-prog-fill" id="mpFill"></div></div>
+  <div class="mp-label">// NIGHT CITY RADIO</div>
+</div>
+
+<!-- hidden YouTube iframe -->
+<iframe id="ytIframe"
+  src="https://www.youtube.com/embed/h4VJGNNSQnw?enablejsapi=1&loop=1&playlist=h4VJGNNSQnw&controls=0&autoplay=0&rel=0"
+  style="position:absolute;width:1px;height:1px;top:-9999px;left:-9999px;border:none;"
+  allow="autoplay; encrypted-media"
+  allowfullscreen>
+</iframe>
+
+<script>
+// ── CURSOR ──
+const cDot  = document.getElementById('cDot');
+const cH    = document.getElementById('cH');
+const cV    = document.getElementById('cV');
+const cRing = document.getElementById('cRing');
+let mx=0, my=0, rx=0, ry=0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cDot.style.transform = `translate3d(${mx-2.5}px,${my-2.5}px,0)`;
+  cH.style.transform   = `translate3d(${mx-11}px,${my-.5}px,0)`;
+  cV.style.transform   = `translate3d(${mx-.5}px,${my-11}px,0)`;
+});
+(function rl(now) {
+  const dt = Math.min((now-(rl.t=rl.t||now))/16.667, 3); rl.t = now;
+  const s = 1 - Math.pow(0.88, dt);
+  rx += (mx-rx)*s; ry += (my-ry)*s;
+  cRing.style.transform = `translate3d(${rx-18}px,${ry-18}px,0)`;
+  requestAnimationFrame(rl);
+})(performance.now());
+document.querySelectorAll('a,.ccard,.lcrd').forEach(el => {
+  el.addEventListener('mouseenter', () => { cRing.style.width='54px'; cRing.style.height='54px'; cRing.style.borderColor='rgba(0,245,255,.9)'; });
+  el.addEventListener('mouseleave', () => { cRing.style.width='36px'; cRing.style.height='36px'; cRing.style.borderColor='rgba(0,245,255,.55)'; });
+});
+
+// ── MATRIX RAIN ──
+const cv = document.getElementById('rain');
+const ctx = cv.getContext('2d');
+function rsz() { cv.width=innerWidth; cv.height=innerHeight; }
+rsz(); addEventListener('resize', rsz);
+
+const CHARS = '01アイウカキクコサシスタチツナニネノ!@#$%&ABCDEF9876543210';
+const FS = 13;
+let drops = [];
+
+function initDrops() {
+  const cols = Math.floor(cv.width / FS);
+  drops = Array.from({length: cols}, (_, i) => ({
+    x: i * FS,
+    y: Math.random() * -cv.height,
+    spd: Math.random() * .9 + .35,
+    len: Math.floor(Math.random() * 22) + 6,
+    col: Math.random() < .07 ? '#ff00aa' : '#00f5ff',
+    chars: Array.from({length:35}, () => CHARS[Math.floor(Math.random()*CHARS.length)])
+  }));
+}
+initDrops(); addEventListener('resize', initDrops);
+
+(function rain() {
+  ctx.fillStyle = 'rgba(6,6,9,.12)';
+  ctx.fillRect(0, 0, cv.width, cv.height);
+  ctx.font = `${FS}px monospace`;
+  drops.forEach(d => {
+    for (let j=0; j<d.len; j++) {
+      const y = d.y - j*FS;
+      if (y < -FS || y > cv.height) continue;
+      const a = Math.max(0, 1 - j/d.len);
+      if (j===0)     ctx.fillStyle = '#ffffff';
+      else if (j<3)  ctx.fillStyle = d.col;
+      else           ctx.fillStyle = d.col + Math.floor(a*180).toString(16).padStart(2,'0');
+      if (Math.random()<.06) d.chars[j] = CHARS[Math.floor(Math.random()*CHARS.length)];
+      ctx.fillText(d.chars[j], d.x, y);
+    }
+    d.y += d.spd;
+    if ((d.y - d.len*FS) > cv.height) {
+      d.y = 0; d.spd = Math.random()*.9+.35;
+      d.len = Math.floor(Math.random()*22)+6;
+      d.col = Math.random()<.07 ? '#ff00aa' : '#00f5ff';
+    }
+  });
+  requestAnimationFrame(rain);
+})();
+
+// ── SCROLL REVEAL ──
+const rvObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('in'); });
+}, {threshold:.1});
+document.querySelectorAll('.rv').forEach(el => rvObs.observe(el));
+
+// ── COUNTER ──
+function countUp(el) {
+  const target = +el.dataset.target;
+  const sfx    = el.dataset.sfx || '';
+  const dur    = 2000;
+  let t0 = null;
+  (function step(ts) {
+    if (!t0) t0 = ts;
+    const p = Math.min((ts-t0)/dur, 1);
+    const e = 1 - Math.pow(1-p, 3);
+    el.textContent = Math.floor(e*target) + sfx;
+    if (p<1) requestAnimationFrame(step);
+  })(performance.now());
+}
+const cntObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting) {
+      const n = e.target.querySelector('.snum');
+      if(n && !n.dataset.done) { n.dataset.done='1'; countUp(n); }
+    }
+  });
+},{threshold:.5});
+document.querySelectorAll('.sbox').forEach(el => cntObs.observe(el));
+
+// ── SHOW MORE ──
+const moreCards = document.querySelectorAll('.ccard.more');
+const showBtn   = document.getElementById('showMoreBtn');
+let revealed = false;
+showBtn.addEventListener('click', () => {
+  if (!revealed) {
+    moreCards.forEach((card, i) => {
+      setTimeout(() => {
+        card.style.display = 'block';
+        requestAnimationFrame(() => requestAnimationFrame(() => card.classList.add('in')));
+      }, i * 75);
+    });
+    showBtn.textContent = '// СКРЫТЬ АГЕНТОВ';
+    revealed = true;
+  } else {
+    moreCards.forEach(card => {
+      card.classList.remove('in');
+      setTimeout(() => { card.style.display = 'none'; }, 900);
+    });
+    showBtn.textContent = '// ПОКАЗАТЬ ЕЩЁ — 12 ОПЕРАТИВНИКОВ';
+    revealed = false;
+  }
+});
+document.querySelectorAll('.ccard.more').forEach(el => {
+  el.addEventListener('mouseenter', () => { cRing.style.width='54px'; cRing.style.height='54px'; cRing.style.borderColor='rgba(0,245,255,.9)'; });
+  el.addEventListener('mouseleave', () => { cRing.style.width='36px'; cRing.style.height='36px'; cRing.style.borderColor='rgba(0,245,255,.55)'; });
+});
+
+// ── HAMBURGER MENU ──
+(function(){
+  const burger = document.getElementById('navBurger');
+  const mobNav = document.getElementById('mobNav');
+  const closeBtn = document.getElementById('mobNavClose');
+  if (!burger) return;
+  function openMenu(){ burger.classList.add('open'); mobNav.classList.add('open'); document.body.style.overflow='hidden'; }
+  function closeMenu(){ burger.classList.remove('open'); mobNav.classList.remove('open'); document.body.style.overflow=''; }
+  burger.addEventListener('click', () => mobNav.classList.contains('open') ? closeMenu() : openMenu());
+  closeBtn.addEventListener('click', closeMenu);
+  document.querySelectorAll('.mob-nav-link').forEach(a => a.addEventListener('click', closeMenu));
+})();
+</script>
+
+<!-- MUSIC PLAYER LOGIC -->
+<script>
+(function() {
+  var mpWrap  = document.getElementById('mpWrap');
+  var mpBtn   = document.getElementById('mpBtn');
+  var mpFill  = document.getElementById('mpFill');
+  var mpTitle = document.getElementById('mpTitle');
+  var iframe  = document.getElementById('ytIframe');
+  var isPlaying = false;
+
+  // Scrolling title if overflows
+  setTimeout(function() {
+    var wrap = mpTitle.parentElement;
+    if (mpTitle.scrollWidth > wrap.clientWidth + 4) {
+      mpTitle.style.setProperty('--scroll-dist', -(mpTitle.scrollWidth - wrap.clientWidth + 10) + 'px');
+      mpTitle.classList.add('scrolling');
+    }
+  }, 300);
+
+  function ytCmd(fn) {
+    try {
+      iframe.contentWindow.postMessage(
+        JSON.stringify({ event: 'command', func: fn, args: [] }),
+        'https://www.youtube.com'
+      );
+    } catch(e) {}
+  }
+
+  mpBtn.addEventListener('click', function() {
+    if (isPlaying) {
+      ytCmd('pauseVideo');
+      mpBtn.textContent = '▶';
+      mpWrap.classList.remove('playing');
+    } else {
+      ytCmd('playVideo');
+      mpBtn.textContent = '⏸';
+      mpWrap.classList.add('playing');
+    }
+    isPlaying = !isPlaying;
+  });
+
+  // Cursor hover
+  mpWrap.addEventListener('mouseenter', function() {
+    var r = document.getElementById('cRing');
+    if (r) { r.style.width='54px'; r.style.height='54px'; r.style.borderColor='rgba(0,245,255,.9)'; }
+  });
+  mpWrap.addEventListener('mouseleave', function() {
+    var r = document.getElementById('cRing');
+    if (r) { r.style.width='36px'; r.style.height='36px'; r.style.borderColor='rgba(0,245,255,.55)'; }
+  });
+})();
+</script>
+</body>
+</html>

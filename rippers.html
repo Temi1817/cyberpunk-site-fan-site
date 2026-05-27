@@ -1,0 +1,504 @@
+﻿<!DOCTYPE html>
+<html lang="ru"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ripperdocs — CYBERPUNK 2077</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--cyan:#00f5ff;--mag:#ff00aa;--yellow:#ffe600;--bg:#060609;--white:#e8f4f8;--dim:#3a5060}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--white);font-family:'Rajdhani',sans-serif;cursor:none}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--cyan)}
+
+/* ── OVERLAYS ── */
+.scanlines{position:fixed;inset:0;z-index:9000;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px)}
+.crt{position:fixed;inset:0;z-index:8999;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.65) 100%)}
+
+/* ── CURSOR ── */
+.cDot{position:fixed;z-index:10003;pointer-events:none;width:5px;height:5px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);top:0;left:0;will-change:transform}
+.cH{position:fixed;z-index:10002;pointer-events:none;width:22px;height:1px;background:var(--cyan);box-shadow:0 0 6px var(--cyan);top:0;left:0;will-change:transform}
+.cV{position:fixed;z-index:10002;pointer-events:none;width:1px;height:22px;background:var(--cyan);box-shadow:0 0 6px var(--cyan);top:0;left:0;will-change:transform}
+.cRing{position:fixed;z-index:10001;pointer-events:none;width:36px;height:36px;border:1px solid rgba(0,245,255,.55);border-radius:50%;top:0;left:0;will-change:transform;transition:width .3s,height .3s,border-color .3s}
+
+/* ── NAV ── */
+nav{position:fixed;inset:0 0 auto 0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;background:rgba(6,6,9,.92);border-bottom:1px solid rgba(0,245,255,.12);backdrop-filter:blur(14px)}
+.logo{font-family:'Orbitron',monospace;font-size:1.05rem;font-weight:900;letter-spacing:.12em;color:var(--cyan);text-shadow:0 0 18px var(--cyan);cursor:none;text-decoration:none}
+.logo span{color:var(--yellow);text-shadow:0 0 18px var(--yellow)}
+.back-btn{display:flex;align-items:center;gap:.5rem;font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(232,244,248,.4);text-decoration:none;border:1px solid rgba(0,245,255,.18);padding:.35rem 1rem;transition:all .3s;cursor:none}
+.back-btn:hover{color:var(--cyan);border-color:var(--cyan);box-shadow:0 0 18px rgba(0,245,255,.2)}
+.nav-title{font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:.4em;color:var(--dim)}
+
+/* ── MAIN LAYOUT ── */
+.app{display:flex;height:100vh;padding-top:57px}
+
+/* ── LEFT PANEL ── */
+.panel-left{width:340px;flex-shrink:0;display:flex;flex-direction:column;border-right:1px solid rgba(0,245,255,.1);background:rgba(4,4,8,.6)}
+.panel-header{padding:1.2rem 1.4rem;border-bottom:1px solid rgba(0,245,255,.08)}
+.panel-eyebrow{font-size:.52rem;letter-spacing:.4em;text-transform:uppercase;color:var(--cyan);opacity:.7}
+.panel-title{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:900;margin-top:.3rem;letter-spacing:.06em}
+.panel-count{font-size:.62rem;letter-spacing:.2em;color:var(--dim);margin-top:.25rem}
+.ripper-list{flex:1;overflow-y:auto;padding:.5rem}
+
+/* ── RIPPER CARD ── */
+.rc{
+  padding:.9rem 1rem;margin-bottom:.35rem;
+  border:1px solid rgba(0,245,255,.08);
+  cursor:none;transition:all .3s;position:relative;overflow:hidden;
+}
+.rc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--rc,var(--cyan));opacity:.5;transition:opacity .3s}
+.rc:hover,
+.rc.active{border-color:rgba(0,245,255,.3);background:rgba(0,245,255,.04)}
+.rc.active::before{opacity:1;box-shadow:0 0 12px var(--rc,var(--cyan))}
+.rc.active{border-color:var(--rc,var(--cyan));box-shadow:0 0 20px rgba(0,245,255,.06)}
+.rc-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.rc-name{font-family:'Orbitron',monospace;font-size:.72rem;font-weight:700;letter-spacing:.04em;color:var(--white)}
+.rc-tag{font-size:.44rem;letter-spacing:.2em;text-transform:uppercase;padding:.15rem .5rem;border:1px solid;border-radius:2px;white-space:nowrap}
+.rc-loc{font-size:.62rem;letter-spacing:.12em;color:var(--dim);margin-top:.3rem}
+.rc-dist{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(0,245,255,.5);margin-top:.15rem}
+
+/* ── RIGHT PANEL ── */
+.panel-right{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── MAP ── */
+.map-wrap{flex:1;position:relative;overflow:hidden;background:#020205;min-height:0}
+.map-img{width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(.45) saturate(.7) hue-rotate(180deg);transition:filter .5s}
+.map-wrap:hover .map-img{filter:brightness(.5) saturate(.8) hue-rotate(180deg)}
+.map-overlay{position:absolute;inset:0;pointer-events:none;background:linear-gradient(135deg,rgba(0,245,255,.04) 0%,transparent 50%,rgba(255,0,170,.03) 100%)}
+.map-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(0,245,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,255,.025) 1px,transparent 1px);background-size:40px 40px}
+.map-title{position:absolute;top:1rem;left:1.2rem;z-index:10;pointer-events:none}
+.map-title-text{font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.4em;text-transform:uppercase;color:rgba(0,245,255,.5)}
+
+/* ── MAP PINS ── */
+.pin{position:absolute;z-index:20;transform:translate(-50%,-50%);cursor:none;transition:transform .3s}
+.pin:hover{transform:translate(-50%,-50%) scale(1.3)}
+.pin-dot{width:10px;height:10px;border-radius:50%;border:2px solid;transition:all .4s;position:relative}
+.pin-dot::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:1px solid;opacity:.3;animation:pinPulse 2s infinite}
+@keyframes pinPulse{0%,100%{transform:scale(1);opacity:.3}50%{transform:scale(1.8);opacity:0}}
+.pin.active .pin-dot{width:14px;height:14px;box-shadow:0 0 20px currentColor}
+.pin.active .pin-dot::after{animation:pinPulse 1s infinite}
+.pin-label{position:absolute;left:18px;top:50%;transform:translateY(-50%);white-space:nowrap;font-family:'Orbitron',monospace;font-size:.44rem;letter-spacing:.2em;text-transform:uppercase;padding:.2rem .5rem;background:rgba(4,4,8,.85);border:1px solid;border-radius:2px;opacity:0;transition:opacity .3s;pointer-events:none}
+.pin:hover .pin-label,
+.pin.active .pin-label{opacity:1}
+
+/* ── INFO PANEL ── */
+.info-panel{height:220px;flex-shrink:0;border-top:1px solid rgba(0,245,255,.1);background:rgba(4,4,8,.8);display:flex;overflow:hidden}
+.info-main{flex:1;padding:1.2rem 1.5rem;overflow-y:auto;min-width:0}
+.info-placeholder{display:flex;align-items:center;justify-content:center;flex:1;flex-direction:column;gap:.5rem;opacity:.25}
+.info-placeholder-icon{font-family:'Orbitron',monospace;font-size:2rem;color:var(--cyan)}
+.info-placeholder-text{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--cyan)}
+.info-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:.8rem}
+.info-name{font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;letter-spacing:.05em}
+.info-sub{font-size:.65rem;letter-spacing:.18em;color:var(--dim);margin-top:.2rem}
+.info-badge{font-size:.44rem;letter-spacing:.2em;text-transform:uppercase;padding:.2rem .6rem;border:1px solid;border-radius:2px;white-space:nowrap;flex-shrink:0}
+.info-desc{font-size:.78rem;line-height:1.65;color:rgba(232,244,248,.55);margin-bottom:.8rem}
+.info-note{font-size:.7rem;line-height:1.5;color:rgba(255,230,0,.6);padding:.5rem .8rem;border-left:2px solid rgba(255,230,0,.3);background:rgba(255,230,0,.03);margin-bottom:.8rem}
+.info-specialty{font-size:.68rem;color:rgba(0,245,255,.6);margin-bottom:.8rem;letter-spacing:.06em}
+
+/* ── IMPLANTS TABLE ── */
+.info-side{width:260px;flex-shrink:0;padding:1.2rem 1rem;border-left:1px solid rgba(0,245,255,.08)}
+.implants-label{font-size:.52rem;letter-spacing:.35em;text-transform:uppercase;color:var(--cyan);opacity:.7;margin-bottom:.7rem}
+.implant-row{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.4rem .5rem;margin-bottom:.3rem;border:1px solid rgba(0,245,255,.07);transition:border-color .3s}
+.implant-row:hover{border-color:rgba(0,245,255,.2)}
+.implant-name{font-size:.62rem;font-weight:600;color:var(--white);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.implant-type{font-size:.5rem;letter-spacing:.1em;color:var(--dim);text-align:right;white-space:nowrap}
+.implant-sc{font-family:'Orbitron',monospace;font-size:.5rem;color:var(--yellow);white-space:nowrap;flex-shrink:0}
+.sc-bar{height:2px;background:rgba(0,245,255,.08);margin-top:.15rem;border-radius:1px;overflow:hidden}
+.sc-bar-fill{height:100%;background:linear-gradient(to right,var(--cyan),var(--mag));transition:width .8s cubic-bezier(.16,1,.3,1)}
+
+/* ── INFO HIDDEN/SHOW ── */
+.info-content{display:none;width:100%}
+.info-content.visible{display:flex;width:100%}
+
+/* ── TRANSITION ── */
+.fade{opacity:0;transition:opacity .3s}
+.fade.in{opacity:1}
+
+/* ── MOBILE ── */
+.mob-list-btn{display:none;position:fixed;bottom:1.5rem;right:1.5rem;z-index:330;font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:.25em;text-transform:uppercase;padding:.75rem 1.3rem;background:rgba(5,5,9,.97);border:1px solid rgba(0,245,255,.45);color:var(--cyan);box-shadow:0 0 22px rgba(0,245,255,.18),0 6px 28px rgba(0,0,0,.8);cursor:pointer;align-items:center;gap:.5rem}
+.mob-list-bg{display:none;position:fixed;inset:0;z-index:320;background:rgba(0,0,0,.65);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .3s}
+.mob-list-bg.show{opacity:1!important;pointer-events:all!important}
+@media(max-width:768px){
+  html,body{height:auto;overflow-y:auto}
+  .nav-title{display:none}
+  .app{height:auto;flex-direction:column}
+  .panel-left{position:fixed;top:57px;bottom:0;left:0;width:300px;z-index:350;transform:translateX(-100%);transition:transform .4s cubic-bezier(.16,1,.3,1)}
+  .panel-left.mob-open{transform:translateX(0)}
+  .panel-right{width:100%;height:auto}
+  .map-wrap{height:45vw;min-height:220px;max-height:380px}
+  .mob-list-btn,.mob-list-bg{display:block}
+  .mob-list-btn{display:flex}
+  .info-wrap{height:auto!important}
+  .ic-layout{flex-direction:column!important}
+  .ic-implants{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="scanlines"></div>
+<div class="crt"></div>
+<div class="cDot" id="cDot"></div>
+<div class="cH"   id="cH"></div>
+<div class="cV"   id="cV"></div>
+<div class="cRing" id="cRing"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">CYBER<span>PUNK</span>&nbsp;2077</a>
+  <div class="nav-title">// RIPPERDOC DATABASE</div>
+  <a href="index.html" class="back-btn">← НАЗАД</a>
+</nav>
+
+<!-- APP -->
+<div class="app">
+
+  <!-- LEFT: RIPPER LIST -->
+  <div class="panel-left">
+    <div class="panel-header">
+      <div class="panel-eyebrow">// БАЗА ДАННЫХ</div>
+      <div class="panel-title">RIPPERDOCS</div>
+      <div class="panel-count" id="listCount">0 ОПЕРАТОРОВ НАЙДЕНО</div>
+    </div>
+    <div class="ripper-list" id="ripperList"></div>
+  </div>
+
+  <!-- RIGHT: MAP + INFO -->
+  <div class="panel-right">
+
+    <!-- MAP -->
+    <div class="map-wrap" id="mapWrap">
+      <img class="map-img" src="districts/nightcity-map.jpg" alt="Night City Map">
+      <div class="map-overlay"></div>
+      <div class="map-grid"></div>
+      <div class="map-title">
+        <div class="map-title-text">// NIGHT CITY — RIPPERDOC LOCATIONS</div>
+      </div>
+      <!-- Pins injected by JS -->
+    </div>
+
+    <!-- INFO -->
+    <div class="info-panel">
+      <!-- Placeholder -->
+      <div class="info-placeholder" id="infoPlaceholder">
+        <div class="info-placeholder-icon">⌖</div>
+        <div class="info-placeholder-text">Выбери рипера из списка</div>
+      </div>
+      <!-- Content -->
+      <div class="info-content" id="infoContent">
+        <div class="info-main">
+          <div class="info-head">
+            <div>
+              <div class="info-name" id="iName"></div>
+              <div class="info-sub" id="iSub"></div>
+            </div>
+            <div class="info-badge" id="iBadge"></div>
+          </div>
+          <div class="info-specialty" id="iSpec"></div>
+          <div class="info-desc" id="iDesc"></div>
+          <div class="info-note" id="iNote"></div>
+        </div>
+        <div class="info-side">
+          <div class="implants-label">// ИМПЛАНТЫ</div>
+          <div id="implantList"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── DATA ──
+const RIPPERS = [
+  {
+    id:'viktor', name:'Viktor Vektor', sub:'Личный рипер V', district:'Watson', loc:'Little China',
+    x:41, y:26, color:'#0099ff', tag:'STORY · TRUSTED',
+    spec:'Нейронные импланты, базовые улучшения',
+    desc:'Старый друг V. Лучший рипер в Watson, участвует в основной сюжетной линии. Первым устанавливает чипы V и Джонни.',
+    note:'Доступен с начала игры. Бесплатная первая установка.',
+    implants:[
+      {name:'Kiroshi Optics MK.2', type:'Глаза', sc:0},
+      {name:'Synaptic Accelerator', type:'Нервная система', sc:20},
+      {name:'Second Heart', type:'Кровообращение', sc:16},
+    ]
+  },
+  {
+    id:'cassius', name:'Cassius Ryder', sub:'Northside Ripper', district:'Watson', loc:'Northside',
+    x:37, y:13, color:'#00f5ff', tag:'COMBAT',
+    spec:'Боевые импланты, усилители урона',
+    desc:'Рипер в промышленном Northside. Специализируется на боевых модификациях для уличных бойцов.',
+    note:'Street Cred 20+ открывает легендарные предметы.',
+    implants:[
+      {name:'Heal-On-Kill', type:'Кровообращение', sc:20},
+      {name:'Mechatronic Core', type:'Руки', sc:20},
+      {name:'Gorilla Arms', type:'Руки', sc:20},
+    ]
+  },
+  {
+    id:'bucks', name:'Charles Bucks', sub:'Kabuki Market Doc', district:'Watson', loc:'Kabuki',
+    x:53, y:18, color:'#00f5ff', tag:'DISCOUNT',
+    spec:'Общие импланты + эксклюзивная скидка',
+    desc:'Единственный рипер в игре, дающий перманентную скидку. Участвует в квесте "Last Login".',
+    note:'Квест Last Login: согласись помочь → скидка навсегда.',
+    implants:[
+      {name:'Smart Link', type:'Руки', sc:20},
+      {name:'Dynalar Sandevistan MK.4', type:'Нервная система', sc:20},
+      {name:'Kiroshi Optics MK.3', type:'Глаза', sc:30},
+    ]
+  },
+  {
+    id:'chrome', name:'Dr. Chrome', sub:'Kabuki Back-Alley Doc', district:'Watson', loc:'Kabuki',
+    x:55, y:16, color:'#00f5ff', tag:'BACK-ALLEY',
+    spec:'Быстрые установки в любое время',
+    desc:'Рипер в тёмных переулках Кабуки. Работает круглосуточно, без лишних вопросов.',
+    note:'Удобная точка для быстрой прокачки в Watson.',
+    implants:[
+      {name:'Subdermal Armor', type:'Скин', sc:10},
+      {name:'Adrenaline Converter', type:'Нервная система', sc:16},
+      {name:'Militech Apogee Sandevistan', type:'Нервная система', sc:40},
+    ]
+  },
+  {
+    id:'fingers', name:'Fingers M.D.', sub:'Japantown Shady Doc', district:'Westbrook', loc:'Japantown',
+    x:63, y:34, color:'#ff00aa', tag:'⚠ QUEST',
+    spec:'Нелегальные импланты высшего класса',
+    desc:'Сомнительный рипер в Японтауне. Лучший ассортимент в Westbrook. Участвует в сюжете с Judy.',
+    note:'⚠ Не бей его в квесте The Space Between — потеряешь доступ навсегда!',
+    implants:[
+      {name:'Pain Editor', type:'Скелет', sc:20},
+      {name:'Militech Berserk MK.5', type:'Нервная система', sc:40},
+      {name:'Arasaka Sandevistan MK.5', type:'Нервная система', sc:45},
+    ]
+  },
+  {
+    id:'kraviz', name:'Kraviz\'s Clinic', sub:'Charter Hill Elite', district:'Westbrook', loc:'Charter Hill',
+    x:70, y:26, color:'#ff44dd', tag:'ELITE · CORPO',
+    spec:'Корпоративные импланты премиум-класса',
+    desc:'Элитная клиника в богатом Charter Hill. Лучший выбор для корпоративного стиля прохождения.',
+    note:'Street Cred 40+ для легендарного ассортимента.',
+    implants:[
+      {name:'Arasaka MK.5 Sandevistan', type:'Нервная система', sc:45},
+      {name:'Optical Camo', type:'Скин', sc:40},
+      {name:'Reinforced Tendons', type:'Ноги', sc:30},
+    ]
+  },
+  {
+    id:'downtown', name:'Downtown Ripperdoc', sub:'City Center', district:'City Center', loc:'Downtown',
+    x:57, y:45, color:'#e8f4f8', tag:'CORPO ZONE',
+    spec:'Продвинутые импланты в сердце корпораций',
+    desc:'Рипер в самом охраняемом районе Night City. Идеальная точка для мид- и лейт-гейма.',
+    note:'Рядом с Корпо Плазой. Рекомендуется Street Cred 30+.',
+    implants:[
+      {name:'Kiroshi Optics MK.3', type:'Глаза', sc:30},
+      {name:'Legendary Monowire', type:'Руки', sc:40},
+      {name:'Microrotors', type:'Руки', sc:30},
+    ]
+  },
+  {
+    id:'wellsprings', name:'Wellsprings Ripper', sub:'Heywood Local Doc', district:'Heywood', loc:'Wellsprings',
+    x:46, y:70, color:'#44cc22', tag:'VALENTINOS',
+    spec:'Импланты для жилого района, Valentinos зона',
+    desc:'Рипер в Wellsprings. Хорошая точка перед штурмом Pacifica и для прокачки в Heywood.',
+    note:'Территория Valentinos. Держи репутацию.',
+    implants:[
+      {name:'Blood Pump', type:'Кровообращение', sc:16},
+      {name:'Bioconductor', type:'Скелет', sc:30},
+      {name:'Biomonitor', type:'Кровообращение', sc:20},
+    ]
+  },
+  {
+    id:'arroyo', name:'Arroyo Ripperdoc', sub:'Santo Domingo Industrial', district:'Santo Domingo', loc:'Arroyo',
+    x:64, y:65, color:'#ff6b00', tag:'6TH STREET',
+    spec:'Тяжёлые боевые импланты',
+    desc:'Рипер в индустриальном Arroyo. Зона контролируется Шестой Улицей. Отличный выбор для боевых билдов.',
+    note:'Street Cred 20+ открывает Neofiber и Kerenzikov.',
+    implants:[
+      {name:'Neofiber', type:'Нервная система', sc:20},
+      {name:'Kerenzikov', type:'Нервная система', sc:20},
+      {name:'Zetatech Berserk MK.4', type:'Нервная система', sc:35},
+    ]
+  },
+  {
+    id:'octavio', name:'Octavio\'s Clinic', sub:'Rancho Coronado', district:'Santo Domingo', loc:'Rancho Coronado',
+    x:71, y:58, color:'#ff8800', tag:'ANIMALS',
+    spec:'Физические усиления, стелс-импланты',
+    desc:'Рипер Octavio в восточном Santo Domingo. Зона Animals. Идеален для стелс-билдов.',
+    note:'Optical Camo — один из лучших стелс-имплантов.',
+    implants:[
+      {name:'Microgenerator', type:'Кровообращение', sc:25},
+      {name:'Optical Camo', type:'Скин', sc:40},
+      {name:'Adrenaline Converter', type:'Нервная система', sc:30},
+    ]
+  },
+  {
+    id:'pacifica', name:'Pacifica Ripperdoc', sub:'West Wind Estate', district:'Pacifica', loc:'West Wind Estate',
+    x:39, y:75, color:'#9944ff', tag:'VOODOO BOYS',
+    spec:'Нетраннерские импланты, кибердека',
+    desc:'Рипер в опасной Pacifica под контролем Voodoo Boys. Нетраннерам — обязательная остановка.',
+    note:'Лучший рипер для нетраннеров. Территория Voodoo Boys.',
+    implants:[
+      {name:'Legendary Cyberdeck', type:'Нервная система', sc:40},
+      {name:'RAM Upgrade MK.3', type:'Нервная система', sc:30},
+      {name:'Peripheral Inverse', type:'Нервная система', sc:35},
+    ]
+  },
+  {
+    id:'badlands', name:'Aldecaldo Ripper', sub:'Nomad Mobile Camp', district:'Badlands', loc:'Rocky Ridge',
+    x:22, y:56, color:'#ffe600', tag:'NOMADS',
+    spec:'Базовые импланты в кочевом лагере',
+    desc:'Кочующий рипер в лагере Альдекадо. Появляется только после продвижения в линии квестов Panam Palmer.',
+    note:'Доступен только после квестов с Panam. Передвижной лагерь.',
+    implants:[
+      {name:'Blood Pump', type:'Кровообращение', sc:16},
+      {name:'Biomonitor', type:'Кровообращение', sc:20},
+      {name:'Bioconductor', type:'Скелет', sc:30},
+    ]
+  },
+];
+
+// ── STATE ──
+let active = null;
+
+// ── BUILD LIST ──
+const listEl = document.getElementById('ripperList');
+document.getElementById('listCount').textContent = RIPPERS.length + ' ОПЕРАТОРОВ НАЙДЕНО';
+
+RIPPERS.forEach(r => {
+  const el = document.createElement('div');
+  el.className = 'rc';
+  el.id = 'rc-' + r.id;
+  el.style.setProperty('--rc', r.color);
+  el.innerHTML = `
+    <div class="rc-top">
+      <div class="rc-name">${r.name}</div>
+      <div class="rc-tag" style="color:${r.color};border-color:${r.color}">${r.tag}</div>
+    </div>
+    <div class="rc-loc">📍 ${r.loc}</div>
+    <div class="rc-dist">// ${r.district}</div>
+  `;
+  el.addEventListener('click', () => selectRipper(r.id));
+  listEl.appendChild(el);
+});
+
+// ── BUILD PINS ──
+const mapWrap = document.getElementById('mapWrap');
+
+RIPPERS.forEach(r => {
+  const pin = document.createElement('div');
+  pin.className = 'pin';
+  pin.id = 'pin-' + r.id;
+  pin.style.left = r.x + '%';
+  pin.style.top  = r.y + '%';
+  pin.innerHTML = `
+    <div class="pin-dot" style="background:${r.color};border-color:${r.color};color:${r.color}"></div>
+    <div class="pin-label" style="color:${r.color};border-color:${r.color}">${r.name}</div>
+  `;
+  pin.addEventListener('click', () => selectRipper(r.id));
+  mapWrap.appendChild(pin);
+});
+
+// ── SELECT RIPPER ──
+function selectRipper(id) {
+  const r = RIPPERS.find(x => x.id === id);
+  if (!r) return;
+  active = id;
+
+  // update list
+  document.querySelectorAll('.rc').forEach(el => el.classList.remove('active'));
+  document.getElementById('rc-' + id).classList.add('active');
+  document.getElementById('rc-' + id).scrollIntoView({block:'nearest', behavior:'smooth'});
+
+  // update pins
+  document.querySelectorAll('.pin').forEach(el => el.classList.remove('active'));
+  document.getElementById('pin-' + id).classList.add('active');
+
+  // show info
+  document.getElementById('infoPlaceholder').style.display = 'none';
+  const content = document.getElementById('infoContent');
+  content.classList.add('visible');
+  content.style.setProperty('--ic', r.color);
+
+  document.getElementById('iName').textContent = r.name;
+  document.getElementById('iName').style.color = r.color;
+  document.getElementById('iName').style.textShadow = `0 0 20px ${r.color}`;
+  document.getElementById('iSub').textContent = r.sub + ' · ' + r.loc + ', ' + r.district;
+  document.getElementById('iBadge').textContent = r.tag;
+  document.getElementById('iBadge').style.color = r.color;
+  document.getElementById('iBadge').style.borderColor = r.color;
+  document.getElementById('iSpec').textContent = '// ' + r.spec;
+  document.getElementById('iSpec').style.color = r.color;
+  document.getElementById('iDesc').textContent = r.desc;
+  document.getElementById('iNote').textContent = r.note;
+
+  // implants
+  const impEl = document.getElementById('implantList');
+  impEl.innerHTML = '';
+  r.implants.forEach(imp => {
+    const pct = Math.min(100, (imp.sc / 45) * 100);
+    const scLabel = imp.sc === 0 ? 'Сразу' : 'SC ' + imp.sc;
+    const row = document.createElement('div');
+    row.className = 'implant-row';
+    row.innerHTML = `
+      <div style="flex:1;min-width:0">
+        <div class="implant-name">${imp.name}</div>
+        <div class="sc-bar"><div class="sc-bar-fill" style="width:0%" data-w="${pct}%"></div></div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div class="implant-type">${imp.type}</div>
+        <div class="implant-sc">${scLabel}</div>
+      </div>
+    `;
+    impEl.appendChild(row);
+  });
+
+  // animate bars
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.sc-bar-fill').forEach(el => {
+      el.style.width = el.dataset.w;
+    });
+  });
+}
+
+// ── CURSOR ──
+const cDot = document.getElementById('cDot');
+const cH   = document.getElementById('cH');
+const cV   = document.getElementById('cV');
+const cRing = document.getElementById('cRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e => {
+  mx=e.clientX; my=e.clientY;
+  cDot.style.transform=`translate3d(${mx-2.5}px,${my-2.5}px,0)`;
+  cH.style.transform=`translate3d(${mx-11}px,${my-.5}px,0)`;
+  cV.style.transform=`translate3d(${mx-.5}px,${my-11}px,0)`;
+});
+(function rl(now){
+  const dt=Math.min((now-(rl.t=rl.t||now))/16.667,3); rl.t=now;
+  const s=1-Math.pow(0.88,dt);
+  rx+=(mx-rx)*s; ry+=(my-ry)*s;
+  cRing.style.transform=`translate3d(${rx-18}px,${ry-18}px,0)`;
+  requestAnimationFrame(rl);
+})(performance.now());
+document.querySelectorAll('.rc,.pin,.back-btn,.logo').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cRing.style.width='50px';cRing.style.height='50px';cRing.style.borderColor='rgba(0,245,255,.9)'});
+  el.addEventListener('mouseleave',()=>{cRing.style.width='36px';cRing.style.height='36px';cRing.style.borderColor='rgba(0,245,255,.55)'});
+});
+
+// Select first ripper by default
+selectRipper('viktor');
+
+// ── MOBILE LIST PANEL ──
+document.addEventListener('DOMContentLoaded',function(){
+  const btn=document.getElementById('mobListBtn');
+  const bg=document.getElementById('mobListBg');
+  const pl=document.querySelector('.panel-left');
+  if(!btn)return;
+  function openList(){pl.classList.add('mob-open');bg.classList.add('show');}
+  function closeList(){pl.classList.remove('mob-open');bg.classList.remove('show');}
+  btn.addEventListener('click',()=>pl.classList.contains('mob-open')?closeList():openList());
+  bg.addEventListener('click',closeList);
+  document.querySelectorAll('.rc').forEach(r=>r.addEventListener('click',()=>{if(window.innerWidth<=768)closeList();}));
+});
+</script>
+<div class="mob-list-bg" id="mobListBg"></div>
+<button class="mob-list-btn" id="mobListBtn">⚕ РИПЕРЫ</button>
+</body></html>

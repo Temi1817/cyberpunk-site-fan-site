@@ -1,0 +1,841 @@
+﻿<!DOCTYPE html>
+<html lang="ru"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="referrer" content="no-referrer">
+<title>Арсенал — CYBERPUNK 2077</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--cyan:#00f5ff;--mag:#ff00aa;--yellow:#ffe600;--bg:#060609;--white:#e8f4f8;--dim:#3a5060;
+  --power:#ff1a4a;--tech:#ffe600;--smart:#00f5ff;--melee:#ff6b00}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--white);font-family:'Rajdhani',sans-serif;cursor:none}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--cyan)}
+
+.scanlines{position:fixed;inset:0;z-index:9000;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px)}
+.crt{position:fixed;inset:0;z-index:8999;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.65) 100%)}
+
+.cDot{position:fixed;z-index:10003;pointer-events:none;width:5px;height:5px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);top:0;left:0;will-change:transform}
+.cH{position:fixed;z-index:10002;pointer-events:none;width:22px;height:1px;background:var(--cyan);box-shadow:0 0 6px var(--cyan);top:0;left:0;will-change:transform}
+.cV{position:fixed;z-index:10002;pointer-events:none;width:1px;height:22px;background:var(--cyan);box-shadow:0 0 6px var(--cyan);top:0;left:0;will-change:transform}
+.cRing{position:fixed;z-index:10001;pointer-events:none;width:36px;height:36px;border:1px solid rgba(0,245,255,.55);border-radius:50%;top:0;left:0;will-change:transform;transition:width .3s,height .3s,border-color .3s}
+
+nav{position:fixed;inset:0 0 auto 0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;background:rgba(6,6,9,.92);border-bottom:1px solid rgba(0,245,255,.12);backdrop-filter:blur(14px)}
+.logo{font-family:'Orbitron',monospace;font-size:1.05rem;font-weight:900;letter-spacing:.12em;color:var(--cyan);text-shadow:0 0 18px var(--cyan);cursor:none;text-decoration:none}
+.logo span{color:var(--yellow);text-shadow:0 0 18px var(--yellow)}
+.back-btn{display:flex;align-items:center;gap:.5rem;font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(232,244,248,.4);text-decoration:none;border:1px solid rgba(0,245,255,.18);padding:.35rem 1rem;transition:all .3s;cursor:none}
+.back-btn:hover{color:var(--cyan);border-color:var(--cyan);box-shadow:0 0 18px rgba(0,245,255,.2)}
+.nav-title{font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:.4em;color:var(--dim)}
+
+.app{display:flex;height:100vh;padding-top:57px}
+
+/* LEFT PANEL */
+.panel-left{width:270px;flex-shrink:0;display:flex;flex-direction:column;border-right:1px solid rgba(0,245,255,.1);background:rgba(4,4,8,.7);overflow-y:auto}
+.panel-header{padding:1.2rem 1.4rem;border-bottom:1px solid rgba(0,245,255,.08)}
+.panel-eyebrow{font-size:.5rem;letter-spacing:.4em;text-transform:uppercase;color:var(--cyan);opacity:.7}
+.panel-title{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:900;margin-top:.3rem;letter-spacing:.06em}
+.panel-count{font-size:.6rem;letter-spacing:.2em;color:var(--dim);margin-top:.25rem}
+.filter-section{padding:.9rem 1.2rem;border-bottom:1px solid rgba(0,245,255,.06)}
+.filter-label{font-size:.46rem;letter-spacing:.42em;text-transform:uppercase;color:var(--cyan);opacity:.55;margin-bottom:.65rem}
+.search-input{width:100%;background:rgba(0,245,255,.04);border:1px solid rgba(0,245,255,.14);color:var(--white);font-family:'Rajdhani',sans-serif;font-size:.75rem;letter-spacing:.08em;padding:.48rem .8rem;outline:none;transition:border-color .3s;cursor:text}
+.search-input::placeholder{color:var(--dim)}
+.search-input:focus{border-color:rgba(0,245,255,.4);box-shadow:0 0 12px rgba(0,245,255,.08)}
+.cat-btn{display:flex;align-items:center;gap:.55rem;width:100%;padding:.55rem .75rem;margin-bottom:.28rem;background:none;border:1px solid rgba(0,245,255,.07);color:rgba(232,244,248,.45);font-family:'Rajdhani',sans-serif;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;cursor:none;transition:all .25s;text-align:left}
+.cat-btn:hover{border-color:rgba(0,245,255,.22);color:var(--white)}
+.cat-btn.active{color:var(--white);border-color:var(--cc,var(--cyan));background:rgba(0,0,0,.25);box-shadow:inset 3px 0 0 var(--cc,var(--cyan))}
+.cat-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;transition:box-shadow .3s}
+.cat-btn.active .cat-dot{box-shadow:0 0 8px currentColor}
+.type-chips{display:flex;flex-wrap:wrap;gap:.3rem}
+.type-chip{font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;padding:.2rem .5rem;border:1px solid rgba(0,245,255,.1);color:rgba(232,244,248,.38);cursor:none;transition:all .22s}
+.type-chip:hover{border-color:rgba(0,245,255,.28);color:var(--white)}
+.type-chip.active{border-color:var(--cyan);color:var(--cyan);background:rgba(0,245,255,.07)}
+
+/* MAIN */
+.main-area{flex:1;overflow-y:auto;min-width:0;display:flex;flex-direction:column}
+.weapons-header{padding:1rem 1.5rem;border-bottom:1px solid rgba(0,245,255,.06);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.weapons-count{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.28em;color:var(--dim)}
+.weapons-hint{font-size:.56rem;letter-spacing:.14em;color:rgba(0,245,255,.35)}
+
+/* GRID */
+.weapon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1px;background:rgba(0,245,255,.05);padding:1px;flex:1}
+
+/* CARD */
+.wcard{background:rgba(5,5,9,.9);cursor:none;transition:border-color .25s,background .25s;overflow:hidden;position:relative;border:1px solid transparent}
+.wcard:hover{background:rgba(0,245,255,.03);border-color:rgba(0,245,255,.18)}
+.wcard.active{border-color:var(--wc,var(--cyan));box-shadow:inset 0 0 30px rgba(0,0,0,.3)}
+
+/* ART */
+.w-art{height:125px;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.15rem}
+.w-art-bg{position:absolute;inset:0}
+.w-art-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:18px 18px;pointer-events:none}
+.w-art-scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.18) 3px,rgba(0,0,0,.18) 4px);pointer-events:none}
+.w-art-glow{position:absolute;width:180px;height:180px;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.w-art-type{position:relative;font-family:'Orbitron',monospace;font-size:.42rem;letter-spacing:.5em;text-transform:uppercase;opacity:.55}
+.w-art-name{position:relative;font-family:'Orbitron',monospace;font-size:.72rem;font-weight:900;letter-spacing:.04em;text-align:center;padding:0 .7rem;line-height:1.25}
+.w-iconic{position:absolute;top:.5rem;right:.5rem;font-size:.4rem;letter-spacing:.22em;text-transform:uppercase;padding:.12rem .38rem;border:1px solid rgba(255,153,0,.45);color:#ff9900;border-radius:2px}
+.w-dlc{position:absolute;top:.5rem;left:.5rem;font-size:.4rem;letter-spacing:.2em;text-transform:uppercase;padding:.12rem .38rem;border:1px solid rgba(255,153,0,.4);color:#ffaa00;border-radius:2px}
+.w-svg-wrap{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:190px;height:82px}
+.w-weapon-img{max-width:100%;max-height:82px;object-fit:contain;filter:drop-shadow(0 0 10px currentColor)}
+.dp-svg-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:1;padding:0 1rem}
+.dp-svg-wrap svg{width:100%;height:100%;opacity:.22}
+.dp-weapon-img{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);max-height:160px;max-width:92%;object-fit:contain;z-index:2}
+
+/* CARD BODY */
+.w-body{padding:.7rem .9rem}
+.w-name{font-family:'Orbitron',monospace;font-size:.6rem;font-weight:700;letter-spacing:.04em;margin-bottom:.38rem;line-height:1.3}
+.w-tags{display:flex;gap:.3rem;margin-bottom:.6rem;flex-wrap:wrap}
+.w-tag{font-size:.42rem;letter-spacing:.18em;text-transform:uppercase;padding:.1rem .38rem;border:1px solid;border-radius:2px}
+.w-stats{display:flex;flex-direction:column;gap:.28rem}
+.w-stat-row{display:flex;align-items:center;gap:.45rem}
+.w-stat-label{font-size:.44rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);width:55px;flex-shrink:0}
+.w-stat-bar{flex:1;height:2px;background:rgba(255,255,255,.06);border-radius:1px;overflow:hidden}
+.w-stat-fill{height:100%;border-radius:1px;transition:width .9s cubic-bezier(.16,1,.3,1)}
+.w-stat-val{font-family:'Orbitron',monospace;font-size:.44rem;width:24px;text-align:right;flex-shrink:0}
+
+/* BACKDROP */
+.backdrop{position:fixed;inset:57px 0 0 0;z-index:190;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .4s;backdrop-filter:blur(2px)}
+.backdrop.show{opacity:1;pointer-events:all}
+
+/* DETAIL PANEL */
+.detail-panel{position:fixed;right:0;top:57px;bottom:0;width:440px;background:rgba(3,3,7,.98);border-left:1px solid rgba(0,245,255,.18);display:flex;flex-direction:column;overflow:hidden;transform:translateX(100%);transition:transform .4s cubic-bezier(.16,1,.3,1);z-index:200}
+.detail-panel.open{transform:translateX(0)}
+
+.dp-art{height:195px;position:relative;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.dp-art-bg{position:absolute;inset:0}
+.dp-art-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:24px 24px;pointer-events:none}
+.dp-art-scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.22) 3px,rgba(0,0,0,.22) 4px);pointer-events:none}
+.dp-art-glow{position:absolute;width:320px;height:320px;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.dp-art-typebg{position:absolute;font-family:'Orbitron',monospace;font-size:3.8rem;font-weight:900;color:rgba(255,255,255,.03);text-transform:uppercase;white-space:nowrap;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;letter-spacing:.08em}
+.dp-art-content{position:relative;z-index:2;text-align:center;padding:0 1.5rem}
+.dp-art-cat{font-size:.5rem;letter-spacing:.45em;text-transform:uppercase;opacity:.65;margin-bottom:.35rem}
+.dp-art-name{font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;letter-spacing:.05em;line-height:1.25;text-shadow:0 0 30px currentColor}
+.dp-art-mfr{font-size:.56rem;letter-spacing:.22em;color:rgba(232,244,248,.3);margin-top:.28rem}
+.dp-close{position:absolute;top:.7rem;right:.7rem;z-index:10;font-size:.52rem;letter-spacing:.28em;color:rgba(232,244,248,.3);background:none;border:1px solid rgba(0,245,255,.14);padding:.28rem .65rem;cursor:none;font-family:'Rajdhani',sans-serif;text-transform:uppercase;transition:all .3s}
+.dp-close:hover{color:var(--cyan);border-color:var(--cyan);box-shadow:0 0 12px rgba(0,245,255,.15)}
+
+.dp-scroll{flex:1;overflow-y:auto;padding:1.1rem 1.4rem}
+.dp-badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.1rem}
+.dp-badge{font-size:.45rem;letter-spacing:.2em;text-transform:uppercase;padding:.15rem .5rem;border:1px solid;border-radius:2px}
+.dp-section{margin-bottom:1.1rem}
+.dp-section-label{font-size:.46rem;letter-spacing:.4em;text-transform:uppercase;color:var(--cyan);opacity:.6;margin-bottom:.65rem;padding-bottom:.3rem;border-bottom:1px solid rgba(0,245,255,.08)}
+.dp-stat-row{display:flex;align-items:center;gap:.65rem;margin-bottom:.48rem}
+.dp-stat-name{font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(232,244,248,.5);width:92px;flex-shrink:0}
+.dp-stat-bar{flex:1;height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.dp-stat-fill{height:100%;border-radius:2px;transition:width 1s cubic-bezier(.16,1,.3,1)}
+.dp-stat-num{font-family:'Orbitron',monospace;font-size:.52rem;width:28px;text-align:right;flex-shrink:0}
+.dp-special-box{padding:.65rem .9rem;border-left:2px solid;margin-bottom:.8rem;background:rgba(0,0,0,.3)}
+.dp-special-label{font-size:.46rem;letter-spacing:.35em;text-transform:uppercase;margin-bottom:.3rem;opacity:.65}
+.dp-special-text{font-size:.7rem;line-height:1.65;color:rgba(232,244,248,.72)}
+.dp-text{font-size:.7rem;line-height:1.7;color:rgba(232,244,248,.5)}
+.dp-acquire{font-size:.68rem;line-height:1.6;color:rgba(232,244,248,.55);padding:.58rem .8rem;border:1px solid rgba(0,245,255,.1);background:rgba(0,245,255,.025)}
+.dp-acquire-label{font-size:.46rem;letter-spacing:.35em;text-transform:uppercase;color:var(--cyan);opacity:.6;margin-bottom:.28rem}
+
+/* EMPTY */
+.no-results{display:none;grid-column:1/-1;flex-direction:column;align-items:center;justify-content:center;padding:5rem 2rem;gap:.8rem;opacity:.2}
+.no-results.show{display:flex}
+.no-results-icon{font-family:'Orbitron',monospace;font-size:2.5rem;color:var(--cyan)}
+.no-results-text{font-size:.6rem;letter-spacing:.4em;text-transform:uppercase}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .3s ease forwards}
+
+/* ── MOBILE ── */
+.mob-filter-btn{display:none;position:fixed;bottom:1.5rem;right:1.5rem;z-index:330;font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:.25em;text-transform:uppercase;padding:.75rem 1.3rem;background:rgba(5,5,9,.97);border:1px solid rgba(0,245,255,.45);color:var(--cyan);box-shadow:0 0 22px rgba(0,245,255,.18),0 6px 28px rgba(0,0,0,.8);cursor:pointer;align-items:center;gap:.5rem}
+.mob-filter-bg{display:none;position:fixed;inset:0;z-index:320;background:rgba(0,0,0,.65);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .3s}
+.mob-filter-bg.show{opacity:1!important;pointer-events:all!important}
+@media(max-width:768px){
+  html,body{height:auto;overflow-y:auto}
+  .app{height:auto;min-height:calc(100vh - 57px)}
+  .nav-title{display:none}
+  nav>div:last-child .back-btn:first-child{display:none}
+  .panel-left{position:fixed;top:57px;bottom:0;left:0;width:290px;z-index:350;transform:translateX(-100%);transition:transform .4s cubic-bezier(.16,1,.3,1)}
+  .panel-left.mob-open{transform:translateX(0)}
+  .mob-filter-btn{display:flex}
+  .mob-filter-bg{display:block}
+  .weapon-grid{grid-template-columns:repeat(2,1fr)}
+  .detail-panel{width:100%;left:0;top:57px;border-left:none;border-top:1px solid rgba(0,245,255,.15)}
+  .backdrop{inset:0}
+  .wcard .w-stat-label{display:none}
+  .wcard .w-stat-bar{display:none}
+  .wcard .w-stat-val{width:auto}
+}
+@media(max-width:420px){
+  .weapon-grid{grid-template-columns:1fr}
+  .w-art{height:100px}
+}
+</style>
+</head>
+<body>
+
+<div class="scanlines"></div>
+<div class="crt"></div>
+<div class="cDot" id="cDot"></div>
+<div class="cH" id="cH"></div>
+<div class="cV" id="cV"></div>
+<div class="cRing" id="cRing"></div>
+<div class="backdrop" id="backdrop"></div>
+
+<nav>
+  <a href="index.html" class="logo">CYBER<span>PUNK</span>&nbsp;2077</a>
+  <div class="nav-title">// WEAPONS DATABASE</div>
+  <div style="display:flex;gap:.6rem">
+    <a href="cyberware.html" class="back-btn" style="border-color:rgba(255,153,0,.25);color:rgba(255,153,0,.5)">⬡ КИБЕРИМПЛАНТЫ</a>
+    <a href="index.html" class="back-btn">← НАЗАД</a>
+  </div>
+</nav>
+
+<div class="app">
+
+  <!-- LEFT PANEL -->
+  <div class="panel-left">
+    <div class="panel-header">
+      <div class="panel-eyebrow">// NIGHT CITY ARSENAL</div>
+      <div class="panel-title">ОРУЖИЕ</div>
+      <div class="panel-count" id="panelCount">44 ЕДИНИЦЫ НА СКЛАДЕ</div>
+    </div>
+    <div class="filter-section">
+      <div class="filter-label">// ПОИСК</div>
+      <input class="search-input" id="searchInput" type="text" placeholder="ВВЕДИ НАЗВАНИЕ..." autocomplete="off">
+    </div>
+    <div class="filter-section">
+      <div class="filter-label">// ТЕХНОЛОГИЯ</div>
+      <button class="cat-btn active" data-cat="all" style="--cc:var(--cyan)">
+        <div class="cat-dot" style="background:rgba(232,244,248,.3)"></div>ВСЕ ТЕХНОЛОГИИ
+      </button>
+      <button class="cat-btn" data-cat="power" style="--cc:var(--power)">
+        <div class="cat-dot" style="background:var(--power)"></div>POWER
+      </button>
+      <button class="cat-btn" data-cat="tech" style="--cc:var(--tech)">
+        <div class="cat-dot" style="background:var(--tech)"></div>TECH
+      </button>
+      <button class="cat-btn" data-cat="smart" style="--cc:var(--smart)">
+        <div class="cat-dot" style="background:var(--smart)"></div>SMART
+      </button>
+      <button class="cat-btn" data-cat="melee" style="--cc:var(--melee)">
+        <div class="cat-dot" style="background:var(--melee)"></div>MELEE
+      </button>
+    </div>
+    <div class="filter-section">
+      <div class="filter-label">// ТИП ОРУЖИЯ</div>
+      <div class="type-chips">
+        <div class="type-chip active" data-type="all">Все</div>
+        <div class="type-chip" data-type="pistol">Пистолет</div>
+        <div class="type-chip" data-type="revolver">Револьвер</div>
+        <div class="type-chip" data-type="smg">SMG</div>
+        <div class="type-chip" data-type="shotgun">Дробовик</div>
+        <div class="type-chip" data-type="ar">Штурм. вин.</div>
+        <div class="type-chip" data-type="sniper">Снайпер</div>
+        <div class="type-chip" data-type="precision">Точн. вин.</div>
+        <div class="type-chip" data-type="katana">Катана</div>
+        <div class="type-chip" data-type="blunt">Дубина</div>
+        <div class="type-chip" data-type="knife">Нож</div>
+        <div class="type-chip" data-type="machete">Мачете</div>
+        <div class="type-chip" data-type="cyberware">Кибервэр</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-area">
+    <div class="weapons-header">
+      <div class="weapons-count" id="weaponsCount">// 44 WEAPON(S) LOADED</div>
+      <div class="weapons-hint">// ВЫБЕРИ ОРУЖИЕ ДЛЯ ДЕТАЛЕЙ</div>
+    </div>
+    <div class="weapon-grid" id="weaponGrid">
+      <div class="no-results" id="noResults">
+        <div class="no-results-icon">⌖</div>
+        <div class="no-results-text">Оружие не найдено</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAIL PANEL -->
+  <div class="detail-panel" id="detailPanel">
+    <button class="dp-close" id="dpClose">✕ ЗАКРЫТЬ</button>
+    <div class="dp-art" id="dpArt">
+      <div class="dp-art-bg" id="dpArtBg"></div>
+      <div class="dp-art-grid"></div>
+      <div class="dp-art-scan"></div>
+      <div class="dp-art-glow" id="dpArtGlow"></div>
+      <div class="dp-svg-wrap" id="dpSvgWrap"></div>
+      <div class="dp-art-content">
+        <div class="dp-art-cat" id="dpCat"></div>
+        <div class="dp-art-name" id="dpName"></div>
+        <div class="dp-art-mfr" id="dpMfr"></div>
+      </div>
+    </div>
+    <div class="dp-scroll">
+      <div class="dp-badges" id="dpBadges"></div>
+      <div class="dp-section">
+        <div class="dp-section-label" id="dpStatsLabel">// ХАРАКТЕРИСТИКИ</div>
+        <div id="dpStats"></div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-section-label">// ОСОБЫЙ ЭФФЕКТ</div>
+        <div class="dp-special-box" id="dpSpecialBox">
+          <div class="dp-special-label" id="dpSpecialLabel">⚡ ОСОБЫЙ ПРОТОКОЛ</div>
+          <div class="dp-special-text" id="dpSpecial"></div>
+        </div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-section-label">// ИСТОРИЯ</div>
+        <div class="dp-text" id="dpLore"></div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-acquire">
+          <div class="dp-acquire-label">// КАК ПОЛУЧИТЬ</div>
+          <div id="dpAcquire" style="font-size:.68rem;line-height:1.6"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const W_SVG={
+pistol:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><rect x="8" y="36" width="95" height="13"/><rect x="86" y="26" width="82" height="28"/><polygon points="100,54 95,78 118,78 124,54"/><path d="M100,54 Q95,68 109,68 Q123,68 124,54" fill="none" stroke="currentColor" stroke-width="2.5"/><rect x="3" y="38" width="10" height="9" rx="1"/></svg>`,
+revolver:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><rect x="8" y="36" width="80" height="14"/><rect x="78" y="24" width="78" height="30"/><polygon points="92,54 86,80 112,80 118,54"/><ellipse cx="130" cy="34" rx="22" ry="17"/><circle cx="130" cy="34" r="6" fill="rgba(0,0,0,.35)"/><path d="M92,54 Q87,68 102,68 Q117,68 118,54" fill="none" stroke="currentColor" stroke-width="2.5"/><rect x="3" y="38" width="10" height="10" rx="1"/></svg>`,
+smg:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><rect x="8" y="37" width="62" height="11"/><rect x="54" y="24" width="110" height="26"/><rect x="158" y="26" width="52" height="20" rx="3"/><polygon points="88,50 83,76 106,76 111,50"/><path d="M88,50 Q83,64 97,64 Q111,64 111,50" fill="none" stroke="currentColor" stroke-width="2.5"/><rect x="3" y="39" width="9" height="7" rx="1"/></svg>`,
+shotgun:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><rect x="8" y="32" width="112" height="20"/><rect x="112" y="26" width="70" height="16"/><rect x="108" y="50" width="72" height="10" rx="2"/><polygon points="122,44 116,72 140,72 146,44"/><path d="M122,44 Q116,60 130,60 Q144,60 146,44" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3" y="34" width="10" height="16" rx="1"/><rect x="174" y="27" width="36" height="14" rx="2"/></svg>`,
+ar:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><rect x="8" y="37" width="82" height="11"/><rect x="6" y="34" width="84" height="5"/><rect x="62" y="24" width="108" height="24"/><rect x="164" y="20" width="46" height="12" rx="2"/><rect x="164" y="36" width="46" height="16" rx="2"/><polygon points="94,48 89,74 112,74 117,48"/><path d="M94,48 Q89,62 103,62 Q117,62 117,48" fill="none" stroke="currentColor" stroke-width="2"/><rect x="68" y="19" width="50" height="8" rx="1"/><rect x="3" y="38" width="10" height="9" rx="1"/></svg>`,
+sniper:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><rect x="4" y="38" width="136" height="10"/><rect x="102" y="27" width="88" height="24"/><rect x="180" y="24" width="34" height="16" rx="2"/><rect x="180" y="40" width="34" height="22" rx="2"/><rect x="52" y="22" width="64" height="9" rx="2"/><polygon points="120,51 115,78 138,78 143,51"/><path d="M120,51 Q115,65 129,65 Q143,65 143,51" fill="none" stroke="currentColor" stroke-width="2"/><line x1="14" y1="48" x2="10" y2="64" stroke="currentColor" stroke-width="2"/><line x1="26" y1="48" x2="30" y2="64" stroke="currentColor" stroke-width="2"/></svg>`,
+precision:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><rect x="10" y="37" width="100" height="12"/><rect x="86" y="26" width="96" height="26"/><rect x="174" y="24" width="36" height="14" rx="2"/><rect x="174" y="38" width="36" height="18" rx="2"/><rect x="56" y="20" width="58" height="9" rx="2"/><polygon points="104,52 99,77 120,77 125,52"/><path d="M104,52 Q99,66 112,66 Q125,66 125,52" fill="none" stroke="currentColor" stroke-width="2"/><rect x="5" y="38" width="10" height="10" rx="1"/></svg>`,
+katana:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><path d="M8,43 L162,36 L170,40 L170,46 L162,52 L8,49 Z"/><rect x="158" y="33" width="6" height="28" rx="1"/><rect x="161" y="37" width="48" height="16" rx="4"/><line x1="8" y1="46" x2="90" y2="43" stroke="rgba(255,255,255,.2)" stroke-width="1.5"/></svg>`,
+blunt:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><rect x="6" y="40" width="28" height="10" rx="5"/><rect x="30" y="37" width="110" height="16" rx="3"/><rect x="136" y="28" width="72" height="34" rx="6"/><polygon points="144,28 150,16 158,28"/><polygon points="160,28 168,16 174,28"/><polygon points="144,62 150,74 158,62"/><polygon points="160,62 168,74 174,62"/></svg>`,
+knife:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><path d="M8,44 L136,35 L145,40 L145,46 L136,54 L8,48 Z"/><rect x="133" y="33" width="6" height="24" rx="1"/><rect x="136" y="37" width="74" height="16" rx="4"/><line x1="8" y1="46" x2="80" y2="43" stroke="rgba(255,255,255,.18)" stroke-width="1.5"/></svg>`,
+machete:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><path d="M8,47 L10,34 L148,28 L158,33 L160,45 L158,54 L148,58 L10,52 Z"/><rect x="152" y="30" width="6" height="30" rx="1"/><rect x="155" y="36" width="54" height="18" rx="4"/><line x1="8" y1="47" x2="70" y2="41" stroke="rgba(255,255,255,.18)" stroke-width="2"/></svg>`,
+cyberware:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><rect x="10" y="36" width="48" height="18" rx="3"/><rect x="52" y="38" width="36" height="14" rx="2"/><path d="M84,45 L84,42 L185,22 L187,28 Z"/><path d="M84,45 L84,48 L185,68 L187,62 Z"/><circle cx="34" cy="45" r="6" fill="rgba(0,0,0,.3)" stroke="currentColor" stroke-width="1.5"/><rect x="56" y="41" width="4" height="8" rx="1"/><rect x="64" y="41" width="4" height="8" rx="1"/></svg>`,
+};
+const W_IMG={
+malorian:'https://static.wikia.nocookie.net/cyberpunk/images/5/5d/Johnny_Silverhand%27s_Malorian_Database_CP2077.png/revision/latest?cb=20210102112511',
+crash:'https://static.wikia.nocookie.net/cyberpunk/images/5/58/Overture_River.png/revision/latest?cb=20231030165730',
+death_taxes:'https://static.wikia.nocookie.net/cyberpunk/images/b/be/Nue_Maiko.png/revision/latest?cb=20231030143119',
+archangel:'https://static.wikia.nocookie.net/cyberpunk/images/2/25/Overture_Kerry.png/revision/latest?cb=20231030165716',
+amnesty:'https://static.wikia.nocookie.net/cyberpunk/images/5/54/Overture_Cassidy.png/revision/latest?cb=20231030165700',
+buzzsaw:'https://static.wikia.nocookie.net/cyberpunk/images/c/cb/Pulsar_Buzzsaw.png/revision/latest?cb=20231030184934',
+fenrir:'https://static.wikia.nocookie.net/cyberpunk/images/0/09/Saratoga_Maelstrom.png/revision/latest?cb=20231030205417',
+problem_solver:'https://static.wikia.nocookie.net/cyberpunk/images/9/9d/Saratoga_Raffen.png/revision/latest?cb=20231030205429',
+ba_xing:'https://static.wikia.nocookie.net/cyberpunk/images/2/2a/Zhuo_Eight_Star.png/revision/latest?cb=20231031134221',
+sovereign:'https://static.wikia.nocookie.net/cyberpunk/images/9/9f/Igla_Sovereign.png/revision/latest?cb=20231031131204',
+headhunter:'https://static.wikia.nocookie.net/cyberpunk/images/8/8a/Punk_Knife_Iconic.png/revision/latest?cb=20231101134047',
+psalm:'https://static.wikia.nocookie.net/cyberpunk/images/f/f3/Copperhead_Genesis.png/revision/latest?cb=20231031144634',
+moron_labe:'https://static.wikia.nocookie.net/cyberpunk/images/d/d4/Ajax_Moron.png/revision/latest?cb=20231019232411',
+overwatch:'https://static.wikia.nocookie.net/cyberpunk/images/c/c3/Grad_Panam.png/revision/latest?cb=20231031214012',
+ofive:'https://static.wikia.nocookie.net/cyberpunk/images/f/fb/Grad_Buck.png/revision/latest?cb=20231031214003',
+chaos:'https://static.wikia.nocookie.net/cyberpunk/images/6/64/Kenshin_Royce.png/revision/latest?cb=20231030125856',
+apparition:'https://static.wikia.nocookie.net/cyberpunk/images/d/dc/Kenshin_Frank.png/revision/latest?cb=20231030125845',
+seraph:'https://static.wikia.nocookie.net/cyberpunk/images/c/cd/Liberty_Padre.png/revision/latest?cb=20231030133515',
+hammer:'https://static.wikia.nocookie.net/cyberpunk/images/2/21/Burya_Comrade.png/revision/latest?cb=20231030171921',
+shingen:'https://static.wikia.nocookie.net/cyberpunk/images/c/c9/Shingen_Prototype.png/revision/latest?cb=20231030214715',
+headsman:'https://static.wikia.nocookie.net/cyberpunk/images/e/ea/Tactician_Headsman.png/revision/latest?cb=20231031135335',
+guts:'https://static.wikia.nocookie.net/cyberpunk/images/2/2b/Carnage_Edgerunners.png/revision/latest?cb=20231031113743',
+mox:'https://static.wikia.nocookie.net/cyberpunk/images/d/db/Carnage_Mox.png/revision/latest?cb=20231031113733',
+grad:'https://static.wikia.nocookie.net/cyberpunk/images/7/7d/Grad_Military.png/revision/latest?cb=20231031213936',
+breakthrough:'https://static.wikia.nocookie.net/cyberpunk/images/6/61/Nekomata_Breakthrough.png/revision/latest?cb=20231031211647',
+ashura:'https://static.wikia.nocookie.net/cyberpunk/images/8/8f/Ashura_Default.png/revision/latest?cb=20231031210807',
+skippy:'https://static.wikia.nocookie.net/cyberpunk/images/6/67/Yukimura_Skippy.png/revision/latest?cb=20231030123302',
+kyubi:'https://static.wikia.nocookie.net/cyberpunk/images/6/6e/Kyubi_Default.png/revision/latest?cb=20231031170917',
+spray_pray:'https://static.wikia.nocookie.net/cyberpunk/images/9/95/Spray_And_Pray.png/revision/latest?cb=20230916115548',
+divided:'https://static.wikia.nocookie.net/cyberpunk/images/c/c9/Sidewinder_Divided.png/revision/latest?cb=20231031152502',
+yasha:'https://static.wikia.nocookie.net/cyberpunk/images/8/87/Ashura_Twitch.png/revision/latest?cb=20230922153427',
+satori:'https://static.wikia.nocookie.net/cyberpunk/images/a/a9/Katana_Saburo.png/revision/latest?cb=20231101122636',
+scalpel:'https://static.wikia.nocookie.net/cyberpunk/images/3/33/Katana_Surgeon.png/revision/latest?cb=20231101122622',
+cocktail:'https://static.wikia.nocookie.net/cyberpunk/images/4/41/Katana_Cocktail.png/revision/latest?cb=20231101122655',
+jinchu:'https://static.wikia.nocookie.net/cyberpunk/images/8/84/Katana_Takemura.png/revision/latest?cb=20231101122615',
+byakko:'https://static.wikia.nocookie.net/cyberpunk/images/2/20/Katana_Wakako.png/revision/latest?cb=20231101122606',
+black_unicorn:'https://static.wikia.nocookie.net/cyberpunk/images/c/cb/Katana_GoG.png/revision/latest?cb=20231101122717',
+chingona:'https://static.wikia.nocookie.net/cyberpunk/images/7/7a/Nue_Jackie.png/revision/latest?cb=20231030143103',
+cottonmouth:'https://static.wikia.nocookie.net/cyberpunk/images/d/d6/Cane_Fingers.png/revision/latest?cb=20220825193336',
+sirjohn:'https://static.wikia.nocookie.net/cyberpunk/images/0/0d/Dildo_Stout.png/revision/latest?cb=20231202005840',
+stinger:'https://static.wikia.nocookie.net/cyberpunk/images/0/0b/Knife_Stinger.png/revision/latest?cb=20231101125648',
+mantis:'https://static.wikia.nocookie.net/cyberpunk/images/8/89/MantisBlades.png/revision/latest?cb=20230928074951',
+gorilla:'https://static.wikia.nocookie.net/cyberpunk/images/3/35/StrongArms.png/revision/latest?cb=20230928072235',
+monowire:'https://static.wikia.nocookie.net/cyberpunk/images/d/d6/NanoWires.png/revision/latest?cb=20230928080643',
+pls:'https://static.wikia.nocookie.net/cyberpunk/images/c/cf/ProjectileLauncher.png/revision/latest?cb=20230928080923',
+};
+function imgFallback(el){el.outerHTML=W_SVG[el.dataset.type]||W_SVG.pistol;}
+const CAT_COLORS = { power:'#ff1a4a', tech:'#ffe600', smart:'#00f5ff', melee:'#ff6b00' };
+const CAT_LABELS = { power:'POWER', tech:'TECH', smart:'SMART', melee:'MELEE' };
+const TYPE_LABELS = {
+  pistol:'Пистолет', revolver:'Револьвер', smg:'SMG', shotgun:'Дробовик',
+  ar:'Штурм. вин.', sniper:'Снайпер', precision:'Точн. вин.',
+  katana:'Катана', blunt:'Дубина', knife:'Нож', machete:'Мачете', cyberware:'Кибервэр'
+};
+const FIRE_STATS  = ['DPS','УРОН','СКОРОСТРЕЛЬН.','ДАЛЬНОСТЬ','МАГАЗИН'];
+const MELEE_STATS = ['DPS','УРОН','СКОРОСТЬ АТК','ДОСЯГАЕМОСТЬ','СТАТУС ЭФФЕКТ'];
+
+const GFX = {
+  power: { bg:'rgba(255,26,74,.18),rgba(140,0,30,.08)', glow:'255,26,74',  bar:'#ff1a4a,#ff5566' },
+  tech:  { bg:'rgba(255,230,0,.16),rgba(180,120,0,.08)', glow:'255,200,0', bar:'#ffe600,#ffaa00' },
+  smart: { bg:'rgba(0,245,255,.15),rgba(0,100,160,.08)', glow:'0,200,255', bar:'#00f5ff,#0099ff' },
+  melee: { bg:'rgba(255,107,0,.18),rgba(160,40,0,.08)',  glow:'255,107,0', bar:'#ff6b00,#ff9900' },
+};
+
+const WEAPONS = [
+  // ── POWER ──
+  { id:'malorian',    name:'Malorian Arms 3516',        short:'MALORIAN 3516',     category:'power', type:'pistol',   manufacturer:'Malorian Arms',
+    stats:[90,92,45,65,12], dlc:false,
+    special:'Сдвоенные пули при каждом выстреле. Наносит урон огнём и поджигает цели. Уникальные собственные патроны .44.',
+    lore:'Легендарный пистолет Джонни Сильверхенда. Был с ним при штурме Арасаки в 2023 году. Символ революции и бунта против корпораций.',
+    acquire:'Квест "Chippin\'In" — лут с Grayson (контейнер на корабле в Watson). Единственный шанс.' },
+  { id:'crash',       name:'Crash',                     short:'CRASH',             category:'power', type:'pistol',   manufacturer:'Budget Arms',
+    stats:[72,75,58,60,12], dlc:false,
+    special:'Рикошет наносит +50% дополнительного урона. Пуля поражает несколько целей при удачном отскоке.',
+    lore:'Доработанный бюджетный пистолет с усиленными пулями. Популярен среди Street Samurai за предсказуемый рикошет.',
+    acquire:'Лут в Westbrook, Japantown. Случайный NCPD наряд или drop с уличного самурая.' },
+  { id:'death_taxes', name:'Death and Taxes',           short:'DEATH & TAXES',     category:'power', type:'pistol',   manufacturer:'Arasaka',
+    stats:[65,68,58,58,15], dlc:false,
+    special:'Пули при рикошете взрываются с Explosive уроном в области. Частично игнорирует броню.',
+    lore:'Корпоративный пистолет с разрывными модифицированными пулями. Arasaka выдаёт его своим полевым агентам.',
+    acquire:'Квест "These Boots Are Made for Walkin\'" — лут с агента Arasaka.' },
+  { id:'archangel',   name:'Archangel',                 short:'ARCHANGEL',         category:'power', type:'pistol',   manufacturer:'Constitutional Arms',
+    stats:[70,72,55,62,15], dlc:false,
+    special:'Рикошетные пули наносят электрический урон и ошеломляют цель с шансом 30%.',
+    lore:'Личный пистолет детектива River Ward. Кастомная рукоятка с гравировкой. Знак искреннего доверия.',
+    acquire:'Подарок от River Ward при прохождении его романтической линии квестов.' },
+  { id:'amnesty',     name:'Amnesty',                   short:'AMNESTY',           category:'power', type:'revolver', manufacturer:'Constitutional Arms',
+    stats:[75,95,20,70,6],  dlc:false,
+    special:'Всегда критический удар при 100% HP. Первый выстрел в бою — +100% к крит. урону.',
+    lore:'"No Gods, No Masters" — гравировка на рукоятке. Тяжёлый револьвер с историей.',
+    acquire:'Квест "Blistering Love" — воспоминания Джонни. Лут или квестовая награда.' },
+  { id:'buzzsaw',     name:'Buzzsaw',                   short:'BUZZSAW',           category:'power', type:'smg',      manufacturer:'Militech',
+    stats:[80,55,95,40,36], dlc:false,
+    special:'Пули рикошетят и поражают до 3 целей. Шанс поджога при каждом попадании.',
+    lore:'Доработанный Militech для бандитов Maelstrom. Корпус намеренно покрыт ржавчиной.',
+    acquire:'Лут с тела Royce в штабе Maelstrom (Watson). Квест "The Pickup".' },
+  { id:'fenrir',      name:'Fenrir',                    short:'FENRIR',            category:'power', type:'smg',      manufacturer:'Darra Polytechnic',
+    stats:[75,50,90,38,30], dlc:false,
+    special:'Пули поджигают цели. Урон от огня распространяется на соседних врагов при убийстве.',
+    lore:'Разработан для горячих точек. Назван в честь скандинавского волка Фенрира — огонь неизбежен.',
+    acquire:'Лут с охранника в Westbrook или случайный drop от членов банды.' },
+  { id:'problem_solver',name:'Problem Solver',          short:'PROBLEM SOLVER',    category:'power', type:'smg',      manufacturer:'Militech',
+    stats:[82,58,92,42,45], dlc:false,
+    special:'Последние 15 пуль в магазине: +25% урона. Перезарядка из пустого магазина значительно быстрее.',
+    lore:'У каждой проблемы есть решение. Militech сделали оружие, которое работает и стоит дёшево.',
+    acquire:'Лут с врага в Arroyo (Santo Domingo). NCPD наряд или gang-drop.' },
+  { id:'ba_xing',     name:'Ba Xing Chong',             short:'BA XING CHONG',     category:'power', type:'shotgun',  manufacturer:'Rostović',
+    stats:[88,90,30,25,8],  dlc:false,
+    special:'Заряженные выстрелы взрываются при рикошете. Гибрид Power и Smart систем. Масштабируется с кибервэром.',
+    lore:'Персональное оружие Adam Smasher. Дробовик с переработанным механизмом — гибрид двух технологий.',
+    acquire:'Лут с Adam Smasher в финале игры (Arasaka Tower). Единственная попытка.' },
+  { id:'sovereign',   name:'Sovereign',                 short:'SOVEREIGN',         category:'power', type:'shotgun',  manufacturer:'Rostović',
+    stats:[85,88,22,22,2],  dlc:false,
+    special:'Два заряда одновременно. Каждый заряд рикошетит независимо. Badlands-стиль.',
+    lore:'Двустволка с усиленными зарядами. Блеск при каждом выстреле — оружие кочевников.',
+    acquire:'Лут в Badlands или drop с Nomad-противников. Иногда у Nomad-вендоров.' },
+  { id:'headhunter',  name:'Headhunter',                short:'HEADHUNTER',        category:'power', type:'shotgun',  manufacturer:'Militech',
+    stats:[78,82,28,28,6],  dlc:false,
+    special:'Убийство хедшотом вызывает взрыв в области 3м вокруг трупа.',
+    lore:'Спецоружие для охотников за головами Militech. Чистая работа — минимум шума.',
+    acquire:'Craft с legendary чертежом или редкий drop с элитного противника.' },
+  { id:'psalm',       name:'Psalm 11:6',                short:'PSALM 11:6',        category:'power', type:'ar',       manufacturer:'Constitutional Arms',
+    stats:[85,65,80,75,30], dlc:false,
+    special:'Попадание в голову поджигает цель. Огонь распространяется на врагов в радиусе 2м.',
+    lore:'"На нечестивых дождём падёт огонь". Оружие фанатиков с религиозными взглядами.',
+    acquire:'Лут с Grigori (босс Valentinos) в Heywood или во время конфликта группировок.' },
+  { id:'moron_labe',  name:'Moron Labe',                short:'MORON LABE',        category:'power', type:'ar',       manufacturer:'Militech',
+    stats:[82,63,82,74,30], dlc:false,
+    special:'Первые 5 пуль после перезарядки: +30% крит. урона. Кастомная медная отделка.',
+    lore:'"Come and Take It" на кириллице на ложе. 6th Street присвоили и модифицировали эту пушку.',
+    acquire:'Лут с противника 6th Street в Santo Domingo или квест с бандой.' },
+  { id:'overwatch',   name:'Overwatch',                 short:'OVERWATCH',         category:'power', type:'sniper',   manufacturer:'Militech',
+    stats:[70,92,15,100,4], dlc:false,
+    special:'Выстрелы проходят через укрытия. Пуля не теряет урон на дистанции. Бесшумный режим.',
+    lore:'Личная снайперская винтовка Panam Palmer. Модифицирована для дальнего прикрытия отряда кочевников.',
+    acquire:'Подарок от Panam Palmer в конце квеста "Riders on the Storm".' },
+  { id:'ofive',       name:"O'Five",                    short:"O'FIVE",            category:'power', type:'sniper',   manufacturer:'Constitutional Arms',
+    stats:[68,95,12,100,3], dlc:false,
+    special:'Первый выстрел из засады — всегда крит. Убийство восстанавливает заряд уклонения.',
+    lore:'Снайперка с легендарной репутацией среди Nomad-охотников. Пристреляна за пять патронов.',
+    acquire:'Лут в Badlands во время квестов с Альдекадо или NCPD контракт.' },
+
+  // ── TECH ──
+  { id:'chaos',       name:'Chaos',                     short:'CHAOS',             category:'tech', type:'pistol',   manufacturer:'Techtronika',
+    stats:[76,78,52,62,15], dlc:false,
+    special:'Тип урона меняется случайно при каждом выстреле: огонь / электро / яд / взрыв.',
+    lore:'Оружие Royce — лидера Maelstrom. Нестабильная Tech-модификация отражает его непредсказуемость.',
+    acquire:'Лут с Royce в штабе Maelstrom (Watson). Квест "The Pickup".' },
+  { id:'apparition',  name:'Apparition',                short:'APPARITION',        category:'tech', type:'pistol',   manufacturer:'Techtronika',
+    stats:[74,76,54,60,12], dlc:false,
+    special:'Атака по незамеченному врагу — мгновенный крит. Идеален для стелс-прохождения.',
+    lore:'Tech-пистолет с Armor-Piercing протоколом. Тихий как призрак, смертоносный как удар в спину.',
+    acquire:'Квест "Violence" — лут в здании или тайник по ходу квеста.' },
+  { id:'seraph',      name:'Séraphin',                  short:'SÉRAPHIN',          category:'tech', type:'pistol',   manufacturer:'Techtronika',
+    stats:[72,74,50,58,15], dlc:false,
+    special:'Заряженный выстрел пробивает 3 цели в линию. По кибервэру — +25% урона.',
+    lore:'Оружие кочевников Aldecaldo. Французское имя — воспоминание о жизни до Badlands.',
+    acquire:'Лут в лагере Aldecaldo или от Nomad-противников в Badlands.' },
+  { id:'hammer',      name:"Comrade's Hammer",          short:"COMRADE'S HAMMER",  category:'tech', type:'revolver', manufacturer:'Techtronika',
+    stats:[65,100,5,80,1],  dlc:false,
+    special:'Один выстрел — термобарический взрыв. Уничтожает всё в радиусе 3м. Очень медленная перезарядка.',
+    lore:'Советский дизайн, коммунистические символы. Один выстрел — одна смерть. Без компромиссов.',
+    acquire:'NCPD наряды или рандомный drop с сильного противника. Крайне редкий.' },
+  { id:'shingen',     name:'Prototype: Shingen Mark V', short:'SHINGEN MK.V',      category:'tech', type:'smg',      manufacturer:'Arasaka',
+    stats:[78,54,88,42,35], dlc:false,
+    special:'Прототип Smart/Tech гибрид. Авто-прицеливание + заряженные Tech-очереди. Ограниченная серия.',
+    lore:'Личное оружие Maiko Maeda. Прототип Arasaka — не продаётся в магазинах.',
+    acquire:'Лут с Maiko в квесте "Pisces" (клуб Clouds, Westbrook Japantown).' },
+  { id:'headsman',    name:'The Headsman',              short:'THE HEADSMAN',      category:'tech', type:'smg',      manufacturer:'Militech',
+    stats:[76,52,85,40,32], dlc:false,
+    special:'Накапливает заряд при стрельбе. Отпускание триггера — электрический разряд конусом.',
+    lore:'Militech эксперимент с Tech-SMG. Электрополе при разряде поражает несколько целей.',
+    acquire:'Враг-командир Militech или специальный NCPD контракт в Watson.' },
+  { id:'guts',        name:'Guts',                      short:'GUTS',              category:'tech', type:'shotgun',  manufacturer:'Militech',
+    stats:[82,88,25,25,4],  dlc:false,
+    special:'Заряженный выстрел — снаряд-ракета, взрывающийся через 1 сек после попадания.',
+    lore:'Джонни таскал этот дробовик рядом с Malorian. Грубая сила Tech — в лучшем виде.',
+    acquire:'Тайник связанный с воспоминаниями Джонни или лут в Corpo Plaza.' },
+  { id:'mox',         name:'Mox',                       short:'MOX',               category:'tech', type:'shotgun',  manufacturer:'Rostović',
+    stats:[80,85,28,28,6],  dlc:false,
+    special:'Убийство из Mox восстанавливает 5% HP. Фиолетовые энергетические следы от пуль.',
+    lore:'Дробовик Judy Alvarez. Назван в честь защитниц Dolls в клубе Clouds. Модифицирован с любовью.',
+    acquire:'Подарок или лут от Judy Alvarez в финале её романтической линии квестов.' },
+  { id:'grad',        name:'Grad',                      short:'GRAD',              category:'tech', type:'precision', manufacturer:'Techtronika',
+    stats:[72,88,20,95,6],  dlc:false,
+    special:'Пробивает стены и укрытия насквозь. Заряженный выстрел — railgun с двойным уроном.',
+    lore:'"Град" — русское слово, символ неотвратимости. Tech-снайпер игнорирует физические барьеры.',
+    acquire:'Craft с чертежом из Badlands или drop с Tech-снайпера в дальних зонах.' },
+  { id:'breakthrough',name:'Breakthrough',              short:'BREAKTHROUGH',      category:'tech', type:'sniper',   manufacturer:'Rostović',
+    stats:[70,90,18,95,5],  dlc:false,
+    special:'Пуля пробивает любое укрытие и до 3 целей в одну линию. Идеальный пробой стен.',
+    lore:'Снайпер для разрушения позиций обороны. Буквально прорывается сквозь любую стену.',
+    acquire:'Лут со снайпера в зоне Aldecaldo или контракт Fixers в Badlands.' },
+  { id:'ashura',      name:'Ashura',                    short:'ASHURA',            category:'tech', type:'sniper',   manufacturer:'Arasaka',
+    stats:[68,92,15,98,4],  dlc:false,
+    special:'Заряженный выстрел — EMP-удар. Отключает кибервэр цели на 5 секунд.',
+    lore:'Корпоративная снайперская система Arasaka. Ashura — индуистское воинское существо.',
+    acquire:'Рейд на склад Arasaka или лут с элитного корпоративного снайпера.' },
+
+  // ── SMART ──
+  { id:'skippy',      name:'Skippy',                    short:'SKIPPY',            category:'smart', type:'pistol',  manufacturer:'NICO Industries',
+    stats:[78,72,62,55,16], dlc:false,
+    special:'ГОВОРЯЩИЙ ИИ-пистолет! Два режима: "Stone Cold Killer" (хедшоты) / "Rocky Road" (конечности). Переключается через 50 убийств.',
+    lore:'Единственное разговорчивое оружие в Night City. Skippy хочет жить. Skippy хочет помочь. Skippy боится смерти.',
+    acquire:'Случайный труп в тёмной аллее Vista del Rey, Heywood. Найди до конца игры!' },
+  { id:'kyubi',       name:'Kyubi',                     short:'KYUBI',             category:'smart', type:'pistol',  manufacturer:'Kang Tao',
+    stats:[72,68,58,52,15], dlc:false,
+    special:'9 пуль летят к 9 разным целям одновременно при каждом выстреле.',
+    lore:'Девять лисиц — японская мифология. Девять умных пуль — Kang Tao инженерия.',
+    acquire:'Тайник в Japantown (Westbrook) или лут с Kang Tao оперативника.' },
+  { id:'spray_pray',  name:'Spray and Pray',            short:'SPRAY & PRAY',      category:'smart', type:'smg',     manufacturer:'Militech',
+    stats:[80,52,92,38,60], dlc:false,
+    special:'Все пули самонаводятся при беге. Максимально эффективен против нескольких целей.',
+    lore:'Для тех, кто молится и распыляет. Точность — за тебя, ты просто бежишь и нажимаешь.',
+    acquire:'Вендор у Ripperdoc или лут с Militech-бойца в Santo Domingo.' },
+  { id:'divided',     name:'Divided We Stand',          short:'DIVIDED WE STAND',  category:'smart', type:'ar',      manufacturer:'Militech',
+    stats:[82,60,82,72,30], dlc:false,
+    special:'При каждом выстреле — 3 самонаводящихся снаряда. Максимальный урон по группе врагов.',
+    lore:'Американская надпись. Разделённые падём. С этой пушкой падёт только враг.',
+    acquire:'Квест "Stadium Love" — турнир по стрельбе в Pacifica. Победи все волны.' },
+  { id:'yasha',       name:'Yasha',                     short:'YASHA',             category:'smart', type:'sniper',  manufacturer:'Kang Tao',
+    stats:[72,90,14,100,5], dlc:false,
+    special:'Пуля сама корректирует траекторию к цели. Гарантированный хедшот по движущейся цели.',
+    lore:'Яша — демон из японского фольклора. Пуля найдёт тебя, где бы ты ни спрятался.',
+    acquire:'Лут с Sandayu Oda (телохранитель Takemura) в финальных квестах Такемуры.' },
+
+  // ── MELEE ──
+  { id:'satori',      name:'Satori',                    short:'SATORI',            category:'melee', type:'katana',  manufacturer:'Arasaka',
+    stats:[92,85,88,40,50], dlc:false,
+    special:'+50% к крит. шансу на всех атаках. Атака из невидимости — гарантированный крит. Легендарный клинок.',
+    lore:'Катана Saburo Arasaka. "Сатори" — просветление. Символ власти корпорации над жизнью и смертью.',
+    acquire:'Лут на вертолёте Saburo в самом начале Act 1. Единственный шанс — не пропусти!' },
+  { id:'scalpel',     name:'Scalpel',                   short:'SCALPEL',           category:'melee', type:'katana',  manufacturer:'Unknown',
+    stats:[85,80,90,38,35], dlc:false,
+    special:'Убийство замедляет время на 3 сек. Эффект кумулятивен при серии убийств.',
+    lore:'Хирургическая точность в ударах — недаром такое имя. Для тех, кто режет быстро.',
+    acquire:'Квест "Edgerunners Initiative" или craft с legendary чертежом.' },
+  { id:'cocktail',    name:'Cocktail Stick',            short:'COCKTAIL STICK',    category:'melee', type:'katana',  manufacturer:'Custom',
+    stats:[70,72,95,35,25], dlc:false,
+    special:'Самая быстрая катана в игре. Атаки вызывают кровотечение. Розовое лезвие с неоновым следом.',
+    lore:'Личная катана Maiko — управляющей клубом Clouds. Тонкая, быстрая, смертельная.',
+    acquire:'Лут с Maiko в квесте "Pisces" (Clouds, Westbrook Japantown).' },
+  { id:'jinchu',      name:'Jinchu-Maru',               short:'JINCHU-MARU',       category:'melee', type:'katana',  manufacturer:'Arasaka',
+    stats:[80,82,85,38,30], dlc:false,
+    special:'Последний удар в комбо всегда наносит 200% крит. урона. Идеален для крит-билдов.',
+    lore:'Катана Sandayu Oda, главного телохранителя Arasaka. "Jinchu" — наивысшая точность удара.',
+    acquire:'Лут с Sandayu Oda во время финального боя в квестах Takemura.' },
+  { id:'byakko',      name:'Byakko',                    short:'BYAKKO',            category:'melee', type:'katana',  manufacturer:'Unknown',
+    stats:[88,88,82,40,35], dlc:false,
+    special:'Электрические атаки при каждом ударе. Шанс мгновенного стана цели.',
+    lore:'"Byakko" — Белый Тигр, одно из Четырёх Небесных Существ японской мифологии. Мощь и стремительность.',
+    acquire:'Тайник в Watson или редкий лут с босса бандитов.' },
+  { id:'black_unicorn',name:'Black Unicorn',            short:'BLACK UNICORN',     category:'melee', type:'katana',  manufacturer:'Unknown',
+    stats:[90,90,88,42,40], dlc:true,
+    special:'Пробивает 100% брони. Оставляет горящий след после каждого взмаха. Phantom Liberty эксклюзив.',
+    lore:'Назван в честь легендарного бара из игры The Witcher. Пасхалка от CD PROJEKT RED. Тёмная элегантность.',
+    acquire:'DLC Phantom Liberty — квест в Dogtown. Исследуй окрестности района.' },
+  { id:'chingona',    name:'La Chingona Dorada',        short:'LA CHINGONA',       category:'melee', type:'machete', manufacturer:'Custom — Jackie',
+    stats:[75,75,75,45,45], dlc:false,
+    special:'Двойная атака двумя мачете одновременно. Вызывает кровотечение. Урон растёт с яростью.',
+    lore:'Золотые мачете Jackie Welles. "La Chingona Dorada" — Та, что умеет постоять за себя. Память о Джеки.',
+    acquire:'Квестовая линия Jackie. Финал — лут или подарок от Mama Welles в её мастерской.' },
+  { id:'cottonmouth', name:'Cottonmouth',               short:'COTTONMOUTH',       category:'melee', type:'blunt',   manufacturer:'Custom',
+    stats:[70,70,68,35,50], dlc:false,
+    special:'Электрический + ядовитый урон при каждом ударе. Уникальное сочетание двух статусов.',
+    lore:'Дубинка с двойным статус-поражением. Valentinos ценят её за непредсказуемость в ближнем бою.',
+    acquire:'Тайник в Heywood или craft с редким чертежом у Valentinos.' },
+  { id:'sirjohn',     name:'Sir John Phallustiff',      short:'SIR JOHN',          category:'melee', type:'blunt',   manufacturer:'Unknown',
+    stats:[55,55,72,30,30], dlc:false,
+    special:'Электрический урон при каждом ударе. Эффект ошеломления. Night City — самое странное место.',
+    lore:'Самое уникальное оружие Night City. Найдено в квесте с Kerry Eurodyne. Без дополнительных комментариев.',
+    acquire:'Квест с Kerry Eurodyne "Boat Drinks" — лежит в номере отеля после событий квеста.' },
+  { id:'stinger',     name:'Stinger',                   short:'STINGER',           category:'melee', type:'knife',   manufacturer:'Militech',
+    stats:[55,55,95,20,60], dlc:false,
+    special:'Мощный яд при каждом попадании. Урон от яда суммируется. Быстрейший нож в игре.',
+    lore:'Тонкое лезвие с ядовитым покрытием. Militech разработал для бесшумного устранения целей.',
+    acquire:'Craft с чертежом или лут со стелс-бойца в ночных контрактах.' },
+  { id:'mantis',      name:'Mantis Blades',             short:'MANTIS BLADES',     category:'melee', type:'cyberware', manufacturer:'Ripperdoc',
+    stats:[80,80,82,35,40], dlc:false,
+    special:'Выдвигаются из предплечья. Прыжок-атака сверху. Критически поражают броню. Фирменный стиль V.',
+    lore:'Самое знаковое кибернетическое оружие Cyberpunk 2077. V с Mantis Blades — идеальный визуальный образ.',
+    acquire:'Любой Ripperdoc. Street Cred 20+ для легендарной версии у Viktor или Cassius.' },
+  { id:'gorilla',     name:'Gorilla Arms',              short:'GORILLA ARMS',      category:'melee', type:'cyberware', manufacturer:'Ripperdoc',
+    stats:[88,90,55,25,20], dlc:false,
+    special:'Максимальный урон кулаком. Ломают двери и разрушают турели. Особый удар с долгим замахом.',
+    lore:'Хромированные кибер-кулаки для тех, кто рвёт врагов голыми руками. Gorilla-стиль прохождения.',
+    acquire:'Любой Ripperdoc. Street Cred 12+ стандартные. Легендарные — Viktor или Cassius Ryder.' },
+  { id:'monowire',    name:'Monowire',                  short:'MONOWIRE',          category:'melee', type:'cyberware', manufacturer:'Ripperdoc',
+    stats:[70,70,78,50,50], dlc:false,
+    special:'Мономолекулярная нить режет броню насквозь. При накоплении заряда — электровзрыв по области.',
+    lore:'Тончайшая нить из запястья. Нетраннер-билд + монопровод = одна из сильнейших комбинаций.',
+    acquire:'Любой Ripperdoc. Street Cred 20+ для легендарной версии.' },
+  { id:'pls',         name:'Projectile Launch System',  short:'PROJ. LAUNCH SYS.', category:'melee', type:'cyberware', manufacturer:'Ripperdoc',
+    stats:[75,75,30,80,0],  dlc:false,
+    special:'Запускает ракеты из руки. Три режима: Explosive / EMP Bolt / Recon Grenade.',
+    lore:'Ракетница, встроенная в руку. Night City давно перешла черту между человеком и оружием.',
+    acquire:'Ripperdoc. Street Cred 20+. Ammo — стандартная, покупается у торговцев.' },
+];
+
+// ── STATE ──
+let fCat = 'all', fType = 'all', fText = '', activeId = null;
+
+function hexRgb(h) {
+  return [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)].join(',');
+}
+
+// ── RENDER CARDS ──
+function renderCards() {
+  document.querySelectorAll('.wcard').forEach(el => el.remove());
+  const noR = document.getElementById('noResults');
+
+  const list = WEAPONS.filter(w => {
+    if (fCat  !== 'all' && w.category !== fCat)  return false;
+    if (fType !== 'all' && w.type     !== fType)  return false;
+    if (fText && !w.name.toLowerCase().includes(fText) && !w.short.toLowerCase().includes(fText)) return false;
+    return true;
+  });
+
+  noR.classList.toggle('show', list.length === 0);
+  document.getElementById('weaponsCount').textContent = `// ${list.length} WEAPON(S) LOADED`;
+  document.getElementById('panelCount').textContent   = `${list.length} ЕДИНИЦ НА СКЛАДЕ`;
+
+  const grid = document.getElementById('weaponGrid');
+  const statLabels = fCat === 'melee' ? MELEE_STATS : FIRE_STATS;
+
+  list.forEach((w, i) => {
+    const c   = CAT_COLORS[w.category];
+    const gfx = GFX[w.category];
+    const tl  = TYPE_LABELS[w.type]  || w.type;
+    const cl  = CAT_LABELS[w.category];
+    const sl  = w.category === 'melee' ? MELEE_STATS : FIRE_STATS;
+
+    const card = document.createElement('div');
+    card.className = 'wcard fade-up';
+    card.id = 'wc-' + w.id;
+    card.style.setProperty('--wc', c);
+    card.style.animationDelay = Math.min(i * 0.025, 0.5) + 's';
+
+    card.innerHTML = `
+      <div class="w-art">
+        <div class="w-art-bg" style="background:linear-gradient(135deg,${gfx.bg})"></div>
+        <div class="w-art-grid"></div>
+        <div class="w-art-scan"></div>
+        <div class="w-art-glow" style="background:radial-gradient(circle,rgba(${gfx.glow},.22) 0%,transparent 65%)"></div>
+        <div class="w-svg-wrap" style="color:${c}"><img src="${W_IMG[w.id]||''}" data-type="${w.type}" alt="${w.short}" referrerpolicy="no-referrer" class="w-weapon-img" onerror="imgFallback(this)"/></div>
+        ${w.dlc ? '<div class="w-dlc">PL DLC</div>' : ''}
+        <div class="w-iconic">◆ ICONIC</div>
+        <div class="w-art-type" style="color:${c};position:relative;z-index:1">${cl} · ${tl}</div>
+      </div>
+      <div class="w-body">
+        <div class="w-name" style="color:${c}">${w.name}</div>
+        <div class="w-tags">
+          <div class="w-tag" style="color:${c};border-color:${c}55">${cl}</div>
+          <div class="w-tag" style="color:rgba(232,244,248,.4);border-color:rgba(232,244,248,.1)">${tl}</div>
+        </div>
+        <div class="w-stats">
+          ${[0,1,2].map(j => `
+            <div class="w-stat-row">
+              <div class="w-stat-label">${sl[j]}</div>
+              <div class="w-stat-bar"><div class="w-stat-fill" style="background:linear-gradient(to right,${gfx.bar});width:0%" data-w="${w.stats[j]}%"></div></div>
+              <div class="w-stat-val" style="color:${c}">${w.stats[j]}</div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+
+    card.addEventListener('click', () => selectWeapon(w.id));
+    grid.insertBefore(card, noR);
+  });
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.querySelectorAll('.w-stat-fill').forEach(el => { el.style.width = el.dataset.w; });
+  }));
+}
+
+// ── SELECT WEAPON ──
+function selectWeapon(id) {
+  const w = WEAPONS.find(x => x.id === id);
+  if (!w) return;
+  activeId = id;
+
+  document.querySelectorAll('.wcard').forEach(el => el.classList.remove('active'));
+  const card = document.getElementById('wc-' + id);
+  if (card) { card.classList.add('active'); card.scrollIntoView({ block:'nearest', behavior:'smooth' }); }
+
+  const c   = CAT_COLORS[w.category];
+  const gfx = GFX[w.category];
+  const cl  = CAT_LABELS[w.category];
+  const tl  = TYPE_LABELS[w.type] || w.type;
+  const sl  = w.category === 'melee' ? MELEE_STATS : FIRE_STATS;
+
+  // art
+  const dpArtBgColors = {
+    power:'rgba(255,26,74,.28),rgba(80,0,15,.7)',
+    tech: 'rgba(255,220,0,.22),rgba(60,40,0,.7)',
+    smart:'rgba(0,245,255,.2),rgba(0,50,80,.7)',
+    melee:'rgba(255,107,0,.25),rgba(80,25,0,.7)',
+  };
+  document.getElementById('dpArtBg').style.background = `linear-gradient(135deg,${dpArtBgColors[w.category]})`;
+  document.getElementById('dpArtGlow').style.background = `radial-gradient(circle,rgba(${gfx.glow},.4) 0%,transparent 60%)`;
+  const svgWrap=document.getElementById('dpSvgWrap');
+  svgWrap.innerHTML=`${W_SVG[w.type]||W_SVG.pistol}<img src="${W_IMG[w.id]||''}" data-type="${w.type}" alt="${w.name}" referrerpolicy="no-referrer" class="dp-weapon-img" style="filter:drop-shadow(0 0 26px ${c}aa)" onload="const s=this.parentElement.querySelector('svg');if(s)s.style.display='none'" onerror="this.style.display='none'"/>`;
+  svgWrap.style.color=c;
+  document.getElementById('dpCat').textContent = `${cl} · ${tl}`;
+  document.getElementById('dpCat').style.color = c;
+  document.getElementById('dpName').textContent = w.name;
+  document.getElementById('dpName').style.color = c;
+  document.getElementById('dpMfr').textContent = '// ' + w.manufacturer;
+
+  // badges
+  const be = document.getElementById('dpBadges');
+  be.innerHTML = '';
+  const mkBadge = (txt, col, brd) => { const b = document.createElement('div'); b.className='dp-badge'; b.textContent=txt; b.style.color=col; b.style.borderColor=brd; be.appendChild(b); };
+  mkBadge('◆ ICONIC','#ff9900','rgba(255,153,0,.5)');
+  mkBadge(cl, c, c+'66');
+  mkBadge(tl.toUpperCase(),'rgba(232,244,248,.45)','rgba(232,244,248,.15)');
+  if (w.dlc) mkBadge('PHANTOM LIBERTY','#ffaa00','rgba(255,170,0,.5)');
+
+  // stats
+  const se = document.getElementById('dpStats');
+  se.innerHTML = '';
+  w.stats.forEach((val, i) => {
+    const row = document.createElement('div');
+    row.className = 'dp-stat-row';
+    row.innerHTML = `
+      <div class="dp-stat-name">${sl[i]}</div>
+      <div class="dp-stat-bar"><div class="dp-stat-fill" style="background:linear-gradient(to right,${gfx.bar});width:0%" data-w="${val}%"></div></div>
+      <div class="dp-stat-num" style="color:${c}">${val}</div>`;
+    se.appendChild(row);
+  });
+
+  // special
+  document.getElementById('dpSpecialBox').style.borderLeftColor = c;
+  document.getElementById('dpSpecialBox').style.background = `rgba(${gfx.glow},.04)`;
+  document.getElementById('dpSpecialLabel').style.color = c;
+  document.getElementById('dpSpecial').textContent = w.special;
+  document.getElementById('dpLore').textContent = w.lore;
+  document.getElementById('dpAcquire').textContent = w.acquire;
+
+  // open
+  document.getElementById('detailPanel').classList.add('open');
+  document.getElementById('backdrop').classList.add('show');
+
+  // animate stat bars
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    se.querySelectorAll('.dp-stat-fill').forEach(el => { el.style.width = el.dataset.w; });
+  }));
+}
+
+function closePanel() {
+  document.getElementById('detailPanel').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('show');
+  document.querySelectorAll('.wcard').forEach(el => el.classList.remove('active'));
+  activeId = null;
+}
+
+document.getElementById('dpClose').addEventListener('click', closePanel);
+document.getElementById('backdrop').addEventListener('click', closePanel);
+
+// ── FILTERS ──
+document.querySelectorAll('.cat-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    fCat = btn.dataset.cat;
+    fType = 'all';
+    document.querySelectorAll('.type-chip').forEach(c => c.classList.remove('active'));
+    document.querySelector('.type-chip[data-type="all"]').classList.add('active');
+    renderCards();
+    closePanel();
+  });
+});
+
+document.querySelectorAll('.type-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.type-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    fType = chip.dataset.type;
+    renderCards();
+  });
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  fText = e.target.value.toLowerCase().trim();
+  renderCards();
+});
+
+// ── CURSOR ──
+const cDot=document.getElementById('cDot'),cH=document.getElementById('cH'),cV=document.getElementById('cV'),cRing=document.getElementById('cRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  cDot.style.transform=`translate3d(${mx-2.5}px,${my-2.5}px,0)`;
+  cH.style.transform=`translate3d(${mx-11}px,${my-.5}px,0)`;
+  cV.style.transform=`translate3d(${mx-.5}px,${my-11}px,0)`;
+});
+(function rl(now){
+  const dt=Math.min((now-(rl.t=rl.t||now))/16.667,3); rl.t=now;
+  const s=1-Math.pow(0.88,dt);
+  rx+=(mx-rx)*s; ry+=(my-ry)*s;
+  cRing.style.transform=`translate3d(${rx-18}px,${ry-18}px,0)`;
+  requestAnimationFrame(rl);
+})(performance.now());
+document.addEventListener('mouseover',e=>{
+  if(e.target.closest('.wcard,.cat-btn,.type-chip,.back-btn,.dp-close,a')){
+    cRing.style.width='50px';cRing.style.height='50px';cRing.style.borderColor='rgba(0,245,255,.9)';
+  }
+});
+document.addEventListener('mouseout',e=>{
+  if(e.target.closest('.wcard,.cat-btn,.type-chip,.back-btn,.dp-close,a')){
+    cRing.style.width='36px';cRing.style.height='36px';cRing.style.borderColor='rgba(0,245,255,.55)';
+  }
+});
+
+// ── INIT ──
+renderCards();
+
+// ── MOBILE FILTER PANEL ──
+document.addEventListener('DOMContentLoaded',function(){
+  const btn=document.getElementById('mobFilterBtn');
+  const bg=document.getElementById('mobFilterBg');
+  const pl=document.querySelector('.panel-left');
+  if(!btn)return;
+  function openFilter(){pl.classList.add('mob-open');bg.classList.add('show');}
+  function closeFilter(){pl.classList.remove('mob-open');bg.classList.remove('show');}
+  btn.addEventListener('click',()=>pl.classList.contains('mob-open')?closeFilter():openFilter());
+  bg.addEventListener('click',closeFilter);
+  pl.querySelectorAll('.cat-btn,.type-chip').forEach(b=>b.addEventListener('click',()=>{if(window.innerWidth<=768)closeFilter();}));
+});
+</script>
+<div class="mob-filter-bg" id="mobFilterBg"></div>
+<button class="mob-filter-btn" id="mobFilterBtn">⚙ ФИЛЬТРЫ</button>
+</body></html>

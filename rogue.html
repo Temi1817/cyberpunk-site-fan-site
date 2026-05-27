@@ -1,0 +1,199 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rogue Amendiares — CYBERPUNK 2077</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--ac:#9944ff;--ac2:rgba(153,68,255,.12);--bg:#060609;--white:#e8f4f8;--dim:#3a5060}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--white);font-family:'Rajdhani',sans-serif;overflow-x:hidden;cursor:none}
+    ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--ac)}
+    .scanlines{position:fixed;inset:0;z-index:9000;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px)}
+    .crt{position:fixed;inset:0;z-index:8999;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.65) 100%)}
+    .cDot{position:fixed;z-index:10003;pointer-events:none;width:5px;height:5px;border-radius:50%;background:var(--ac);box-shadow:0 0 10px var(--ac);top:0;left:0;will-change:transform}
+    .cH{position:fixed;z-index:10002;pointer-events:none;width:22px;height:1px;background:var(--ac);box-shadow:0 0 6px var(--ac);top:0;left:0;will-change:transform}
+    .cV{position:fixed;z-index:10002;pointer-events:none;width:1px;height:22px;background:var(--ac);box-shadow:0 0 6px var(--ac);top:0;left:0;will-change:transform}
+    .cRing{position:fixed;z-index:10001;pointer-events:none;width:36px;height:36px;border:1px solid rgba(153,68,255,.55);border-radius:50%;top:0;left:0;will-change:transform;transition:width .3s,height .3s,border-color .3s}
+    nav{position:fixed;inset:0 0 auto 0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 3.5rem;background:rgba(6,6,9,.9);border-bottom:1px solid rgba(153,68,255,.15);backdrop-filter:blur(14px)}
+    .logo{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:900;letter-spacing:.12em;color:var(--ac);text-shadow:0 0 18px var(--ac);cursor:none}
+    .logo span{color:#ffe600;text-shadow:0 0 18px #ffe600}
+    .back-btn{display:flex;align-items:center;gap:.6rem;font-size:.75rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(232,244,248,.45);text-decoration:none;border:1px solid rgba(153,68,255,.2);padding:.38rem 1.1rem;transition:all .3s;cursor:none}
+    .back-btn:hover{color:var(--ac);border-color:var(--ac);box-shadow:0 0 20px rgba(153,68,255,.2)}
+    .net-status{display:flex;align-items:center;gap:.5rem;font-size:.62rem;letter-spacing:.25em;text-transform:uppercase;color:var(--dim)}
+    .ndot{width:6px;height:6px;border-radius:50%;background:var(--ac);box-shadow:0 0 8px var(--ac);animation:blink 1.8s infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+    .hero{position:relative;height:100vh;min-height:700px;display:flex;align-items:center;overflow:hidden}
+    #rain{position:absolute;inset:0;width:100%;height:100%;opacity:.32}
+    .grid-bg{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(153,68,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(153,68,255,.025) 1px,transparent 1px);background-size:55px 55px}
+    .hero-left{position:relative;z-index:10;padding:0 3rem 0 5rem;max-width:52%;opacity:0;animation:aSlideL 1s cubic-bezier(.16,1,.3,1) .4s forwards}
+    @keyframes aSlideL{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:none}}
+    .id-chip{display:inline-flex;align-items:center;gap:.6rem;font-size:.6rem;letter-spacing:.42em;text-transform:uppercase;color:var(--ac);border:1px solid rgba(153,68,255,.25);padding:.35rem 1rem;margin-bottom:1.8rem;text-shadow:0 0 10px var(--ac)}
+    .id-dot{width:5px;height:5px;background:var(--ac);animation:blink 1.2s infinite}
+    .char-name{font-family:'Orbitron',monospace;font-size:clamp(2.8rem,6vw,5.5rem);font-weight:900;line-height:.9;color:var(--white);text-shadow:0 0 30px rgba(153,68,255,.5),0 0 60px rgba(153,68,255,.2)}
+    .char-class{font-size:.85rem;letter-spacing:.35em;text-transform:uppercase;color:var(--ac);margin-top:1rem;text-shadow:0 0 10px var(--ac)}
+    .char-tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.4rem}
+    .ctag{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;padding:.2rem .7rem;border:1px solid rgba(153,68,255,.3);color:rgba(153,68,255,.85)}
+    .char-bio{font-size:1rem;line-height:1.75;color:rgba(232,244,248,.55);margin-top:1.8rem;max-width:480px}
+    .hero-btns{display:flex;gap:.8rem;margin-top:2.4rem}
+    .btn{font-family:'Rajdhani',sans-serif;font-size:.76rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700;padding:.78rem 2rem;text-decoration:none;cursor:none;transition:all .3s;border:none}
+    .btn-s{background:var(--ac);color:#060609}
+    .btn-s:hover{box-shadow:0 0 40px rgba(153,68,255,.55);transform:translateY(-2px)}
+    .btn-o{background:transparent;color:var(--ac);border:1px solid rgba(153,68,255,.4)}
+    .btn-o:hover{background:rgba(153,68,255,.08);box-shadow:0 0 24px rgba(153,68,255,.2);transform:translateY(-2px)}
+    .hero-right{position:absolute;right:0;bottom:0;height:92vh;z-index:8;display:flex;align-items:flex-end;opacity:0;animation:aSlideR 1.2s cubic-bezier(.16,1,.3,1) .6s forwards}
+    @keyframes aSlideR{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+    .char-glow{position:absolute;right:-80px;bottom:-120px;width:650px;height:850px;background:radial-gradient(ellipse,rgba(153,68,255,.15) 0%,transparent 65%);pointer-events:none;z-index:1}
+    .char-img{height:100%;object-fit:contain;object-position:bottom right;position:relative;z-index:3;filter:drop-shadow(0 0 40px rgba(153,68,255,.3))}
+    .char-brackets{position:absolute;top:8%;right:5%;width:80px;height:80px;z-index:4;pointer-events:none}
+    .char-brackets::before{content:'';position:absolute;top:0;right:0;width:28px;height:28px;border-top:2px solid var(--ac);border-right:2px solid var(--ac)}
+    .char-brackets::after{content:'';position:absolute;bottom:0;left:0;width:28px;height:28px;border-bottom:2px solid var(--ac);border-left:2px solid var(--ac)}
+    .stats-sec{padding:5rem;background:rgba(153,68,255,.018);border-top:1px solid rgba(153,68,255,.1);border-bottom:1px solid rgba(153,68,255,.1)}
+    .stats-label{font-size:.62rem;letter-spacing:.45em;text-transform:uppercase;color:var(--ac);margin-bottom:2.5rem;text-shadow:0 0 10px var(--ac)}
+    .stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:2rem;max-width:1000px}
+    .sbar-top{display:flex;justify-content:space-between;margin-bottom:.5rem}
+    .sbar-name{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(232,244,248,.5)}
+    .sbar-val{font-family:'Orbitron',monospace;font-size:.8rem;color:var(--ac);text-shadow:0 0 8px var(--ac)}
+    .sbar-track{height:3px;background:rgba(153,68,255,.1);border-radius:2px;overflow:hidden}
+    .sbar-fill{height:100%;background:var(--ac);box-shadow:0 0 10px var(--ac);width:0;transition:width 1.4s cubic-bezier(.16,1,.3,1)}
+    .about-sec{padding:6rem 5rem;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
+    .sec-eyebrow{font-size:.6rem;letter-spacing:.45em;text-transform:uppercase;color:var(--ac);margin-bottom:1rem;text-shadow:0 0 10px var(--ac)}
+    .sec-h{font-family:'Orbitron',monospace;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:900;margin-bottom:1.8rem}
+    .bio-text{font-size:1rem;line-height:1.85;color:rgba(232,244,248,.6);margin-bottom:1rem}
+    .detail-list{list-style:none;display:flex;flex-direction:column;gap:.9rem}
+    .detail-item{display:flex;align-items:flex-start;gap:1rem;padding:.9rem 1.2rem;border:1px solid rgba(153,68,255,.12);background:rgba(153,68,255,.02)}
+    .detail-key{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ac);min-width:110px;padding-top:.1rem}
+    .detail-val{font-size:.9rem;color:rgba(232,244,248,.7)}
+    .skills-sec{padding:5rem;background:linear-gradient(180deg,var(--bg) 0%,#07080f 50%,var(--bg) 100%)}
+    .skills-sec .sec-eyebrow{margin-bottom:3rem}
+    .skills-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;max-width:900px}
+    .skill-card{padding:2rem;border:1px solid rgba(153,68,255,.15);background:rgba(153,68,255,.02);transition:border-color .3s,box-shadow .3s,transform .3s;cursor:none}
+    .skill-card:hover{border-color:rgba(153,68,255,.5);box-shadow:0 0 30px rgba(153,68,255,.12);transform:translateY(-5px)}
+    .sk-icon{font-size:2rem;margin-bottom:1rem}
+    .sk-name{font-family:'Orbitron',monospace;font-size:.95rem;font-weight:700;color:var(--ac);margin-bottom:.6rem}
+    .sk-desc{font-size:.85rem;line-height:1.65;color:rgba(232,244,248,.45)}
+    .quote-sec{padding:6rem 5rem;position:relative;overflow:hidden}
+    .quote-sec::before{content:'R';position:absolute;font-family:'Orbitron',monospace;font-size:40vw;font-weight:900;color:rgba(153,68,255,.018);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;user-select:none}
+    .quote-inner{max-width:780px;margin:0 auto;text-align:center}
+    .big-q{font-family:'Orbitron',monospace;font-size:5rem;color:var(--ac);opacity:.15;line-height:.8;margin-bottom:-1rem}
+    .q-text{font-size:1.3rem;line-height:1.85;font-style:italic;color:rgba(232,244,248,.82)}
+    .q-who{margin-top:1.5rem;font-size:.68rem;letter-spacing:.32em;text-transform:uppercase;color:var(--dim)}
+    footer{padding:3.5rem 5rem 2rem;border-top:1px solid rgba(153,68,255,.1);display:flex;align-items:center;justify-content:space-between}
+    .foot-logo{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:900;color:var(--ac);text-shadow:0 0 18px var(--ac)}
+    .foot-logo span{color:#ffe600;text-shadow:0 0 14px #ffe600}
+    .foot-copy{font-size:.58rem;color:rgba(58,80,96,.38);letter-spacing:.08em}
+    .foot-back{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);text-decoration:none;transition:color .3s;cursor:none}
+    .foot-back:hover{color:var(--ac)}
+    .rv{opacity:0;transform:translateY(32px);transition:opacity .9s ease,transform .9s cubic-bezier(.16,1,.3,1)}
+    .rv.in{opacity:1;transform:none}
+    .d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}
+    @media(max-width:900px){.hero-left{max-width:100%;padding:0 2rem}.hero-right{height:50vh;opacity:.3}.about-sec{grid-template-columns:1fr;padding:4rem 2rem}.stats-grid{grid-template-columns:repeat(2,1fr)}.skills-grid{grid-template-columns:1fr}.stats-sec,.skills-sec,.quote-sec{padding:4rem 2rem}nav{padding:1rem 1.5rem}}
+    @media(max-width:520px){
+      .hero-left{padding:0 1.2rem}
+      .hero-right{display:none}
+      nav{padding:.9rem 1.2rem}
+    }  </style>
+</head>
+<body>
+<div class="scanlines"></div><div class="crt"></div>
+<div class="cDot" id="cDot"></div><div class="cH" id="cH"></div><div class="cV" id="cV"></div><div class="cRing" id="cRing"></div>
+<nav>
+  <a href="index.html" class="back-btn">← ВЕРНУТЬСЯ</a>
+  <div class="logo">CYBER<span>PUNK</span> 2077</div>
+  <div class="net-status"><div class="ndot"></div>LEGEND · AFTERLIFE</div>
+</nav>
+<section class="hero">
+  <canvas id="rain"></canvas>
+  <div class="grid-bg"></div>
+  <div class="hero-left">
+    <div class="id-chip"><div class="id-dot"></div>ID-006 · ЛЕГЕНДА НАЙТ СИТИ</div>
+    <h1 class="char-name">ROGUE<br>AMENDIARES</h1>
+    <div class="char-class">Фиксер · The Afterlife · Ветеран</div>
+    <div class="char-tags">
+      <span class="ctag">Нетраннер</span><span class="ctag">Фиксер</span><span class="ctag">Ветеран</span><span class="ctag">Экс-Самурай</span>
+    </div>
+    <p class="char-bio">Самый влиятельный фиксер Найт Сити. Бывшая напарница Джонни Сильверхенда, потерявшая иллюзии, но не хватку. Теперь управляет The Afterlife — баром легенд.</p>
+    <div class="hero-btns">
+      <a href="#about" class="btn btn-s">История</a>
+      <a href="#skills" class="btn btn-o">Навыки</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="char-glow"></div>
+    <img class="char-img" src="https://www.cyberpunk.net/build/images/cosplay-guides/4ae3f10f9a-9b80c7c6.png" alt="Rogue Amendiares">
+    <div class="char-brackets"></div>
+  </div>
+</section>
+
+<div class="stats-sec">
+  <div class="stats-label">// ПАРАМЕТРЫ ПЕРСОНАЖА</div>
+  <div class="stats-grid">
+    <div class="sbar-item rv"><div class="sbar-top"><span class="sbar-name">Нетраннинг</span><span class="sbar-val">92</span></div><div class="sbar-track"><div class="sbar-fill" data-pct="92"></div></div></div>
+    <div class="sbar-item rv d1"><div class="sbar-top"><span class="sbar-name">Интеллект</span><span class="sbar-val">95</span></div><div class="sbar-track"><div class="sbar-fill" data-pct="95"></div></div></div>
+    <div class="sbar-item rv d2"><div class="sbar-top"><span class="sbar-name">Крутость</span><span class="sbar-val">98</span></div><div class="sbar-track"><div class="sbar-fill" data-pct="98"></div></div></div>
+    <div class="sbar-item rv d3"><div class="sbar-top"><span class="sbar-name">Бой</span><span class="sbar-val">80</span></div><div class="sbar-track"><div class="sbar-fill" data-pct="80"></div></div></div>
+    <div class="sbar-item rv d3"><div class="sbar-top"><span class="sbar-name">Влияние</span><span class="sbar-val">100</span></div><div class="sbar-track"><div class="sbar-fill" data-pct="100"></div></div></div>
+  </div>
+</div>
+
+<div class="about-sec" id="about">
+  <div class="rv">
+    <div class="sec-eyebrow">// ИСТОРИЯ</div>
+    <h2 class="sec-h">Биография</h2>
+    <p class="bio-text">Рог Амендиарес — живая легенда Найт Сити. Начинала как нетраннер и наёмница, стала напарницей Джонни Сильверхенда. После предательства со стороны Джонни порвала с прошлым и создала собственную империю.</p>
+    <p class="bio-text">Сегодня она — владелица The Afterlife, самого элитного бара Уотсона, где встречаются все крупные игроки города. Её имя — это валюта. Её слово — это закон.</p>
+  </div>
+  <ul class="detail-list rv d1">
+    <li class="detail-item"><span class="detail-key">Статус</span><span class="detail-val">Активна · Глава The Afterlife</span></li>
+    <li class="detail-item"><span class="detail-key">Класс</span><span class="detail-val">Фиксер · Нетраннер</span></li>
+    <li class="detail-item"><span class="detail-key">Фракция</span><span class="detail-val">Независимая · Afterlife</span></li>
+    <li class="detail-item"><span class="detail-key">Связи</span><span class="detail-val">Все фракции Night City</span></li>
+    <li class="detail-item"><span class="detail-key">Прошлое</span><span class="detail-val">Самурай · Группа Джонни</span></li>
+    <li class="detail-item"><span class="detail-key">Район</span><span class="detail-val">Уотсон · The Afterlife</span></li>
+  </ul>
+</div>
+
+<div class="skills-sec" id="skills">
+  <div class="sec-eyebrow rv">// НАВЫКИ И СПОСОБНОСТИ</div>
+  <div class="skills-grid">
+    <div class="skill-card rv d1"><div class="sk-icon">🌐</div><div class="sk-name">Нетраннинг</div><div class="sk-desc">Один из лучших нетраннеров своей эпохи. Знает Сеть как свои пять пальцев — и знает, где спрятаны секреты.</div></div>
+    <div class="skill-card rv d2"><div class="sk-icon">🕸️</div><div class="sk-name">Сеть связей</div><div class="sk-desc">Рог знает каждого в Night City. Её контакты — её настоящее оружие. Один звонок решает больше, чем вся армия.</div></div>
+    <div class="skill-card rv d3"><div class="sk-icon">👁️</div><div class="sk-name">Холодный расчёт</div><div class="sk-desc">Ни эмоций, ни сантиментов. Каждое решение — стратегия. Она выжила там, где погибли все остальные.</div></div>
+  </div>
+</div>
+
+<div class="quote-sec">
+  <div class="quote-inner rv">
+    <div class="big-q">"</div>
+    <p class="q-text">Я выжила не потому что была лучшей. А потому что все остальные умерли.</p>
+    <div class="q-who">— Rogue Amendiares · Фиксер, The Afterlife</div>
+  </div>
+</div>
+
+<footer>
+  <div class="foot-logo">CYBER<span>PUNK</span> 2077</div>
+  <a href="index.html" class="foot-back">← На главную</a>
+  <div class="foot-copy">© CD PROJEKT RED · NIGHT CITY NETWORK</div>
+</footer>
+
+<script>
+const cDot=document.getElementById('cDot'),cH=document.getElementById('cH'),cV2=document.getElementById('cV'),cRing=document.getElementById('cRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cDot.style.transform=`translate3d(${mx-2.5}px,${my-2.5}px,0)`;cH.style.transform=`translate3d(${mx-11}px,${my-.5}px,0)`;cV2.style.transform=`translate3d(${mx-.5}px,${my-11}px,0)`});
+(function rl(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;cRing.style.transform=`translate3d(${rx-18}px,${ry-18}px,0)`;requestAnimationFrame(rl)})();
+document.querySelectorAll('a,.skill-card').forEach(el=>{el.addEventListener('mouseenter',()=>{cRing.style.width='54px';cRing.style.height='54px';cRing.style.borderColor='rgba(153,68,255,.9)'});el.addEventListener('mouseleave',()=>{cRing.style.width='36px';cRing.style.height='36px';cRing.style.borderColor='rgba(153,68,255,.55)'})});
+const cv=document.getElementById('rain'),ctx=cv.getContext('2d');
+function rsz(){cv.width=innerWidth;cv.height=innerHeight}rsz();addEventListener('resize',rsz);
+const CH='01アイウカキクコ!@#ABCDEF987654';const FS=13;let drops=[];
+function init(){const cols=Math.floor(cv.width/FS);drops=Array.from({length:cols},(_,i)=>({x:i*FS,y:Math.random()*-cv.height,spd:Math.random()*.9+.35,len:Math.floor(Math.random()*22)+6,col:'#9944ff',chars:Array.from({length:35},()=>CH[Math.floor(Math.random()*CH.length)])}))}
+init();addEventListener('resize',init);
+(function rain(){ctx.fillStyle='rgba(6,6,9,.12)';ctx.fillRect(0,0,cv.width,cv.height);ctx.font=FS+'px monospace';drops.forEach(d=>{for(let j=0;j<d.len;j++){const y=d.y-j*FS;if(y<-FS||y>cv.height)continue;const a=Math.max(0,1-j/d.len);if(j===0)ctx.fillStyle='#fff';else if(j<3)ctx.fillStyle=d.col;else ctx.fillStyle=d.col+Math.floor(a*180).toString(16).padStart(2,'0');if(Math.random()<.06)d.chars[j]=CH[Math.floor(Math.random()*CH.length)];ctx.fillText(d.chars[j],d.x,y)}d.y+=d.spd;if((d.y-d.len*FS)>cv.height){d.y=0;d.spd=Math.random()*.9+.35;d.len=Math.floor(Math.random()*22)+6}});requestAnimationFrame(rain)})();
+const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.1});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+const barObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){const fill=e.target.querySelector('.sbar-fill');if(fill&&!fill.dataset.done){fill.dataset.done='1';fill.style.width=fill.dataset.pct+'%'}}})},{threshold:.5});
+document.querySelectorAll('.sbar-item').forEach(el=>barObs.observe(el));
+</script>
+</body>
+</html>

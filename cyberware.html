@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="ru"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="referrer" content="no-referrer">
+<title>Киберимпланты — CYBERPUNK 2077</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--cyan:#00f5ff;--mag:#ff00aa;--yellow:#ffe600;--bg:#060609;--white:#e8f4f8;--dim:#3a5060;
+  --legendary:#ff9900;--epic:#aa40ff;--rare:#4499ff;--uncommon:#00cc66}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--white);font-family:'Rajdhani',sans-serif;cursor:none}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--cyan)}
+
+.scanlines{position:fixed;inset:0;z-index:9000;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px)}
+.crt{position:fixed;inset:0;z-index:8999;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.65) 100%)}
+
+.cDot{position:fixed;z-index:10003;pointer-events:none;width:5px;height:5px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);top:0;left:0;will-change:transform}
+.cH{position:fixed;z-index:10002;pointer-events:none;width:22px;height:1px;background:var(--cyan);box-shadow:0 0 6px var(--cyan);top:0;left:0;will-change:transform}
+.cV{position:fixed;z-index:10002;pointer-events:none;width:1px;height:22px;background:var(--cyan);box-shadow:0 0 6px var(--cyan);top:0;left:0;will-change:transform}
+.cRing{position:fixed;z-index:10001;pointer-events:none;width:36px;height:36px;border:1px solid rgba(0,245,255,.55);border-radius:50%;top:0;left:0;will-change:transform;transition:width .3s,height .3s,border-color .3s}
+
+nav{position:fixed;inset:0 0 auto 0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;background:rgba(6,6,9,.92);border-bottom:1px solid rgba(0,245,255,.12);backdrop-filter:blur(14px)}
+.logo{font-family:'Orbitron',monospace;font-size:1.05rem;font-weight:900;letter-spacing:.12em;color:var(--cyan);text-shadow:0 0 18px var(--cyan);cursor:none;text-decoration:none}
+.logo span{color:var(--yellow);text-shadow:0 0 18px var(--yellow)}
+.back-btn{display:flex;align-items:center;gap:.5rem;font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(232,244,248,.4);text-decoration:none;border:1px solid rgba(0,245,255,.18);padding:.35rem 1rem;transition:all .3s;cursor:none}
+.back-btn:hover{color:var(--cyan);border-color:var(--cyan);box-shadow:0 0 18px rgba(0,245,255,.2)}
+.nav-title{font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:.4em;color:var(--dim)}
+
+.app{display:flex;height:100vh;padding-top:57px}
+
+/* LEFT PANEL */
+.panel-left{width:270px;flex-shrink:0;display:flex;flex-direction:column;border-right:1px solid rgba(0,245,255,.1);background:rgba(4,4,8,.7);overflow-y:auto}
+.panel-header{padding:1.2rem 1.4rem;border-bottom:1px solid rgba(0,245,255,.08)}
+.panel-eyebrow{font-size:.5rem;letter-spacing:.4em;text-transform:uppercase;color:var(--cyan);opacity:.7}
+.panel-title{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:900;margin-top:.3rem;letter-spacing:.06em}
+.panel-count{font-size:.6rem;letter-spacing:.2em;color:var(--dim);margin-top:.25rem}
+.filter-section{padding:.9rem 1.2rem;border-bottom:1px solid rgba(0,245,255,.06)}
+.filter-label{font-size:.46rem;letter-spacing:.42em;text-transform:uppercase;color:var(--cyan);opacity:.55;margin-bottom:.65rem}
+.search-input{width:100%;background:rgba(0,245,255,.04);border:1px solid rgba(0,245,255,.14);color:var(--white);font-family:'Rajdhani',sans-serif;font-size:.75rem;letter-spacing:.08em;padding:.48rem .8rem;outline:none;transition:border-color .3s;cursor:text}
+.search-input::placeholder{color:var(--dim)}
+.search-input:focus{border-color:rgba(0,245,255,.4);box-shadow:0 0 12px rgba(0,245,255,.08)}
+.cat-btn{display:flex;align-items:center;gap:.55rem;width:100%;padding:.55rem .75rem;margin-bottom:.28rem;background:none;border:1px solid rgba(0,245,255,.07);color:rgba(232,244,248,.45);font-family:'Rajdhani',sans-serif;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;cursor:none;transition:all .25s;text-align:left}
+.cat-btn:hover{border-color:rgba(0,245,255,.22);color:var(--white)}
+.cat-btn.active{color:var(--white);border-color:var(--cc,var(--cyan));background:rgba(0,0,0,.25);box-shadow:inset 3px 0 0 var(--cc,var(--cyan))}
+.cat-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;transition:box-shadow .3s}
+.cat-btn.active .cat-dot{box-shadow:0 0 8px currentColor}
+.type-chips{display:flex;flex-wrap:wrap;gap:.3rem}
+.type-chip{font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;padding:.2rem .5rem;border:1px solid rgba(0,245,255,.1);color:rgba(232,244,248,.38);cursor:none;transition:all .22s}
+.type-chip:hover{border-color:rgba(0,245,255,.28);color:var(--white)}
+.type-chip.active{border-color:var(--cyan);color:var(--cyan);background:rgba(0,245,255,.07)}
+
+/* MAIN */
+.main-area{flex:1;overflow-y:auto;min-width:0;display:flex;flex-direction:column}
+.weapons-header{padding:1rem 1.5rem;border-bottom:1px solid rgba(0,245,255,.06);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.weapons-count{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.28em;color:var(--dim)}
+.weapons-hint{font-size:.56rem;letter-spacing:.14em;color:rgba(0,245,255,.35)}
+
+/* GRID */
+.weapon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1px;background:rgba(0,245,255,.05);padding:1px;flex:1}
+
+/* CARD */
+.wcard{background:rgba(5,5,9,.9);cursor:none;transition:border-color .25s,background .25s;overflow:hidden;position:relative;border:1px solid transparent}
+.wcard:hover{background:rgba(0,245,255,.03);border-color:rgba(0,245,255,.18)}
+.wcard.active{border-color:var(--wc,var(--cyan));box-shadow:inset 0 0 30px rgba(0,0,0,.3)}
+
+/* ART */
+.w-art{height:125px;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.15rem}
+.w-art-bg{position:absolute;inset:0}
+.w-art-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:18px 18px;pointer-events:none}
+.w-art-scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.18) 3px,rgba(0,0,0,.18) 4px);pointer-events:none}
+.w-art-glow{position:absolute;width:180px;height:180px;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.w-art-type{position:relative;font-family:'Orbitron',monospace;font-size:.42rem;letter-spacing:.5em;text-transform:uppercase;opacity:.55}
+.w-art-name{position:relative;font-family:'Orbitron',monospace;font-size:.72rem;font-weight:900;letter-spacing:.04em;text-align:center;padding:0 .7rem;line-height:1.25}
+.w-rarity-badge{position:absolute;top:.5rem;right:.5rem;font-size:.4rem;letter-spacing:.22em;text-transform:uppercase;padding:.12rem .38rem;border:1px solid;border-radius:2px}
+.w-active-badge{position:absolute;top:.5rem;left:.5rem;font-size:.4rem;letter-spacing:.2em;text-transform:uppercase;padding:.12rem .38rem;border-radius:2px}
+.w-svg-wrap{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:140px;height:80px}
+.w-slot-img{max-width:100%;max-height:80px;object-fit:contain;filter:drop-shadow(0 0 10px currentColor)}
+.dp-svg-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:1;padding:0 1.5rem}
+.dp-svg-wrap svg{width:100%;height:100%;opacity:.22}
+.dp-weapon-img{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);max-height:160px;max-width:92%;object-fit:contain;z-index:2}
+
+/* CARD BODY */
+.w-body{padding:.7rem .9rem}
+.w-name{font-family:'Orbitron',monospace;font-size:.6rem;font-weight:700;letter-spacing:.04em;margin-bottom:.38rem;line-height:1.3}
+.w-tags{display:flex;gap:.3rem;margin-bottom:.6rem;flex-wrap:wrap}
+.w-tag{font-size:.42rem;letter-spacing:.18em;text-transform:uppercase;padding:.1rem .38rem;border:1px solid;border-radius:2px}
+.w-stats{display:flex;flex-direction:column;gap:.28rem}
+.w-stat-row{display:flex;align-items:center;gap:.45rem}
+.w-stat-label{font-size:.42rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);width:82px;flex-shrink:0;line-height:1.2}
+.w-stat-bar{flex:1;height:2px;background:rgba(255,255,255,.06);border-radius:1px;overflow:hidden}
+.w-stat-fill{height:100%;border-radius:1px;transition:width .9s cubic-bezier(.16,1,.3,1)}
+.w-stat-val{font-family:'Orbitron',monospace;font-size:.42rem;width:38px;text-align:right;flex-shrink:0;line-height:1.2}
+.w-stat-unit{font-size:.36rem;opacity:.55;margin-left:1px}
+
+/* BACKDROP */
+.backdrop{position:fixed;inset:57px 0 0 0;z-index:190;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .4s;backdrop-filter:blur(2px)}
+.backdrop.show{opacity:1;pointer-events:all}
+
+/* DETAIL PANEL */
+.detail-panel{position:fixed;right:0;top:57px;bottom:0;width:440px;background:rgba(3,3,7,.98);border-left:1px solid rgba(0,245,255,.18);display:flex;flex-direction:column;overflow:hidden;transform:translateX(100%);transition:transform .4s cubic-bezier(.16,1,.3,1);z-index:200}
+.detail-panel.open{transform:translateX(0)}
+
+.dp-art{height:195px;position:relative;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.dp-art-bg{position:absolute;inset:0}
+.dp-art-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:24px 24px;pointer-events:none}
+.dp-art-scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.22) 3px,rgba(0,0,0,.22) 4px);pointer-events:none}
+.dp-art-glow{position:absolute;width:320px;height:320px;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.dp-art-typebg{position:absolute;font-family:'Orbitron',monospace;font-size:3.5rem;font-weight:900;color:rgba(255,255,255,.03);text-transform:uppercase;white-space:nowrap;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;letter-spacing:.08em}
+.dp-art-content{position:absolute;bottom:0;left:0;right:0;z-index:3;text-align:center;padding:.55rem 1.5rem .7rem;background:linear-gradient(transparent,rgba(3,3,7,.88))}
+.dp-art-cat{font-size:.5rem;letter-spacing:.45em;text-transform:uppercase;opacity:.65;margin-bottom:.2rem}
+.dp-art-name{font-family:'Orbitron',monospace;font-size:.95rem;font-weight:900;letter-spacing:.05em;line-height:1.25;text-shadow:0 0 30px currentColor}
+.dp-art-mfr{font-size:.54rem;letter-spacing:.22em;color:rgba(232,244,248,.3);margin-top:.2rem}
+.dp-close{position:absolute;top:.7rem;right:.7rem;z-index:10;font-size:.52rem;letter-spacing:.28em;color:rgba(232,244,248,.3);background:none;border:1px solid rgba(0,245,255,.14);padding:.28rem .65rem;cursor:none;font-family:'Rajdhani',sans-serif;text-transform:uppercase;transition:all .3s}
+.dp-close:hover{color:var(--cyan);border-color:var(--cyan);box-shadow:0 0 12px rgba(0,245,255,.15)}
+
+.dp-scroll{flex:1;overflow-y:auto;padding:1.1rem 1.4rem}
+.dp-badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.1rem}
+.dp-badge{font-size:.45rem;letter-spacing:.2em;text-transform:uppercase;padding:.15rem .5rem;border:1px solid;border-radius:2px}
+.dp-section{margin-bottom:1.1rem}
+.dp-section-label{font-size:.46rem;letter-spacing:.4em;text-transform:uppercase;color:var(--cyan);opacity:.6;margin-bottom:.65rem;padding-bottom:.3rem;border-bottom:1px solid rgba(0,245,255,.08)}
+.dp-stat-row{display:flex;align-items:center;gap:.65rem;margin-bottom:.48rem}
+.dp-stat-name{font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(232,244,248,.5);width:100px;flex-shrink:0}
+.dp-stat-bar{flex:1;height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.dp-stat-fill{height:100%;border-radius:2px;transition:width 1s cubic-bezier(.16,1,.3,1)}
+.dp-stat-num{font-family:'Orbitron',monospace;font-size:.52rem;width:28px;text-align:right;flex-shrink:0}
+.dp-special-box{padding:.65rem .9rem;border-left:2px solid;margin-bottom:.8rem;background:rgba(0,0,0,.3)}
+.dp-special-label{font-size:.46rem;letter-spacing:.35em;text-transform:uppercase;margin-bottom:.3rem;opacity:.65}
+.dp-special-text{font-size:.7rem;line-height:1.65;color:rgba(232,244,248,.72)}
+.dp-text{font-size:.7rem;line-height:1.7;color:rgba(232,244,248,.5)}
+.dp-acquire{font-size:.68rem;line-height:1.6;color:rgba(232,244,248,.55);padding:.58rem .8rem;border:1px solid rgba(0,245,255,.1);background:rgba(0,245,255,.025)}
+.dp-acquire-label{font-size:.46rem;letter-spacing:.35em;text-transform:uppercase;color:var(--cyan);opacity:.6;margin-bottom:.28rem}
+
+/* CAPACITY ROW */
+.dp-capacity-row{display:flex;align-items:center;gap:.7rem;margin-bottom:1rem;padding:.55rem .9rem;background:rgba(0,0,0,.25);border:1px solid rgba(0,245,255,.08)}
+.dp-cap-label{font-size:.46rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(232,244,248,.4)}
+.dp-cap-val{font-family:'Orbitron',monospace;font-size:.85rem;font-weight:700}
+.dp-cap-unit{font-size:.5rem;letter-spacing:.2em;color:rgba(232,244,248,.35);margin-left:.2rem}
+.dp-cap-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-left:auto}
+
+/* EMPTY */
+.no-results{display:none;grid-column:1/-1;flex-direction:column;align-items:center;justify-content:center;padding:5rem 2rem;gap:.8rem;opacity:.2}
+.no-results.show{display:flex}
+.no-results-icon{font-family:'Orbitron',monospace;font-size:2.5rem;color:var(--cyan)}
+.no-results-text{font-size:.6rem;letter-spacing:.4em;text-transform:uppercase}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .3s ease forwards}
+
+/* ── MOBILE ── */
+.mob-filter-btn{display:none;position:fixed;bottom:1.5rem;right:1.5rem;z-index:330;font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:.25em;text-transform:uppercase;padding:.75rem 1.3rem;background:rgba(5,5,9,.97);border:1px solid rgba(0,245,255,.45);color:var(--cyan);box-shadow:0 0 22px rgba(0,245,255,.18),0 6px 28px rgba(0,0,0,.8);cursor:pointer;align-items:center;gap:.5rem}
+.mob-filter-bg{display:none;position:fixed;inset:0;z-index:320;background:rgba(0,0,0,.65);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .3s}
+.mob-filter-bg.show{opacity:1!important;pointer-events:all!important}
+@media(max-width:768px){
+  html,body{height:auto;overflow-y:auto}
+  .app{height:auto;min-height:calc(100vh - 57px)}
+  .nav-title{display:none}
+  nav>div:last-child .back-btn:first-child{display:none}
+  .panel-left{position:fixed;top:57px;bottom:0;left:0;width:290px;z-index:350;transform:translateX(-100%);transition:transform .4s cubic-bezier(.16,1,.3,1)}
+  .panel-left.mob-open{transform:translateX(0)}
+  .mob-filter-btn{display:flex}
+  .mob-filter-bg{display:block}
+  .weapon-grid{grid-template-columns:repeat(2,1fr)}
+  .detail-panel{width:100%;left:0;top:57px;border-left:none;border-top:1px solid rgba(0,245,255,.15)}
+  .backdrop{inset:0}
+  .wcard .w-stat-label{display:none}
+  .wcard .w-stat-bar{display:none}
+  .wcard .w-stat-val{width:auto}
+}
+@media(max-width:420px){
+  .weapon-grid{grid-template-columns:1fr}
+  .w-art{height:100px}
+}
+</style>
+</head>
+<body>
+
+<div class="scanlines"></div>
+<div class="crt"></div>
+<div class="cDot" id="cDot"></div>
+<div class="cH" id="cH"></div>
+<div class="cV" id="cV"></div>
+<div class="cRing" id="cRing"></div>
+<div class="backdrop" id="backdrop"></div>
+
+<nav>
+  <a href="index.html" class="logo">CYBER<span>PUNK</span>&nbsp;2077</a>
+  <div class="nav-title">// CYBERIMPLANTS DATABASE</div>
+  <div style="display:flex;gap:.6rem">
+    <a href="weapons.html" class="back-btn" style="border-color:rgba(255,26,74,.25);color:rgba(255,26,74,.5)">⚔ ОРУЖИЕ</a>
+    <a href="index.html" class="back-btn">← НАЗАД</a>
+  </div>
+</nav>
+
+<div class="app">
+
+  <!-- LEFT PANEL -->
+  <div class="panel-left">
+    <div class="panel-header">
+      <div class="panel-eyebrow">// RIPPERDOC CATALOG</div>
+      <div class="panel-title">КИБЕРИМПЛАНТЫ</div>
+      <div class="panel-count" id="panelCount">38 ИМПЛАНТОВ В БАЗЕ</div>
+    </div>
+    <div class="filter-section">
+      <div class="filter-label">// ПОИСК</div>
+      <input class="search-input" id="searchInput" type="text" placeholder="ВВЕДИ НАЗВАНИЕ..." autocomplete="off">
+    </div>
+    <div class="filter-section">
+      <div class="filter-label">// РЕДКОСТЬ</div>
+      <button class="cat-btn active" data-cat="all" style="--cc:var(--cyan)">
+        <div class="cat-dot" style="background:rgba(232,244,248,.3)"></div>ВСЕ РЕДКОСТИ
+      </button>
+      <button class="cat-btn" data-cat="legendary" style="--cc:var(--legendary)">
+        <div class="cat-dot" style="background:var(--legendary)"></div>ЛЕГЕНДАРНОЕ
+      </button>
+      <button class="cat-btn" data-cat="epic" style="--cc:var(--epic)">
+        <div class="cat-dot" style="background:var(--epic)"></div>ЭПИЧЕСКОЕ
+      </button>
+      <button class="cat-btn" data-cat="rare" style="--cc:var(--rare)">
+        <div class="cat-dot" style="background:var(--rare)"></div>РЕДКОЕ
+      </button>
+      <button class="cat-btn" data-cat="uncommon" style="--cc:var(--uncommon)">
+        <div class="cat-dot" style="background:var(--uncommon)"></div>НЕОБЫЧНОЕ
+      </button>
+    </div>
+    <div class="filter-section">
+      <div class="filter-label">// СЛОТ ИМПЛАНТА</div>
+      <div class="type-chips">
+        <div class="type-chip active" data-type="all">Все</div>
+        <div class="type-chip" data-type="operating_system">ОС</div>
+        <div class="type-chip" data-type="nervous_system">Нервная</div>
+        <div class="type-chip" data-type="circulatory">Кровеносная</div>
+        <div class="type-chip" data-type="frontal_cortex">Лобная кора</div>
+        <div class="type-chip" data-type="skeleton">Скелет</div>
+        <div class="type-chip" data-type="integumentary">Покров. сист.</div>
+        <div class="type-chip" data-type="immune_system">Иммунная</div>
+        <div class="type-chip" data-type="ocular">Зрительная</div>
+        <div class="type-chip" data-type="hands">Руки</div>
+        <div class="type-chip" data-type="legs">Ноги</div>
+        <div class="type-chip" data-type="arms">Кибероружие</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-area">
+    <div class="weapons-header">
+      <div class="weapons-count" id="weaponsCount">// 38 IMPLANT(S) LOADED</div>
+      <div class="weapons-hint">// ВЫБЕРИ ИМПЛАНТ ДЛЯ ДЕТАЛЕЙ</div>
+    </div>
+    <div class="weapon-grid" id="weaponGrid">
+      <div class="no-results" id="noResults">
+        <div class="no-results-icon">⌖</div>
+        <div class="no-results-text">Импланты не найдены</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAIL PANEL -->
+  <div class="detail-panel" id="detailPanel">
+    <button class="dp-close" id="dpClose">✕ ЗАКРЫТЬ</button>
+    <div class="dp-art" id="dpArt">
+      <div class="dp-art-bg" id="dpArtBg"></div>
+      <div class="dp-art-grid"></div>
+      <div class="dp-art-scan"></div>
+      <div class="dp-art-glow" id="dpArtGlow"></div>
+      <div class="dp-art-typebg" id="dpArtTypebg"></div>
+      <div class="dp-svg-wrap" id="dpSvgWrap"></div>
+      <div class="dp-art-content">
+        <div class="dp-art-cat" id="dpCat"></div>
+        <div class="dp-art-name" id="dpName"></div>
+        <div class="dp-art-mfr" id="dpMfr"></div>
+      </div>
+    </div>
+    <div class="dp-scroll">
+      <div class="dp-badges" id="dpBadges"></div>
+      <div class="dp-capacity-row" id="dpCapRow">
+        <div class="dp-cap-label">ЁМКОСТЬ ИМПЛАНТА</div>
+        <div><span class="dp-cap-val" id="dpCapVal">—</span><span class="dp-cap-unit">СЛОТОВ</span></div>
+        <div class="dp-cap-dot" id="dpCapDot"></div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-section-label">// ХАРАКТЕРИСТИКИ</div>
+        <div id="dpStats"></div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-section-label">// ЭФФЕКТ ИМПЛАНТА</div>
+        <div class="dp-special-box" id="dpSpecialBox">
+          <div class="dp-special-label" id="dpSpecialLabel">⚡ ПРОТОКОЛ АКТИВАЦИИ</div>
+          <div class="dp-special-text" id="dpSpecial"></div>
+        </div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-section-label">// ИСТОРИЯ</div>
+        <div class="dp-text" id="dpLore"></div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-acquire">
+          <div class="dp-acquire-label">// КАК ПОЛУЧИТЬ</div>
+          <div id="dpAcquire" style="font-size:.68rem;line-height:1.6"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── SLOT SVGs ──
+const CW_SVG = {
+operating_system:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><rect x="72" y="18" width="76" height="54" rx="5" fill="rgba(0,0,0,.2)" stroke="currentColor" stroke-width="2.5" fill-opacity="1"/><rect x="84" y="8" width="6" height="12" rx="2"/><rect x="98" y="8" width="6" height="12" rx="2"/><rect x="112" y="8" width="6" height="12" rx="2"/><rect x="126" y="8" width="6" height="12" rx="2"/><rect x="84" y="70" width="6" height="12" rx="2"/><rect x="98" y="70" width="6" height="12" rx="2"/><rect x="112" y="70" width="6" height="12" rx="2"/><rect x="126" y="70" width="6" height="12" rx="2"/><rect x="56" y="25" width="18" height="5" rx="2"/><rect x="56" y="38" width="18" height="5" rx="2"/><rect x="56" y="51" width="18" height="5" rx="2"/><rect x="146" y="25" width="18" height="5" rx="2"/><rect x="146" y="38" width="18" height="5" rx="2"/><rect x="146" y="51" width="18" height="5" rx="2"/><rect x="84" y="28" width="52" height="34" rx="3" fill="rgba(0,0,0,.35)" stroke="currentColor" stroke-width="1.5"/><line x1="94" y1="35" x2="126" y2="35" stroke="currentColor" stroke-width="1" opacity=".5"/><line x1="94" y1="45" x2="126" y2="45" stroke="currentColor" stroke-width="1" opacity=".5"/><circle cx="100" cy="40" r="4" fill="currentColor" opacity=".6"/><circle cx="114" cy="40" r="4" fill="currentColor" opacity=".6"/></svg>`,
+nervous_system:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><path d="M15,45 L50,45 L62,18 L78,72 L95,18 L112,72 L130,18 L147,72 L162,45 L205,45" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="62" cy="18" r="5"/><circle cx="95" cy="18" r="5"/><circle cx="130" cy="18" r="5"/><circle cx="78" cy="72" r="5"/><circle cx="112" cy="72" r="5"/><circle cx="147" cy="72" r="5"/><circle cx="15" cy="45" r="4" opacity=".5"/><circle cx="205" cy="45" r="4" opacity=".5"/></svg>`,
+circulatory:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><path d="M12,48 L62,48 L72,22 L84,74 L94,48 L134,48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M145,26 C145,17 153,13 160,18 C167,13 175,17 175,26 C175,36 160,50 160,50 C160,50 145,36 145,26 Z" stroke="currentColor" stroke-width="1.5" fill="currentColor" opacity=".8"/><circle cx="12" cy="48" r="4" opacity=".5"/><line x1="134" y1="48" x2="145" y2="38" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="134" y1="48" x2="145" y2="58" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="175" y1="38" x2="200" y2="30" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="175" y1="58" x2="200" y2="62" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3,2"/></svg>`,
+frontal_cortex:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><path d="M60,68 C32,68 18,54 18,40 C18,26 30,16 46,17 C50,10 58,6 70,9 C75,4 88,4 94,9 C105,6 118,11 121,20 C135,18 148,28 148,42 C148,55 135,68 115,68 Z" fill="rgba(0,0,0,.2)" stroke="currentColor" stroke-width="2.5"/><line x1="50" y1="35" x2="130" y2="35" stroke="currentColor" stroke-width="1" opacity=".4"/><line x1="45" y1="52" x2="125" y2="52" stroke="currentColor" stroke-width="1" opacity=".4"/><circle cx="65" cy="35" r="4" opacity=".7"/><circle cx="95" cy="35" r="4" opacity=".7"/><circle cx="118" cy="35" r="4" opacity=".7"/><circle cx="75" cy="52" r="4" opacity=".7"/><circle cx="105" cy="52" r="4" opacity=".7"/><line x1="155" y1="28" x2="148" y2="38" stroke="currentColor" stroke-width="1.5"/><line x1="165" y1="42" x2="148" y2="42" stroke="currentColor" stroke-width="1.5"/><line x1="155" y1="56" x2="148" y2="48" stroke="currentColor" stroke-width="1.5"/><circle cx="158" cy="27" r="4"/><circle cx="168" cy="42" r="4"/><circle cx="158" cy="57" r="4"/></svg>`,
+skeleton:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><rect x="105" y="8" width="10" height="74" rx="3"/><path d="M115,22 Q148,22 155,45 Q148,68 115,68" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M105,22 Q72,22 65,45 Q72,68 105,68" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="30" x2="65" y2="40" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><line x1="30" y1="60" x2="65" y2="50" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><line x1="155" y1="40" x2="190" y2="30" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><line x1="155" y1="50" x2="190" y2="60" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><circle cx="65" cy="45" r="7"/><circle cx="155" cy="45" r="7"/><circle cx="110" cy="8" r="5" opacity=".6"/><circle cx="110" cy="82" r="5" opacity=".6"/></svg>`,
+integumentary:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><path d="M68,10 L152,10 L166,28 L160,68 L110,82 L60,68 L54,28 Z" fill="rgba(0,0,0,.2)" stroke="currentColor" stroke-width="2.5"/><line x1="68" y1="10" x2="110" y2="82" stroke="currentColor" stroke-width="1" opacity=".35"/><line x1="152" y1="10" x2="110" y2="82" stroke="currentColor" stroke-width="1" opacity=".35"/><line x1="60" y1="42" x2="160" y2="42" stroke="currentColor" stroke-width="1" opacity=".35"/><circle cx="88" cy="22" r="4"/><circle cx="132" cy="22" r="4"/><circle cx="80" cy="58" r="4"/><circle cx="140" cy="58" r="4"/><circle cx="110" cy="26" r="4"/></svg>`,
+immune_system:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><path d="M88,8 L132,8 L150,26 L150,58 L110,80 L70,58 L70,26 Z" fill="rgba(0,0,0,.2)" stroke="currentColor" stroke-width="2.5"/><rect x="105" y="26" width="10" height="32" rx="3"/><rect x="91" y="38" width="38" height="10" rx="3"/><circle cx="110" cy="42" r="3" fill="rgba(0,0,0,.4)"/></svg>`,
+ocular:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><path d="M22,45 Q70,8 110,8 Q150,8 198,45 Q150,82 110,82 Q70,82 22,45 Z" fill="rgba(0,0,0,.2)" stroke="currentColor" stroke-width="2.5"/><circle cx="110" cy="45" r="24" fill="rgba(0,0,0,.3)" stroke="currentColor" stroke-width="2"/><circle cx="110" cy="45" r="12"/><circle cx="110" cy="45" r="6" fill="rgba(0,0,0,.5)" stroke="currentColor" stroke-width="1.5"/><line x1="86" y1="45" x2="78" y2="45" stroke="currentColor" stroke-width="1.5" opacity=".5"/><line x1="134" y1="45" x2="142" y2="45" stroke="currentColor" stroke-width="1.5" opacity=".5"/><line x1="110" y1="21" x2="110" y2="14" stroke="currentColor" stroke-width="1.5" opacity=".5"/><line x1="110" y1="69" x2="110" y2="76" stroke="currentColor" stroke-width="1.5" opacity=".5"/><circle cx="118" cy="38" r="3" opacity=".6"/></svg>`,
+hands:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><rect x="75" y="48" width="65" height="28" rx="6"/><rect x="78" y="14" width="12" height="38" rx="6"/><rect x="94" y="10" width="12" height="42" rx="6"/><rect x="110" y="12" width="12" height="40" rx="6"/><rect x="126" y="16" width="12" height="36" rx="6"/><rect x="52" y="38" width="28" height="12" rx="6"/><line x1="78" y1="44" x2="138" y2="44" stroke="rgba(0,0,0,.35)" stroke-width="2.5"/><line x1="80" y1="32" x2="138" y2="32" stroke="rgba(0,0,0,.35)" stroke-width="2.5"/><circle cx="84" cy="44" r="3" fill="rgba(255,255,255,.2)"/><circle cx="100" cy="44" r="3" fill="rgba(255,255,255,.2)"/><circle cx="116" cy="44" r="3" fill="rgba(255,255,255,.2)"/><circle cx="132" cy="44" r="3" fill="rgba(255,255,255,.2)"/></svg>`,
+legs:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><rect x="78" y="8" width="32" height="38" rx="5"/><rect x="80" y="43" width="30" height="6" rx="3"/><rect x="80" y="47" width="28" height="26" rx="4"/><rect x="74" y="70" width="44" height="12" rx="4"/><line x1="76" y1="46" x2="112" y2="46" stroke="currentColor" stroke-width="1.5" opacity=".4"/><line x1="124" y1="18" x2="124" y2="70" stroke="currentColor" stroke-width="2.5" stroke-dasharray="5,3" opacity=".5"/><line x1="138" y1="24" x2="138" y2="66" stroke="currentColor" stroke-width="2.5" stroke-dasharray="5,3" opacity=".5"/><circle cx="94" cy="46" r="5" fill="rgba(0,0,0,.3)" stroke="currentColor" stroke-width="1.5"/></svg>`,
+arms:`<svg viewBox="0 0 220 90" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.85"><rect x="20" y="32" width="64" height="26" rx="7"/><circle cx="90" cy="45" r="13"/><rect x="100" y="34" width="72" height="22" rx="5"/><path d="M162,34 L198,20 L200,28 L172,42 Z" opacity=".75"/><path d="M162,56 L198,70 L200,62 L172,48 Z" opacity=".75"/><line x1="36" y1="45" x2="20" y2="45" stroke="currentColor" stroke-width="1.5" opacity=".5"/><circle cx="90" cy="45" r="5" fill="rgba(0,0,0,.4)" stroke="currentColor" stroke-width="1.5"/></svg>`,
+};
+
+// ── IMAGES ──
+const CW_IMG = {
+  apogee:            'https://static.wikia.nocookie.net/cyberpunk/images/b/bb/SandevistanApogee.png/revision/latest?cb=20230924192213',
+  qiant_mk4:         'https://static.wikia.nocookie.net/cyberpunk/images/8/8d/SandevistanC3.png/revision/latest?cb=20230925062754',
+  berserk_mk5:       'https://static.wikia.nocookie.net/cyberpunk/images/5/56/BerserkC4.png/revision/latest?cb=20230925065430',
+  netwatch_mk5:      'https://static.wikia.nocookie.net/cyberpunk/images/d/d1/NetWatchNetdriver.png/revision/latest?cb=20230925101710',
+  second_heart:      'https://static.wikia.nocookie.net/cyberpunk/images/1/1e/SecondHeart.png/revision/latest?cb=20230929160656',
+  blood_pump:        'https://static.wikia.nocookie.net/cyberpunk/images/d/d9/BloodPump.png/revision/latest?cb=20230929170919',
+  biomonitor:        'https://static.wikia.nocookie.net/cyberpunk/images/5/53/Biomonitor.png/revision/latest?cb=20230929161644',
+  optical_camo:      'https://static.wikia.nocookie.net/cyberpunk/images/e/ec/OpticalCamo.png/revision/latest?cb=20230929181756',
+  kiroshi_cockatrice:'https://static.wikia.nocookie.net/cyberpunk/images/d/df/Iconic_KiroshiOpticsBare.png/revision/latest?cb=20230924132054',
+  dynalar_mk3:       'https://static.wikia.nocookie.net/cyberpunk/images/6/62/SandevistanC2.png/revision/latest?cb=20230925061549',
+  falcon_sandy:      'https://static.wikia.nocookie.net/cyberpunk/images/5/56/SandevistanC4.png/revision/latest?cb=20230925062810',
+  kerenzikov_mk3:    'https://static.wikia.nocookie.net/cyberpunk/images/1/1d/Kerenzikov.png/revision/latest?cb=20230929133137',
+  kerenzikov_mk2:    'https://static.wikia.nocookie.net/cyberpunk/images/1/1d/Kerenzikov.png/revision/latest?cb=20230929133137',
+  kerenzikov_mk1:    'https://static.wikia.nocookie.net/cyberpunk/images/1/1d/Kerenzikov.png/revision/latest?cb=20230929133137',
+  blood_pump:        'https://static.wikia.nocookie.net/cyberpunk/images/d/d9/BloodPump.png/revision/latest?cb=20230929170919',
+  syn_lungs:         'https://static.wikia.nocookie.net/cyberpunk/images/a/a0/IronLungs_Icon_CP2077.png/revision/latest?cb=20210619104922',
+  subdermal_mk3:     'https://static.wikia.nocookie.net/cyberpunk/images/8/81/BoringPlating.png/revision/latest?cb=20230929180739',
+  nano_plating:      'https://static.wikia.nocookie.net/cyberpunk/images/a/ab/NanoTechPlates.png/revision/latest?cb=20230929180320',
+  reflex_tuner:      'https://static.wikia.nocookie.net/cyberpunk/images/d/d4/ReflexRecorder.png/revision/latest?cb=20230929122745',
+  heal_on_kill:      'https://static.wikia.nocookie.net/cyberpunk/images/5/56/HealOnKill.png/revision/latest?cb=20230929170735',
+  visual_cortex:     'https://static.wikia.nocookie.net/cyberpunk/images/b/bb/VisualCortexSupport.png/revision/latest?cb=20230929130541',
+  synaptic_acc:      'https://static.wikia.nocookie.net/cyberpunk/images/a/a4/SynapticAccelerator.png/revision/latest?cb=20230929133717',
+  memory_boost:      'https://static.wikia.nocookie.net/cyberpunk/images/b/b5/MemoryBoost.png/revision/latest?cb=20230925180303',
+  titanium_bones:    'https://static.wikia.nocookie.net/cyberpunk/images/4/49/TitaniumInfusedBones.png/revision/latest?cb=20230928113307',
+  dense_marrow:      'https://static.wikia.nocookie.net/cyberpunk/images/c/c9/DenseMarrow.png/revision/latest?cb=20230928130629',
+  reinforced_tendons:'https://static.wikia.nocookie.net/cyberpunk/images/5/55/BoostedTendons.png/revision/latest?cb=20230926075449',
+  kiroshi_mk3:       'https://static.wikia.nocookie.net/cyberpunk/images/5/55/KiroshiOptics.png/revision/latest?cb=20230930115559',
+  smart_eye:         'https://static.wikia.nocookie.net/cyberpunk/images/a/ac/KiroshiOpticsPiercing.png/revision/latest?cb=20230923130432',
+  mantis_blades:     'https://static.wikia.nocookie.net/cyberpunk/images/8/89/MantisBlades.png/revision/latest?cb=20230928074951',
+  gorilla_arms:      'https://static.wikia.nocookie.net/cyberpunk/images/3/35/StrongArms.png/revision/latest?cb=20230928072235',
+  monowire:          'https://static.wikia.nocookie.net/cyberpunk/images/d/d6/NanoWires.png/revision/latest?cb=20230928080643',
+  pls:               'https://static.wikia.nocookie.net/cyberpunk/images/c/cf/ProjectileLauncher.png/revision/latest?cb=20230928080923',
+  newton_module:     'https://static.wikia.nocookie.net/cyberpunk/images/9/90/SubdermalCoProcessor.png/revision/latest?cb=20210528115501',
+  hydraulic_joints:  'https://static.wikia.nocookie.net/cyberpunk/images/2/25/AgileJoints.png/revision/latest?cb=20230928124128',
+  micro_rotors:      'https://static.wikia.nocookie.net/cyberpunk/images/b/b0/CyberRotors.png/revision/latest?cb=20230929155636',
+  ballistic_copro:   'https://static.wikia.nocookie.net/cyberpunk/images/5/52/PowerGrip.png/revision/latest?cb=20230928134324',
+  metabolic_editor:  'https://static.wikia.nocookie.net/cyberpunk/images/1/17/ViralVenom.png/revision/latest?cb=20230929164104',
+  immovable_force:   'https://static.wikia.nocookie.net/cyberpunk/images/9/98/GunStabilizer.png/revision/latest?cb=20230928152648',
+  ex_disk:           'https://static.wikia.nocookie.net/cyberpunk/images/0/05/ExDisk.png/revision/latest?cb=20230928104613',
+};
+
+const RARITY_COLORS  = { legendary:'#ff9900', epic:'#aa40ff', rare:'#4499ff', uncommon:'#00cc66' };
+const RARITY_LABELS  = { legendary:'ЛЕГЕНДАРНОЕ', epic:'ЭПИЧЕСКОЕ', rare:'РЕДКОЕ', uncommon:'НЕОБЫЧНОЕ' };
+const SLOT_COLORS    = {
+  operating_system:'#00f5ff', nervous_system:'#ffe600', circulatory:'#ff3355',
+  frontal_cortex:'#44aaff', skeleton:'#aabbcc', integumentary:'#cc88ff',
+  immune_system:'#ff66aa', ocular:'#00ff99', hands:'#ff8833', legs:'#00ccee', arms:'#ff6b00',
+};
+const SLOT_LABELS    = {
+  operating_system:'Операционная система', nervous_system:'Нервная система',
+  circulatory:'Кровеносная система', frontal_cortex:'Лобная кора', skeleton:'Скелет',
+  integumentary:'Покровная система', immune_system:'Иммунная система',
+  ocular:'Зрительная система', hands:'Руки', legs:'Ноги', arms:'Кибероружие',
+};
+
+const GFX = {
+  legendary:{ bg:'rgba(255,153,0,.2),rgba(120,50,0,.1)',  glow:'255,140,0',  bar:'#ff9900,#ffcc44' },
+  epic:     { bg:'rgba(170,64,255,.18),rgba(60,0,120,.1)', glow:'170,64,255', bar:'#aa40ff,#dd88ff' },
+  rare:     { bg:'rgba(68,153,255,.17),rgba(0,40,120,.1)', glow:'68,153,255', bar:'#4499ff,#66ccff' },
+  uncommon: { bg:'rgba(0,204,102,.16),rgba(0,80,40,.1)',   glow:'0,200,100',  bar:'#00cc66,#44ffaa' },
+};
+
+// stats per implant: {l: label, v: value, u: unit, b: bar 0-100}
+
+const CYBERWARE = [
+  // ── LEGENDARY ──
+  { id:'apogee', name:'Militech "Apogee" Sandevistan', short:'APOGEE SANDY', rarity:'legendary', slot:'operating_system',
+    manufacturer:'Militech', active:true, capacity:14,
+    stats:[
+      {l:'ЗАМЕДЛЕНИЕ',   v:90,    u:'%',   b:90},
+      {l:'ДЛИТЕЛЬНОСТЬ', v:8,     u:'СЕК', b:80},
+      {l:'ПЕРЕЗАРЯДКА',  v:16,    u:'СЕК', b:82},
+      {l:'КРИТ. ШАНС',   v:'+15', u:'%',   b:62},
+      {l:'КРИТ. УРОН',   v:'+50', u:'%',   b:75},
+    ],
+    effect:'Замедляет время до 10% на 8 сек. +15% крит. шанс и +50% крит. урон во время действия. Каждое убийство продлевает эффект на 1 секунду.',
+    lore:'Вершина инженерии Militech. Этот сандевистан ставит лучших Street Samurai Night City на голову выше остальных.',
+    acquire:'Viktor Vektor или Cassius Ryder. Street Cred 45+. Крайне редкий drop.' },
+
+  { id:'qiant_mk4', name:'QianT Sandevistan MK.4', short:'QIANT MK.4', rarity:'legendary', slot:'operating_system',
+    manufacturer:'Kang Tao', active:true, capacity:16,
+    stats:[
+      {l:'ЗАМЕДЛЕНИЕ',   v:75,    u:'%',   b:75},
+      {l:'ДЛИТЕЛЬНОСТЬ', v:6,     u:'СЕК', b:60},
+      {l:'ПЕРЕЗАРЯДКА',  v:15,    u:'СЕК', b:84},
+      {l:'КРИТ. ШАНС',   v:'+10', u:'%',   b:48},
+      {l:'СБРОС ПЕРЕЗАР.',v:'33', u:'%',   b:60},
+    ],
+    effect:'Замедляет время до 25% на 6 сек. +10% крит. шанс. Каждое убийство сбрасывает 33% перезарядки.',
+    lore:'Флагман Kang Tao в линейке сандевистанов. Любимый выбор корпоративных телохранителей и наёмных убийц.',
+    acquire:'Ripperdoc в Westbrook, Japantown. Street Cred 40+.' },
+
+  { id:'berserk_mk5', name:'Berserk MK.5', short:'BERSERK MK.5', rarity:'legendary', slot:'operating_system',
+    manufacturer:'Zetatech', active:true, capacity:14,
+    stats:[
+      {l:'УРОН В БОЮ',   v:'+30', u:'%',   b:80},
+      {l:'БРОНЯ',        v:'+30', u:'%',   b:70},
+      {l:'ДЛИТЕЛЬНОСТЬ', v:6,     u:'СЕК', b:60},
+      {l:'ПЕРЕЗАРЯДКА',  v:12,    u:'СЕК', b:88},
+      {l:'СТАТ. ЭФФЕКТ', v:'+40', u:'%',   b:80},
+    ],
+    effect:'+30% урон в ближнем бою, +30% броня, +40% сопротивление к статусам на 6 сек. Убийство продлевает действие.',
+    lore:'Zetatech создали систему для бойцов ближнего боя. Тело превращается в машину смерти на несколько секунд.',
+    acquire:'Ripperdoc в Santo Domingo. Street Cred 40+.' },
+
+  { id:'netwatch_mk5', name:'Netwatch Netdriver MK.5', short:'NETDRIVER MK.5', rarity:'legendary', slot:'operating_system',
+    manufacturer:'Netwatch', active:false, capacity:8,
+    stats:[
+      {l:'МАКС. ОЗУ',    v:'+5',  u:'',    b:85},
+      {l:'СКОР. ЗАГР.',  v:'+30', u:'%',   b:80},
+      {l:'ХАК. КАСКАД',  v:'ДА',  u:'',    b:100},
+    ],
+    effect:'Макс. RAM +5. Скорость загрузки квикхаков +30%. Все хаки через твой сигнал распространяются на ближайших врагов.',
+    lore:'Операционная система нетраннеров экстра-класса. Netwatch создал её для своих лучших оперативников.',
+    acquire:'Ripperdoc в Watson или тайник в Corpo Plaza. Street Cred 35+.' },
+
+  { id:'second_heart', name:'Second Heart', short:'SECOND HEART', rarity:'legendary', slot:'circulatory',
+    manufacturer:'Trauma Team Int.', active:true, capacity:3,
+    stats:[
+      {l:'ВОССТ. HP',    v:100,   u:'%',   b:100},
+      {l:'ПЕРЕЗАРЯДКА',  v:120,   u:'СЕК', b:20},
+      {l:'АВТ. АПТЕЧКА', v:'ДА',  u:'',    b:100},
+    ],
+    effect:'При смерти автоматически восстанавливает 100% HP. Срабатывает неограниченно. Перезарядка 120 секунд.',
+    lore:'Буквально второй шанс на жизнь. Trauma Team разработала для своих полевых медиков в самых горячих точках.',
+    acquire:'Любой Ripperdoc. Street Cred 16+.' },
+
+  { id:'optical_camo', name:'Optical Camo', short:'OPTICAL CAMO', rarity:'legendary', slot:'integumentary',
+    manufacturer:'Zetatech', active:true, capacity:14,
+    stats:[
+      {l:'НЕВИДИМОСТЬ',  v:100,   u:'%',   b:100},
+      {l:'ДЛИТЕЛЬНОСТЬ', v:7,     u:'СЕК', b:70},
+      {l:'ПЕРЕЗАРЯДКА',  v:35,    u:'СЕК', b:53},
+      {l:'БОН. АТАКИ',   v:'+50', u:'%',   b:75},
+      {l:'КРИТ. ШАНС',   v:'+30', u:'%',   b:65},
+    ],
+    effect:'Полная невидимость на 7 секунд. Атаки из невидимости +50% урона и +30% крит. шанс.',
+    lore:'Тот самый киберимплант из-за которого Night City кишит невидимыми убийцами в переулках.',
+    acquire:'Ripperdoc в Westbrook. Street Cred 44+. Один из самых дорогих имплантов.' },
+
+  { id:'kiroshi_cockatrice', name:'Kiroshi "Cockatrice" Optics', short:'COCKATRICE', rarity:'legendary', slot:'ocular',
+    manufacturer:'Kiroshi', active:false, capacity:3,
+    stats:[
+      {l:'КРИТ. ШАНС',   v:'+5',  u:'%',   b:55},
+      {l:'СКАНИРОВАНИЕ', v:40,    u:'М',   b:90},
+      {l:'СКВОЗЬ СТЕНЫ', v:'ДА',  u:'',    b:100},
+    ],
+    effect:'Полное сканирование. Видит врагов сквозь стены. +5% крит. шанс. Помечает слабые точки и оружие противника.',
+    lore:'Лучшая оптика в Night City. Kiroshi поставляет её только своим избранным клиентам с нужными связями.',
+    acquire:'Viktor Vektor. Street Cred 50+. Самый дорогой глазной имплант.' },
+
+  { id:'biomonitor', name:'Biomonitor', short:'BIOMONITOR', rarity:'legendary', slot:'circulatory',
+    manufacturer:'Dynalar', active:true, capacity:2,
+    stats:[
+      {l:'ПОРОГ HP',     v:15,    u:'%',   b:75},
+      {l:'БОН. СТИМУЛ.', v:'+25', u:'%',   b:65},
+      {l:'ПЕРЕЗАРЯДКА',  v:'АВТО',u:'',    b:100},
+    ],
+    effect:'При падении HP ниже 15% автоматически использует стимулятор из инвентаря. +25% к эффективности инъекторов.',
+    lore:'Врачи Night City давно устарели. Этот имплант следит за состоянием лучше любого хирурга.',
+    acquire:'Ripperdoc в Heywood или Pacifica. Street Cred 30+.' },
+
+  // ── EPIC ──
+  { id:'dynalar_mk3', name:'Dynalar Sandevistan MK.3', short:'DYNALAR MK.3', rarity:'epic', slot:'operating_system',
+    manufacturer:'Dynalar', active:true, capacity:14,
+    stats:[
+      {l:'ЗАМЕДЛЕНИЕ',   v:50,    u:'%',   b:50},
+      {l:'ДЛИТЕЛЬНОСТЬ', v:5,     u:'СЕК', b:50},
+      {l:'ПЕРЕЗАРЯДКА',  v:30,    u:'СЕК', b:62},
+      {l:'КРИТ. ШАНС',   v:'+5',  u:'%',   b:35},
+    ],
+    effect:'Замедляет время до 50% на 5 сек. +5% крит. шанс. Перезарядка 30 секунд.',
+    lore:'Популярный выбор среди средних Street Samurai. Dynalar делает надёжные и доступные импланты.',
+    acquire:'Большинство Ripperdoc. Street Cred 20+.' },
+
+  { id:'falcon_sandy', name:'Militech "Falcon" Sandevistan', short:'FALCON SANDY', rarity:'epic', slot:'operating_system',
+    manufacturer:'Militech', active:true, capacity:12,
+    stats:[
+      {l:'ЗАМЕДЛЕНИЕ',   v:65,    u:'%',   b:65},
+      {l:'ДЛИТЕЛЬНОСТЬ', v:5,     u:'СЕК', b:50},
+      {l:'ПЕРЕЗАРЯДКА',  v:25,    u:'СЕК', b:68},
+      {l:'БОН. ОГНЕСТР.',v:'+10', u:'%',   b:45},
+    ],
+    effect:'Замедляет время до 35% на 5 сек. +10% урон огнестрельным оружием во время действия. Перезарядка 25 сек.',
+    lore:'Легче и быстрее Apogee. Militech создали его для быстрых оперативников без тяжёлой брони.',
+    acquire:'Ripperdoc в Westbrook. Street Cred 25+.' },
+
+  { id:'kerenzikov_mk3', name:'Kerenzikov MK.3', short:'KERENZIKOV MK.3', rarity:'epic', slot:'nervous_system',
+    manufacturer:'Dynalar', active:true, capacity:12,
+    stats:[
+      {l:'ЗАМЕДЛЕНИЕ',   v:50,    u:'%',   b:50},
+      {l:'ДЛИТЕЛЬНОСТЬ', v:4,     u:'СЕК', b:60},
+      {l:'ПЕРЕЗАРЯДКА',  v:'АВТО',u:'',    b:100},
+      {l:'БОН. УРОНА',   v:'+25', u:'%',   b:68},
+    ],
+    effect:'При уклонении замедляет время на 4 сек. Стрельба во время эффекта +25% урона.',
+    lore:'Топовая версия. Нервная система перестраивается под бой — рефлексы выходят за пределы человеческих.',
+    acquire:'Ripperdoc в Westbrook или Watson. Street Cred 35+.' },
+
+  { id:'blood_pump', name:'Blood Pump', short:'BLOOD PUMP', rarity:'epic', slot:'circulatory',
+    manufacturer:'Dynalar', active:true, capacity:6,
+    stats:[
+      {l:'ВОССТ. HP',    v:90,    u:'%',   b:90},
+      {l:'ВРЕМЯ ЛЕЧ.',   v:4,     u:'СЕК', b:70},
+      {l:'ПЕРЕЗАРЯДКА',  v:30,    u:'СЕК', b:62},
+    ],
+    effect:'Активно восстанавливает 90% HP за 4 секунды. Перезарядка 30 секунд.',
+    lore:'Усиленный насос крови. Активируй — раны затягиваются прямо в бою. Дорогой, но незаменимый.',
+    acquire:'Ripperdoc в Heywood или Corpo Plaza. Street Cred 16+.' },
+
+  { id:'subdermal_mk3', name:'Subdermal Armor MK.3', short:'SUBDERMAL MK.3', rarity:'epic', slot:'integumentary',
+    manufacturer:'Militech', active:false, capacity:8,
+    stats:[
+      {l:'БРОНЯ',        v:'+100',u:'',    b:85},
+      {l:'ОТ ВЗРЫВОВ',   v:'-20', u:'%',   b:60},
+      {l:'ПАССИВНЫЙ',    v:'ДА',  u:'',    b:100},
+    ],
+    effect:'Пассивно добавляет +100 единиц брони. Снижает урон от взрывов на 20%.',
+    lore:'Бронепластины под кожей. Militech разработала для оперативников, которым нельзя выглядеть как солдаты.',
+    acquire:'Ripperdoc в Watson или Santo Domingo. Street Cred 30+.' },
+
+  { id:'reflex_tuner', name:'Reflex Tuner', short:'REFLEX TUNER', rarity:'epic', slot:'nervous_system',
+    manufacturer:'Zetatech', active:true, capacity:10,
+    stats:[
+      {l:'ЗАМЕДЛЕНИЕ',   v:50,    u:'%',   b:50},
+      {l:'ПОРОГ HP',     v:25,    u:'%',   b:65},
+      {l:'ПЕРЕЗАРЯДКА',  v:60,    u:'СЕК', b:40},
+    ],
+    effect:'При падении HP ниже 25% замедляет время на 3 секунды. Перезарядка 60 секунд.',
+    lore:'Последний шанс сделать правильный ход. Нервная система получает всплеск адреналина прямо перед смертью.',
+    acquire:'Ripperdoc в Southside или Badlands. Street Cred 20+.' },
+
+  { id:'heal_on_kill', name:'Heal-On-Kill', short:'HEAL-ON-KILL', rarity:'epic', slot:'frontal_cortex',
+    manufacturer:'Dynalar', active:false, capacity:4,
+    stats:[
+      {l:'HP С УБИЙСТВА', v:'+4',  u:'%',  b:55},
+      {l:'HP С ХЕДШОТА',  v:'+8',  u:'%',  b:70},
+      {l:'ПАССИВНЫЙ',     v:'ДА',  u:'',   b:100},
+    ],
+    effect:'Каждое убийство восстанавливает 4% HP. Убийство хедшотом восстанавливает 8% HP.',
+    lore:'Лобная кора регистрирует убийство и тело получает выброс стабилизаторов. Награда за смерть.',
+    acquire:'Ripperdoc в Heywood. Street Cred 20+.' },
+
+  { id:'visual_cortex', name:'Visual Cortex Support', short:'VISUAL CORTEX', rarity:'epic', slot:'frontal_cortex',
+    manufacturer:'Arasaka', active:false, capacity:4,
+    stats:[
+      {l:'КРИТ. ШАНС',    v:'+5',  u:'%',  b:55},
+      {l:'УР. ИЗ УКРЫТИЯ',v:'+10', u:'%',  b:45},
+      {l:'ПАССИВНЫЙ',     v:'ДА',  u:'',   b:100},
+    ],
+    effect:'+5% к шансу крит. удара. Прицельная стрельба из укрытия +10% урона. Помечает всех врагов при прицеле.',
+    lore:'Arasaka создала этот имплант для корпоративных снайперов. Реакция быстрее, прицел точнее.',
+    acquire:'Ripperdoc в Corpo Plaza или Westbrook. Street Cred 25+.' },
+
+  { id:'syn_lungs', name:'Syn-Lungs', short:'SYN-LUNGS', rarity:'epic', slot:'circulatory',
+    manufacturer:'Biotech', active:false, capacity:4,
+    stats:[
+      {l:'ВЫНОСЛИВОСТЬ',  v:'+20', u:'%',  b:65},
+      {l:'ВОССТ. СТАМ.',  v:'+50', u:'%',  b:75},
+      {l:'ИММУН. К ГАЗ.', v:'ДА',  u:'',   b:100},
+    ],
+    effect:'+20% к максимальной выносливости. Стамина восстанавливается на 50% быстрее. Иммунитет к ядовитым газам.',
+    lore:'Синтетические лёгкие. Дышать воздухом Night City без фильтра — безумие. С ними это не проблема.',
+    acquire:'Ripperdoc в Rancho Coronado. Street Cred 20+.' },
+
+  { id:'nano_plating', name:'Nano-Plating', short:'NANO-PLATING', rarity:'epic', slot:'integumentary',
+    manufacturer:'Biotech', active:false, capacity:5,
+    stats:[
+      {l:'БРОНЯ',         v:'+75', u:'',   b:65},
+      {l:'АВТОРЕМОНТ',    v:'ДА',  u:'',   b:80},
+      {l:'ПАССИВНЫЙ',     v:'ДА',  u:'',   b:100},
+    ],
+    effect:'Пассивно добавляет +75 брони. Наноботы регенерируют броню со временем при получении урона.',
+    lore:'Наноботы в коже латают повреждения в реальном времени. Биотехнология следующего поколения.',
+    acquire:'Ripperdoc в Japantown. Street Cred 25+.' },
+
+  { id:'mantis_blades', name:'Mantis Blades', short:'MANTIS BLADES', rarity:'epic', slot:'arms',
+    manufacturer:'Ripperdoc', active:true, capacity:14,
+    stats:[
+      {l:'БАЗ. УРОН',    v:138,   u:'',   b:80},
+      {l:'КРИТ.(ПРЫЖОК)',v:'+50', u:'%',  b:80},
+      {l:'ПРОБИТИЕ БР.', v:75,    u:'%',  b:75},
+    ],
+    effect:'Лезвия из предплечья. Прыжок-атака сверху. +50% крит. шанс при атаке из прыжка. Легендарная версия — электрический урон.',
+    lore:'Самое знаковое кибернетическое оружие Cyberpunk 2077. V с Mantis Blades — идеальный визуальный образ эпохи.',
+    acquire:'Любой Ripperdoc. Street Cred 20+ для легендарной версии у Viktor или Cassius.' },
+
+  { id:'gorilla_arms', name:'Gorilla Arms', short:'GORILLA ARMS', rarity:'epic', slot:'arms',
+    manufacturer:'Ripperdoc', active:true, capacity:14,
+    stats:[
+      {l:'БАЗ. УРОН',    v:179,   u:'',   b:88},
+      {l:'БОН. УРОНА',   v:'+60', u:'%',  b:85},
+      {l:'ЛОМАЕТ ДВЕРИ', v:'ДА',  u:'',   b:100},
+    ],
+    effect:'Максимальный урон кулаком. Ломают двери и турели. Зарядный удар отбрасывает врагов. +60% к урону кулаками.',
+    lore:'Хромированные кибер-кулаки для тех, кто рвёт врагов голыми руками. Горилла-стиль прохождения.',
+    acquire:'Любой Ripperdoc. Street Cred 12+ стандартные. Легендарные — Viktor или Cassius Ryder.' },
+
+  { id:'monowire', name:'Monowire', short:'MONOWIRE', rarity:'epic', slot:'arms',
+    manufacturer:'Ripperdoc', active:true, capacity:12,
+    stats:[
+      {l:'БАЗ. УРОН',    v:88,    u:'',   b:70},
+      {l:'ЭЛ. ЗАРЯД',    v:'ДА',  u:'',   b:80},
+      {l:'РУБИТ БРОНЮ',  v:'ДА',  u:'',   b:90},
+    ],
+    effect:'Мономолекулярная нить режет броню насквозь. При накоплении заряда — электровзрыв по области.',
+    lore:'Тончайшая нить из запястья. Нетраннер-билд + монопровод = одна из сильнейших комбинаций в игре.',
+    acquire:'Любой Ripperdoc. Street Cred 20+ для легендарной версии.' },
+
+  // ── RARE ──
+  { id:'kerenzikov_mk2', name:'Kerenzikov MK.2', short:'KERENZIKOV MK.2', rarity:'rare', slot:'nervous_system',
+    manufacturer:'Dynalar', active:true, capacity:10,
+    stats:[
+      {l:'ЗАМЕДЛЕНИЕ',   v:50,    u:'%',  b:50},
+      {l:'ДЛИТЕЛЬНОСТЬ', v:3,     u:'СЕК',b:45},
+      {l:'БОН. УРОНА',   v:'+15', u:'%',  b:50},
+    ],
+    effect:'При уклонении замедляет время на 3 секунды. +15% урон во время действия.',
+    lore:'Средний класс Kerenzikov. Рефлексы улучшены, но не до предела кибернетических возможностей.',
+    acquire:'Большинство Ripperdoc. Street Cred 20+.' },
+
+  { id:'synaptic_acc', name:'Synaptic Accelerator', short:'SYNAPTIC ACC.', rarity:'rare', slot:'nervous_system',
+    manufacturer:'Zetatech', active:true, capacity:8,
+    stats:[
+      {l:'ЗАМЕДЛЕНИЕ',   v:50,    u:'%',  b:50},
+      {l:'ДЛИТЕЛЬНОСТЬ', v:3,     u:'СЕК',b:45},
+      {l:'ПЕРЕЗАРЯДКА',  v:60,    u:'СЕК',b:40},
+    ],
+    effect:'При обнаружении врагом замедляет время на 3 секунды. Перезарядка 60 секунд.',
+    lore:'Нервная система получает сигнал угрозы раньше сознания. Тело реагирует до того, как мозг успел понять.',
+    acquire:'Ripperdoc в Watson или Southside. Street Cred 15+.' },
+
+  { id:'memory_boost', name:'Memory Boost MK.3', short:'MEMORY BOOST', rarity:'rare', slot:'frontal_cortex',
+    manufacturer:'Biotech', active:false, capacity:3,
+    stats:[
+      {l:'МАКС. ОЗУ',    v:'+3',  u:'',   b:65},
+      {l:'ВОССТ. ОЗУ',   v:'+20', u:'%',  b:55},
+      {l:'ПАССИВНЫЙ',    v:'ДА',  u:'',   b:100},
+    ],
+    effect:'+3 к максимальной RAM. Перезарядка RAM на 20% быстрее. Бонус к хакам через Breach Protocol.',
+    lore:'Расширенная память для нетраннеров. Больше оперативки — больше одновременных хаков.',
+    acquire:'Ripperdoc в Watson или Pacifica. Street Cred 15+.' },
+
+  { id:'titanium_bones', name:'Titanium Bones', short:'TITANIUM BONES', rarity:'rare', slot:'skeleton',
+    manufacturer:'Militech', active:false, capacity:3,
+    stats:[
+      {l:'МАК. ВЕС',     v:'+25', u:'КГ', b:55},
+      {l:'УСТОЙЧИВОСТЬ', v:'+15', u:'%',  b:45},
+      {l:'УР. ПАДЕНИЯ',  v:'-50', u:'%',  b:70},
+    ],
+    effect:'+25 к максимальному весу. +15% устойчивость к нокдауну. -50% урон от падений.',
+    lore:'Titanium-укреплённый скелет. Тяжелее, крепче, опаснее. Militech знает, что значит армированное тело.',
+    acquire:'Ripperdoc в Southside или Badlands. Street Cred 12+.' },
+
+  { id:'dense_marrow', name:'Dense Marrow', short:'DENSE MARROW', rarity:'rare', slot:'skeleton',
+    manufacturer:'Biotech', active:false, capacity:4,
+    stats:[
+      {l:'УРОН В БОЮ',   v:'+25', u:'%',  b:68},
+      {l:'ДОП. УРОН',    v:'+10', u:'%',  b:45},
+      {l:'ПАССИВНЫЙ',    v:'ДА',  u:'',   b:100},
+    ],
+    effect:'+25% к урону в ближнем бою. +10% к урону с оружием ближнего боя. Удары ломают кости чаще.',
+    lore:'Костный мозг модифицирован для ускоренной мышечной реакции. Каждый кулак — как удар молота.',
+    acquire:'Ripperdoc в Heywood или Santo Domingo. Street Cred 15+.' },
+
+  { id:'reinforced_tendons', name:'Reinforced Tendons', short:'REINF. TENDONS', rarity:'rare', slot:'skeleton',
+    manufacturer:'Dynalar', active:true, capacity:10,
+    stats:[
+      {l:'ПРЫЖОК',       v:'x2',  u:'',   b:100},
+      {l:'ВЫСОТА',       v:'+50', u:'%',  b:75},
+      {l:'УР. ПАДЕНИЯ',  v:'-70', u:'%',  b:80},
+    ],
+    effect:'Двойной прыжок. Прыжок с разбега — +50% к высоте. Снижает урон от падений на 70%.',
+    lore:'Сухожилия из биосинтетического материала. Прыгай как акробат — приземляйся как машина.',
+    acquire:'Ripperdoc в Watson или Westbrook. Street Cred 12+.' },
+
+  { id:'kiroshi_mk3', name:'Kiroshi Optics MK.3', short:'KIROSHI MK.3', rarity:'rare', slot:'ocular',
+    manufacturer:'Kiroshi', active:false, capacity:3,
+    stats:[
+      {l:'СКАНИРОВАНИЕ',  v:25,   u:'М',  b:60},
+      {l:'МИНЫ/ЛОВУШКИ',  v:'ДА', u:'',   b:85},
+      {l:'ПАССИВНЫЙ',     v:'ДА', u:'',   b:100},
+    ],
+    effect:'Полное сканирование противников и окружения. Видит через дым. Обнаруживает мины и ловушки.',
+    lore:'Стандарт среди опытных наёмников. Kiroshi — самый надёжный производитель глазных имплантов в мире.',
+    acquire:'Viktor Vektor или большинство Ripperdoc. Street Cred 18+.' },
+
+  { id:'smart_eye', name:'Smart Eye', short:'SMART EYE', rarity:'rare', slot:'ocular',
+    manufacturer:'Kang Tao', active:false, capacity:4,
+    stats:[
+      {l:'ТОЧНОСТЬ',      v:'+25', u:'%',  b:68},
+      {l:'АВТО-ПРИЦЕЛ',   v:'ДА',  u:'',   b:90},
+      {l:'ПАССИВНЫЙ',     v:'ДА',  u:'',   b:100},
+    ],
+    effect:'+25% к точности Smart-оружия. Автоматическое прицеливание по слабым точкам противника.',
+    lore:'Kang Tao создали Smart Eye для своих корпоративных бойцов. Идеально работает с Kang Tao Smart-пушками.',
+    acquire:'Ripperdoc в Japantown или Corpo Plaza. Street Cred 15+.' },
+
+  { id:'pls', name:'Projectile Launch System', short:'PROJ. LAUNCH SYS.', rarity:'rare', slot:'arms',
+    manufacturer:'Ripperdoc', active:true, capacity:14,
+    stats:[
+      {l:'УРОН СНАРЯДА',  v:450,  u:'',   b:78},
+      {l:'РЕЖИМОВ',       v:3,    u:'',   b:80},
+      {l:'ПЕРЕЗАРЯДКА',   v:10,   u:'СЕК',b:85},
+    ],
+    effect:'Запускает снаряды из руки. Три режима: Explosive Bolt / EMP Bolt / Recon Grenade.',
+    lore:'Ракетница, встроенная в руку. Night City давно перешла черту между человеком и оружием.',
+    acquire:'Ripperdoc. Street Cred 20+. Патроны покупаются у торговцев.' },
+
+  // ── UNCOMMON ──
+  { id:'kerenzikov_mk1', name:'Kerenzikov MK.1', short:'KERENZIKOV MK.1', rarity:'uncommon', slot:'nervous_system',
+    manufacturer:'Dynalar', active:true, capacity:6,
+    stats:[
+      {l:'ЗАМЕДЛЕНИЕ',   v:50,    u:'%',  b:50},
+      {l:'ДЛИТЕЛЬНОСТЬ', v:2,     u:'СЕК',b:30},
+      {l:'ПЕРЕЗАРЯДКА',  v:'АВТО',u:'',   b:100},
+    ],
+    effect:'При уклонении замедляет время на 2 секунды. Базовая версия для начинающих.',
+    lore:'Начальный уровень кибернетики. Даёт преимущество в бою, не требуя большого бюджета.',
+    acquire:'Любой Ripperdoc в любом районе. Street Cred 5+.' },
+
+  { id:'newton_module', name:'Newton Module', short:'NEWTON MODULE', rarity:'uncommon', slot:'legs',
+    manufacturer:'Zetatech', active:false, capacity:3,
+    stats:[
+      {l:'УР. ПАДЕНИЯ',  v:'-100',u:'%',  b:100},
+      {l:'ВОЛНА УДАРА',  v:'ДА',  u:'',   b:60},
+      {l:'ПАССИВНЫЙ',    v:'ДА',  u:'',   b:100},
+    ],
+    effect:'Полностью убирает урон от падений. Приземление с большой высоты создаёт волну оглушения вокруг.',
+    lore:'Назван в честь ньютоновской механики. Падать можно с любой высоты — земля больше не враг.',
+    acquire:'Любой Ripperdoc. Street Cred 8+.' },
+
+  { id:'hydraulic_joints', name:'Hydraulic Joints', short:'HYDRAULIC JOINTS', rarity:'uncommon', slot:'legs',
+    manufacturer:'Militech', active:true, capacity:8,
+    stats:[
+      {l:'ВЫСОТА ПРЫЖКА', v:'+80', u:'%', b:80},
+      {l:'СКОРОСТЬ',      v:'+20', u:'%', b:55},
+      {l:'ПЕРЕЗАРЯДКА',   v:'АВТО',u:'',  b:100},
+    ],
+    effect:'Заряженный прыжок достигает значительно большей высоты. +20% к скорости бега.',
+    lore:'Гидравлические суставы ног. Militech разработала для бойцов, которым нужно преодолевать вертикальные поверхности.',
+    acquire:'Ripperdoc в Southside или Badlands. Street Cred 10+.' },
+
+  { id:'micro_rotors', name:'Micro-Rotors', short:'MICRO-ROTORS', rarity:'uncommon', slot:'hands',
+    manufacturer:'Biotech', active:false, capacity:3,
+    stats:[
+      {l:'СМЕНА ОРУ.',    v:'+25', u:'%', b:65},
+      {l:'ПЕРЕЗАРЯДКА',   v:'+10', u:'%', b:45},
+      {l:'ПАССИВНЫЙ',     v:'ДА',  u:'',  b:100},
+    ],
+    effect:'+25% к скорости смены оружия. +10% к скорости перезарядки. Уменьшает разброс при быстрой стрельбе.',
+    lore:'Микровращатели в суставах рук. Оружие переключается быстрее, чем мозг успевает подумать.',
+    acquire:'Ripperdoc в Watson или Heywood. Street Cred 5+.' },
+
+  { id:'ballistic_copro', name:'Ballistic Coprocessor', short:'BALLISTIC COPRO.', rarity:'uncommon', slot:'hands',
+    manufacturer:'Militech', active:false, capacity:3,
+    stats:[
+      {l:'РИКОШЕТ',       v:'ДА',  u:'',  b:90},
+      {l:'УРН. РИКОШЕТ',  v:'+10', u:'%', b:45},
+      {l:'ПАССИВНЫЙ',     v:'ДА',  u:'',  b:100},
+    ],
+    effect:'Пули рикошетят в указанную точку при прицеле. +10% урона при рикошете. Работает с Power-оружием.',
+    lore:'Сопроцессор для расчёта траектории рикошета. Militech создала для снайперов в городских условиях.',
+    acquire:'Ripperdoc в Watson. Street Cred 8+.' },
+
+  { id:'metabolic_editor', name:'Metabolic Editor', short:'METABOLIC EDIT.', rarity:'uncommon', slot:'immune_system',
+    manufacturer:'Biotech', active:false, capacity:3,
+    stats:[
+      {l:'ИММУН. ЯД',     v:100,  u:'%',  b:100},
+      {l:'ЗАЩ. ОГОНЬ',    v:'+50',u:'%',  b:70},
+      {l:'СТИМУЛЯТОРЫ',   v:'+50',u:'%',  b:70},
+    ],
+    effect:'Полный иммунитет к яду. +50% сопротивление к горению. Стимуляторы действуют в 1.5 раза дольше.',
+    lore:'Метаболизм перестроен — яды и огонь теперь не опасны. Night City полна этих угроз.',
+    acquire:'Ripperdoc в Pacifica или Badlands. Street Cred 8+.' },
+
+  { id:'immovable_force', name:'Immovable Force', short:'IMMOVABLE FORCE', rarity:'uncommon', slot:'immune_system',
+    manufacturer:'Militech', active:false, capacity:4,
+    stats:[
+      {l:'ИММУН. НОКД.',  v:'ДА',  u:'',  b:100},
+      {l:'УСТОЙЧИВОСТЬ',  v:'+20', u:'%', b:55},
+      {l:'ПАССИВНЫЙ',     v:'ДА',  u:'',  b:100},
+    ],
+    effect:'Полный иммунитет к нокдауну и отброске. +20% устойчивость при получении урона в корпус.',
+    lore:'Нокдаун в бою равен смерти. Militech создала имплант для тех, кто должен стоять при любых условиях.',
+    acquire:'Ripperdoc в Southside. Street Cred 10+.' },
+
+  { id:'ex_disk', name:'Ex-Disk', short:'EX-DISK', rarity:'uncommon', slot:'frontal_cortex',
+    manufacturer:'Biotech', active:false, capacity:2,
+    stats:[
+      {l:'МАКС. ОЗУ',     v:'+2',  u:'',  b:40},
+      {l:'ПЕРЕЗАРЯДКА',   v:'+15', u:'%', b:35},
+      {l:'ПАССИВНЫЙ',     v:'ДА',  u:'',  b:100},
+    ],
+    effect:'+2 к максимальной RAM. Базовое ускорение перезарядки квикхаков. Основа нетраннерского билда.',
+    lore:'Внешний накопитель для лобной коры. Основа любого нетраннерского билда — больше памяти, больше хаков.',
+    acquire:'Ripperdoc в Watson. Street Cred 1+. Самый доступный имплант.' },
+];
+
+// ── STATE ──
+let fCat = 'all', fType = 'all', fText = '', activeId = null;
+
+// ── RENDER CARDS ──
+function renderCards() {
+  document.querySelectorAll('.wcard').forEach(el => el.remove());
+  const noR = document.getElementById('noResults');
+
+  const list = CYBERWARE.filter(c => {
+    if (fCat  !== 'all' && c.rarity !== fCat)  return false;
+    if (fType !== 'all' && c.slot   !== fType)  return false;
+    if (fText && !c.name.toLowerCase().includes(fText) && !c.short.toLowerCase().includes(fText)) return false;
+    return true;
+  });
+
+  noR.classList.toggle('show', list.length === 0);
+  document.getElementById('weaponsCount').textContent = `// ${list.length} IMPLANT(S) LOADED`;
+  document.getElementById('panelCount').textContent   = `${list.length} ИМПЛАНТОВ В БАЗЕ`;
+
+  const grid = document.getElementById('weaponGrid');
+
+  list.forEach((cw, i) => {
+    const rc = RARITY_COLORS[cw.rarity];
+    const gfx = GFX[cw.rarity];
+    const rl  = RARITY_LABELS[cw.rarity];
+    const sl  = SLOT_LABELS[cw.slot];
+    const svc = SLOT_COLORS[cw.slot];
+
+    const card = document.createElement('div');
+    card.className = 'wcard fade-up';
+    card.id = 'cwc-' + cw.id;
+    card.style.setProperty('--wc', rc);
+    card.style.animationDelay = Math.min(i * 0.025, 0.5) + 's';
+
+    card.innerHTML = `
+      <div class="w-art">
+        <div class="w-art-bg" style="background:linear-gradient(135deg,${gfx.bg})"></div>
+        <div class="w-art-grid"></div>
+        <div class="w-art-scan"></div>
+        <div class="w-art-glow" style="background:radial-gradient(circle,rgba(${gfx.glow},.22) 0%,transparent 65%)"></div>
+        <div class="w-rarity-badge" style="color:${rc};border-color:${rc}66">◆ ${rl}</div>
+        ${cw.active ? '<div class="w-active-badge" style="background:rgba(0,245,255,.12);color:#00f5ff;border:1px solid rgba(0,245,255,.3);font-size:.38rem;letter-spacing:.2em">АКТИВНЫЙ</div>' : ''}
+        <div class="w-svg-wrap" style="color:${svc}">${CW_SVG[cw.slot]||''}</div>
+        <div class="w-art-type" style="color:${rc};position:relative;z-index:1">${sl}</div>
+      </div>
+      <div class="w-body">
+        <div class="w-name" style="color:${rc}">${cw.name}</div>
+        <div class="w-tags">
+          <div class="w-tag" style="color:${rc};border-color:${rc}55">${rl}</div>
+          <div class="w-tag" style="color:${svc};border-color:${svc}44">${sl}</div>
+        </div>
+        <div class="w-stats">
+          ${cw.stats.slice(0,3).map(s => `
+            <div class="w-stat-row">
+              <div class="w-stat-label">${s.l}</div>
+              <div class="w-stat-bar"><div class="w-stat-fill" style="background:linear-gradient(to right,${gfx.bar});width:0%" data-w="${s.b}%"></div></div>
+              <div class="w-stat-val" style="color:${rc}">${s.v}<span class="w-stat-unit">${s.u||''}</span></div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+
+    card.addEventListener('click', () => selectCyberware(cw.id));
+    grid.insertBefore(card, noR);
+  });
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.querySelectorAll('.w-stat-fill').forEach(el => { el.style.width = el.dataset.w; });
+  }));
+}
+
+// ── SELECT CYBERWARE ──
+function selectCyberware(id) {
+  const cw = CYBERWARE.find(x => x.id === id);
+  if (!cw) return;
+  activeId = id;
+
+  document.querySelectorAll('.wcard').forEach(el => el.classList.remove('active'));
+  const card = document.getElementById('cwc-' + id);
+  if (card) { card.classList.add('active'); card.scrollIntoView({ block:'nearest', behavior:'smooth' }); }
+
+  const rc  = RARITY_COLORS[cw.rarity];
+  const gfx = GFX[cw.rarity];
+  const rl  = RARITY_LABELS[cw.rarity];
+  const sl  = SLOT_LABELS[cw.slot];
+  const svc = SLOT_COLORS[cw.slot];
+
+  const dpArtBgColors = {
+    legendary:'rgba(255,140,0,.28),rgba(80,30,0,.7)',
+    epic:     'rgba(170,64,255,.24),rgba(40,0,80,.7)',
+    rare:     'rgba(68,153,255,.22),rgba(0,20,80,.7)',
+    uncommon: 'rgba(0,200,100,.2),rgba(0,60,30,.7)',
+  };
+  document.getElementById('dpArtBg').style.background = `linear-gradient(135deg,${dpArtBgColors[cw.rarity]})`;
+  document.getElementById('dpArtGlow').style.background = `radial-gradient(circle,rgba(${gfx.glow},.45) 0%,transparent 60%)`;
+  document.getElementById('dpArtTypebg').textContent = cw.slot.replace('_',' ').toUpperCase();
+
+  const svgWrap = document.getElementById('dpSvgWrap');
+  const img = CW_IMG[cw.id] ? `<img src="${CW_IMG[cw.id]}" alt="${cw.name}" referrerpolicy="no-referrer" class="dp-weapon-img" style="filter:drop-shadow(0 0 26px ${rc}aa)" onload="const s=this.parentElement.querySelector('svg');if(s)s.style.display='none'" onerror="this.style.display='none'"/>` : '';
+  svgWrap.innerHTML = `<svg viewBox="0 0 220 90" fill="${svc}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:.22">${CW_SVG[cw.slot]||''}</svg>${img}`;
+
+  document.getElementById('dpCat').textContent = sl + (cw.active ? ' · АКТИВНЫЙ' : ' · ПАССИВНЫЙ');
+  document.getElementById('dpCat').style.color = rc;
+  document.getElementById('dpName').textContent = cw.name;
+  document.getElementById('dpName').style.color = rc;
+  document.getElementById('dpMfr').textContent = '// ' + cw.manufacturer;
+
+  // capacity
+  document.getElementById('dpCapVal').textContent = cw.capacity;
+  document.getElementById('dpCapVal').style.color = rc;
+  document.getElementById('dpCapDot').style.background = rc;
+  document.getElementById('dpCapDot').style.boxShadow = `0 0 8px ${rc}`;
+
+  // badges
+  const be = document.getElementById('dpBadges');
+  be.innerHTML = '';
+  const mkBadge = (txt, col, brd) => { const b = document.createElement('div'); b.className='dp-badge'; b.textContent=txt; b.style.color=col; b.style.borderColor=brd; be.appendChild(b); };
+  mkBadge('◆ ' + rl, rc, rc + '66');
+  mkBadge(sl.toUpperCase(), svc, svc + '55');
+  mkBadge(cw.active ? '⚡ АКТИВНЫЙ' : '◉ ПАССИВНЫЙ', cw.active ? '#00f5ff' : 'rgba(232,244,248,.45)', cw.active ? 'rgba(0,245,255,.4)' : 'rgba(232,244,248,.15)');
+
+  // stats
+  const se = document.getElementById('dpStats');
+  se.innerHTML = '';
+  cw.stats.forEach(s => {
+    const row = document.createElement('div');
+    row.className = 'dp-stat-row';
+    row.innerHTML = `
+      <div class="dp-stat-name">${s.l}</div>
+      <div class="dp-stat-bar"><div class="dp-stat-fill" style="background:linear-gradient(to right,${gfx.bar});width:0%" data-w="${s.b}%"></div></div>
+      <div class="dp-stat-num" style="color:${rc}">${s.v}<span style="font-size:.38rem;opacity:.6;margin-left:2px">${s.u||''}</span></div>`;
+    se.appendChild(row);
+  });
+
+  // effect
+  document.getElementById('dpSpecialBox').style.borderLeftColor = rc;
+  document.getElementById('dpSpecialBox').style.background = `rgba(${gfx.glow},.04)`;
+  document.getElementById('dpSpecialLabel').style.color = rc;
+  document.getElementById('dpSpecialLabel').textContent = cw.active ? '⚡ АКТИВНЫЙ ЭФФЕКТ' : '◉ ПАССИВНЫЙ ЭФФЕКТ';
+  document.getElementById('dpSpecial').textContent = cw.effect;
+  document.getElementById('dpLore').textContent = cw.lore;
+  document.getElementById('dpAcquire').textContent = cw.acquire;
+
+  document.getElementById('detailPanel').classList.add('open');
+  document.getElementById('backdrop').classList.add('show');
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    se.querySelectorAll('.dp-stat-fill').forEach(el => { el.style.width = el.dataset.w; });
+  }));
+}
+
+function closePanel() {
+  document.getElementById('detailPanel').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('show');
+  document.querySelectorAll('.wcard').forEach(el => el.classList.remove('active'));
+  activeId = null;
+}
+
+document.getElementById('dpClose').addEventListener('click', closePanel);
+document.getElementById('backdrop').addEventListener('click', closePanel);
+
+// ── FILTERS ──
+document.querySelectorAll('.cat-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    fCat = btn.dataset.cat;
+    fType = 'all';
+    document.querySelectorAll('.type-chip').forEach(c => c.classList.remove('active'));
+    document.querySelector('.type-chip[data-type="all"]').classList.add('active');
+    renderCards();
+    closePanel();
+  });
+});
+
+document.querySelectorAll('.type-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.type-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    fType = chip.dataset.type;
+    renderCards();
+  });
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  fText = e.target.value.toLowerCase().trim();
+  renderCards();
+});
+
+// ── CURSOR ──
+const cDot=document.getElementById('cDot'),cH=document.getElementById('cH'),cV=document.getElementById('cV'),cRing=document.getElementById('cRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  cDot.style.transform=`translate3d(${mx-2.5}px,${my-2.5}px,0)`;
+  cH.style.transform=`translate3d(${mx-11}px,${my-.5}px,0)`;
+  cV.style.transform=`translate3d(${mx-.5}px,${my-11}px,0)`;
+});
+(function rl(now){
+  const dt=Math.min((now-(rl.t=rl.t||now))/16.667,3); rl.t=now;
+  const s=1-Math.pow(0.88,dt);
+  rx+=(mx-rx)*s; ry+=(my-ry)*s;
+  cRing.style.transform=`translate3d(${rx-18}px,${ry-18}px,0)`;
+  requestAnimationFrame(rl);
+})(performance.now());
+document.addEventListener('mouseover',e=>{
+  if(e.target.closest('.wcard,.cat-btn,.type-chip,.back-btn,.dp-close,a')){
+    cRing.style.width='50px';cRing.style.height='50px';cRing.style.borderColor='rgba(0,245,255,.9)';
+  }
+});
+document.addEventListener('mouseout',e=>{
+  if(e.target.closest('.wcard,.cat-btn,.type-chip,.back-btn,.dp-close,a')){
+    cRing.style.width='36px';cRing.style.height='36px';cRing.style.borderColor='rgba(0,245,255,.55)';
+  }
+});
+
+// ── INIT ──
+renderCards();
+
+// ── MOBILE FILTER PANEL ──
+document.addEventListener('DOMContentLoaded',function(){
+  const btn=document.getElementById('mobFilterBtn');
+  const bg=document.getElementById('mobFilterBg');
+  const pl=document.querySelector('.panel-left');
+  if(!btn)return;
+  function openFilter(){pl.classList.add('mob-open');bg.classList.add('show');}
+  function closeFilter(){pl.classList.remove('mob-open');bg.classList.remove('show');}
+  btn.addEventListener('click',()=>pl.classList.contains('mob-open')?closeFilter():openFilter());
+  bg.addEventListener('click',closeFilter);
+  pl.querySelectorAll('.cat-btn,.type-chip').forEach(b=>b.addEventListener('click',()=>{if(window.innerWidth<=768)closeFilter();}));
+});
+</script>
+<div class="mob-filter-bg" id="mobFilterBg"></div>
+<button class="mob-filter-btn" id="mobFilterBtn">⚙ ФИЛЬТРЫ</button>
+</body></html>
