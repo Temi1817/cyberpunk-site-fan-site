@@ -301,6 +301,8 @@
 @media(max-width:768px){
   .nav-burger{display:flex}
   nav ul{display:none}
+  nav .back-btn{display:none!important}
+  .mob-filter-btn{bottom:6.5rem!important}
   .net-status{display:none}
   input,select,textarea{font-size:16px!important}
   *{-webkit-tap-highlight-color:transparent}
@@ -916,7 +918,7 @@ document.addEventListener('DOMContentLoaded',function(){
   <div class="mp-prog"><div class="mp-prog-fill" id="mpFill"></div></div>
   <div class="mp-label">// NIGHT CITY RADIO</div>
 </div>
-<iframe id="ytIframe" src="https://www.youtube.com/embed/h4VJGNNSQnw?enablejsapi=1&loop=1&playlist=h4VJGNNSQnw&controls=0&autoplay=0&rel=0" style="position:absolute;width:1px;height:1px;top:-9999px;left:-9999px;border:none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<iframe id="ytIframe" src="https://www.youtube.com/embed/h4VJGNNSQnw?enablejsapi=1&loop=1&playlist=h4VJGNNSQnw&controls=0&autoplay=0&rel=0" style="position:fixed;width:1px;height:1px;top:-9999px;left:-9999px;border:none;opacity:0;pointer-events:none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 <script>
 (function(){
   var mpWrap=document.getElementById('mpWrap'),mpBtn=document.getElementById('mpBtn'),mpTitle=document.getElementById('mpTitle'),iframe=document.getElementById('ytIframe'),isPlaying=false,LS='cp_music';
