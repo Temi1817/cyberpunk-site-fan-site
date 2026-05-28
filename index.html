@@ -667,7 +667,7 @@
 
     /* ── MUSIC PLAYER ── */
     .mp-wrap {
-      position: fixed; bottom: 1.8rem; left: 1.8rem; z-index: 9999;
+      position: fixed; bottom: 1.8rem; left: 1.8rem; z-index: 490;
       width: 270px;
       background: rgba(4,4,7,.92);
       border: 1px solid rgba(0,245,255,.22);
@@ -1572,7 +1572,7 @@ document.querySelectorAll('.ccard.more').forEach(el => {
   });
 
   // Restore state from previous page
-  try { if (localStorage.getItem(LS) === '1') { setTimeout(function(){ ytCmd('playVideo'); setPlay(true); }, 1800); } } catch(e) {}
+  try { if (localStorage.getItem(LS) === '1') { setTimeout(function(){ ytCmd('playVideo'); setPlay(true); }, 2500); } } catch(e) {}
 
   // Cursor hover
   mpWrap.addEventListener('mouseenter', function() {

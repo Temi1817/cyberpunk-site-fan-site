@@ -142,7 +142,7 @@
   @media(pointer:coarse){#cDot,#cH,#cV,#cRing{display:none!important}.btn:active,.mob-nav-link:active,.back-btn:active,.nav-burger:active,.gc:active,.wcard:active,.cc:active,.filter-btn:active,.cat-btn:active,.type-chip:active{opacity:.72!important;transform:scale(.97)!important}}
 
 /* ── SHARED MUSIC PLAYER ── */
-.mp-wrap{position:fixed;bottom:1.2rem;left:1.2rem;z-index:9999;width:260px;background:rgba(4,4,7,.92);border:1px solid rgba(0,245,255,.22);box-shadow:0 0 30px rgba(0,245,255,.07),inset 0 0 20px rgba(0,0,0,.4);backdrop-filter:blur(14px);font-family:'Rajdhani',sans-serif;transition:box-shadow .4s}
+.mp-wrap{position:fixed;bottom:1.2rem;left:1.2rem;z-index:490;width:260px;background:rgba(4,4,7,.92);border:1px solid rgba(0,245,255,.22);box-shadow:0 0 30px rgba(0,245,255,.07),inset 0 0 20px rgba(0,0,0,.4);backdrop-filter:blur(14px);font-family:'Rajdhani',sans-serif;transition:box-shadow .4s}
 .mp-wrap.playing{border-color:rgba(0,245,255,.5);box-shadow:0 0 40px rgba(0,245,255,.15),0 0 80px rgba(0,245,255,.05)}
 .mp-top{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem}
 .mp-btn{flex-shrink:0;width:36px;height:36px;border:1px solid rgba(0,245,255,.4);background:transparent;color:#00f5ff;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .3s,box-shadow .3s;-webkit-tap-highlight-color:transparent}
@@ -291,7 +291,7 @@ document.querySelectorAll('.sbar-item').forEach(el=>barObs.observe(el));
   function setPlay(p){isPlaying=p;mpBtn.innerHTML=p?'&#9646;&#9646;':'&#9654;';p?mpWrap.classList.add('playing'):mpWrap.classList.remove('playing');try{localStorage.setItem(LS,p?'1':'0');}catch(e){}}
   mpBtn.addEventListener('click',function(){if(isPlaying){ytCmd('pauseVideo');setPlay(false);}else{ytCmd('playVideo');setPlay(true);}});
   setTimeout(function(){var w=mpTitle.parentElement;if(mpTitle.scrollWidth>w.clientWidth+4){mpTitle.style.setProperty('--scroll-dist',-(mpTitle.scrollWidth-w.clientWidth+10)+'px');mpTitle.classList.add('scrolling');}},400);
-  try{if(localStorage.getItem(LS)==='1'){setTimeout(function(){ytCmd('playVideo');setPlay(true);},1800);}}catch(e){}
+  try{if(localStorage.getItem(LS)==='1'){setTimeout(function(){ytCmd('playVideo');setPlay(true);},2500);}}catch(e){}
 })();
 </script>
 
