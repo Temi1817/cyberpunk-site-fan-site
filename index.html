@@ -1539,6 +1539,7 @@ document.querySelectorAll('.ccard.more').forEach(el => {
   var mpTitle = document.getElementById('mpTitle');
   var iframe  = document.getElementById('ytIframe');
   var isPlaying = false;
+  var LS = 'cp_music';
 
   // Scrolling title if overflows
   setTimeout(function() {
@@ -1558,18 +1559,20 @@ document.querySelectorAll('.ccard.more').forEach(el => {
     } catch(e) {}
   }
 
+  function setPlay(p) {
+    isPlaying = p;
+    mpBtn.textContent = p ? '⏸' : '▶';
+    p ? mpWrap.classList.add('playing') : mpWrap.classList.remove('playing');
+    try { localStorage.setItem(LS, p ? '1' : '0'); } catch(e) {}
+  }
+
   mpBtn.addEventListener('click', function() {
-    if (isPlaying) {
-      ytCmd('pauseVideo');
-      mpBtn.textContent = '▶';
-      mpWrap.classList.remove('playing');
-    } else {
-      ytCmd('playVideo');
-      mpBtn.textContent = '⏸';
-      mpWrap.classList.add('playing');
-    }
-    isPlaying = !isPlaying;
+    if (isPlaying) { ytCmd('pauseVideo'); setPlay(false); }
+    else           { ytCmd('playVideo');  setPlay(true);  }
   });
+
+  // Restore state from previous page
+  try { if (localStorage.getItem(LS) === '1') { setTimeout(function(){ ytCmd('playVideo'); setPlay(true); }, 1800); } } catch(e) {}
 
   // Cursor hover
   mpWrap.addEventListener('mouseenter', function() {

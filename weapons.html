@@ -215,6 +215,31 @@ nav{position:fixed;inset:0 0 auto 0;z-index:500;display:flex;align-items:center;
   .mob-filter-btn{bottom:1rem!important;right:1rem!important;font-size:.48rem!important;padding:.6rem 1rem!important}
 }
 @media(pointer:coarse){#cDot,#cH,#cV,#cRing{display:none!important}.btn:active,.mob-nav-link:active,.back-btn:active,.nav-burger:active,.gc:active,.wcard:active,.cc:active,.filter-btn:active,.cat-btn:active,.type-chip:active{opacity:.72!important;transform:scale(.97)!important}}
+
+/* ── SHARED MUSIC PLAYER ── */
+.mp-wrap{position:fixed;bottom:1.2rem;left:1.2rem;z-index:9999;width:260px;background:rgba(4,4,7,.92);border:1px solid rgba(0,245,255,.22);box-shadow:0 0 30px rgba(0,245,255,.07),inset 0 0 20px rgba(0,0,0,.4);backdrop-filter:blur(14px);font-family:'Rajdhani',sans-serif;transition:box-shadow .4s}
+.mp-wrap.playing{border-color:rgba(0,245,255,.5);box-shadow:0 0 40px rgba(0,245,255,.15),0 0 80px rgba(0,245,255,.05)}
+.mp-top{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem}
+.mp-btn{flex-shrink:0;width:36px;height:36px;border:1px solid rgba(0,245,255,.4);background:transparent;color:#00f5ff;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .3s,box-shadow .3s;-webkit-tap-highlight-color:transparent}
+.mp-btn:hover,.mp-btn:active{background:rgba(0,245,255,.1);box-shadow:0 0 14px rgba(0,245,255,.3)}
+.mp-info{flex:1;min-width:0}
+.mp-title-wrap{overflow:hidden;white-space:nowrap}
+.mp-title{display:inline-block;font-family:'Orbitron',monospace;font-size:.52rem;font-weight:700;letter-spacing:.12em;color:#00f5ff}
+.mp-title.scrolling{animation:mpScroll 12s linear infinite}
+@keyframes mpScroll{0%,30%{transform:translateX(0)}70%,100%{transform:translateX(var(--scroll-dist,-60px))}}
+.mp-artist{font-size:.58rem;letter-spacing:.14em;color:rgba(232,244,248,.35);margin-top:.15rem}
+.mp-bars{flex-shrink:0;display:flex;align-items:flex-end;gap:2px;height:18px}
+.mp-bars span{display:block;width:3px;background:#00f5ff;border-radius:1px;height:4px}
+.mp-wrap.playing .mp-bars span:nth-child(1){animation:mpbar .8s ease-in-out infinite}
+.mp-wrap.playing .mp-bars span:nth-child(2){animation:mpbar .6s ease-in-out infinite .1s}
+.mp-wrap.playing .mp-bars span:nth-child(3){animation:mpbar 1s ease-in-out infinite .2s}
+.mp-wrap.playing .mp-bars span:nth-child(4){animation:mpbar .7s ease-in-out infinite .05s}
+.mp-wrap.playing .mp-bars span:nth-child(5){animation:mpbar .9s ease-in-out infinite .15s}
+@keyframes mpbar{0%,100%{height:4px}50%{height:16px;opacity:.9}}
+.mp-prog{height:2px;background:rgba(0,245,255,.08);position:relative;overflow:hidden}
+.mp-prog-fill{height:100%;width:0%;background:linear-gradient(to right,#00f5ff,#ff00aa);transition:width .5s linear}
+.mp-label{font-size:.44rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(0,245,255,.35);padding:.3rem 1rem;border-top:1px solid rgba(0,245,255,.06)}
+@media(max-width:480px){.mp-wrap{width:calc(100vw - 2.4rem)}}
 </style>
 </head>
 <body>
@@ -916,4 +941,29 @@ document.addEventListener('DOMContentLoaded',function(){
   mn.querySelectorAll('.mob-nav-link[href]').forEach(function(a){if(a.getAttribute('href')===p)a.classList.add('active')});
 })();
 </script>
+<!-- MUSIC PLAYER -->
+<div class="mp-wrap" id="mpWrap">
+  <div class="mp-top">
+    <button class="mp-btn" id="mpBtn" aria-label="Play / Pause">&#9654;</button>
+    <div class="mp-info">
+      <div class="mp-title-wrap"><span class="mp-title" id="mpTitle">I REALLY WANT TO STAY AT YOUR HOUSE</span></div>
+      <div class="mp-artist">ROSA WALTON &middot; EDGERUNNERS OST</div>
+    </div>
+    <div class="mp-bars"><span></span><span></span><span></span><span></span><span></span></div>
+  </div>
+  <div class="mp-prog"><div class="mp-prog-fill" id="mpFill"></div></div>
+  <div class="mp-label">// NIGHT CITY RADIO</div>
+</div>
+<iframe id="ytIframe" src="https://www.youtube.com/embed/h4VJGNNSQnw?enablejsapi=1&loop=1&playlist=h4VJGNNSQnw&controls=0&autoplay=0&rel=0" style="position:absolute;width:1px;height:1px;top:-9999px;left:-9999px;border:none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<script>
+(function(){
+  var mpWrap=document.getElementById('mpWrap'),mpBtn=document.getElementById('mpBtn'),mpTitle=document.getElementById('mpTitle'),iframe=document.getElementById('ytIframe'),isPlaying=false,LS='cp_music';
+  function ytCmd(fn){try{iframe.contentWindow.postMessage(JSON.stringify({event:'command',func:fn,args:[]}),'https://www.youtube.com');}catch(e){}}
+  function setPlay(p){isPlaying=p;mpBtn.innerHTML=p?'&#9646;&#9646;':'&#9654;';p?mpWrap.classList.add('playing'):mpWrap.classList.remove('playing');try{localStorage.setItem(LS,p?'1':'0');}catch(e){}}
+  mpBtn.addEventListener('click',function(){if(isPlaying){ytCmd('pauseVideo');setPlay(false);}else{ytCmd('playVideo');setPlay(true);}});
+  setTimeout(function(){var w=mpTitle.parentElement;if(mpTitle.scrollWidth>w.clientWidth+4){mpTitle.style.setProperty('--scroll-dist',-(mpTitle.scrollWidth-w.clientWidth+10)+'px');mpTitle.classList.add('scrolling');}},400);
+  try{if(localStorage.getItem(LS)==='1'){setTimeout(function(){ytCmd('playVideo');setPlay(true);},1800);}}catch(e){}
+})();
+</script>
+
 </body></html>
