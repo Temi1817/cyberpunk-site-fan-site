@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
@@ -21,7 +21,7 @@
 
     html { scroll-behavior: smooth; }
     body {
-      background: var(--bg);
+      background: transparent;
       color: var(--white);
       font-family: 'Rajdhani', sans-serif;
       overflow-x: hidden;
@@ -310,8 +310,9 @@
       max-width: 900px; margin: 0 auto;
     }
     .sbox {
-      background: var(--bg); text-align: center;
+      background: rgba(6,6,9,.82); text-align: center;
       padding: 2.5rem 1rem; transition: background .3s;
+      backdrop-filter: blur(6px);
     }
     .sbox:hover { background: rgba(0,245,255,.04); }
     .snum {
@@ -328,7 +329,7 @@
     /* ── CHARACTERS ── */
     .chars-sec {
       padding: 7rem 2rem;
-      background: linear-gradient(180deg, var(--bg) 0%, #07080f 50%, var(--bg) 100%);
+      background: linear-gradient(180deg, rgba(6,6,9,.55) 0%, rgba(7,8,15,.65) 50%, rgba(6,6,9,.55) 100%);
     }
     .sec-head { text-align: center; margin-bottom: 4.5rem; }
     .sec-label {
@@ -489,7 +490,7 @@
     }
 
     /* ── NIGHT CITY ── */
-    .city-sec { padding: 7rem 2rem; background: var(--bg); }
+    .city-sec { padding: 7rem 2rem; background: rgba(6,6,9,.6); }
     .city-grid {
       display: grid; grid-template-columns: repeat(4,1fr);
       gap: 1rem; max-width: 1200px; margin: 0 auto;
@@ -534,7 +535,7 @@
     /* ── GANGS ── */
     .gangs-sec {
       padding: 7rem 2rem;
-      background: linear-gradient(180deg, var(--bg) 0%, #040407 50%, var(--bg) 100%);
+      background: linear-gradient(180deg, rgba(6,6,9,.55) 0%, rgba(4,4,7,.65) 50%, rgba(6,6,9,.55) 100%);
       position: relative; overflow: hidden;
     }
     .gangs-sec::before {
@@ -601,7 +602,7 @@
     .nav-burger {
       display: none; flex-direction: column; justify-content: center; gap: 5px;
       background: none; border: 1px solid rgba(0,245,255,.22); padding: .45rem .58rem;
-      cursor: none; z-index: 601;
+      cursor: pointer; z-index: 601; -webkit-tap-highlight-color: transparent;
     }
     .nav-burger span { display: block; width: 18px; height: 1.5px; background: var(--cyan); transition: transform .3s, opacity .3s; }
     .nav-burger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
@@ -623,8 +624,9 @@
     }
     .mob-nav a:hover { color: var(--cyan); text-shadow: 0 0 22px var(--cyan); }
     .mob-nav-close {
-      position: absolute; top: 1.4rem; right: 1.6rem;
+      cursor: pointer; position: absolute; top: 1.4rem; right: 1.6rem;
       font-family: 'Orbitron', monospace; font-size: .6rem; letter-spacing: .3em;
+      -webkit-tap-highlight-color: transparent;
       background: none; border: 1px solid rgba(0,245,255,.22); color: rgba(0,245,255,.5);
       padding: .38rem .9rem; cursor: none; transition: all .3s;
     }
@@ -640,14 +642,27 @@
       .nav-burger { display: flex; }
       .net-status { display: none; }
       .gangs-grid { grid-template-columns: repeat(2,1fr); }
+      input,select,textarea { font-size: 16px !important; }
+      * { -webkit-tap-highlight-color: transparent; }
+    }
+    @media (max-width: 768px) {
+      .hero { min-height: 100svh; }
+      .hero-content { padding: 5.5rem 1.4rem 2rem; }
+      .hero-badge { font-size: .5rem; }
+      section[style] { padding-left: 1.4rem !important; padding-right: 1.4rem !important; }
+      .sbox { margin: 0 1rem; }
+      .gangs-sec, .chars-sec, .city-sec { padding-left: 1.4rem; padding-right: 1.4rem; }
+      .mp-wrap { width: calc(100vw - 2.8rem); left: 1.4rem; bottom: 1.4rem; }
     }
     @media (max-width: 520px) {
       .chars-grid { grid-template-columns: 1fr; }
       .city-grid  { grid-template-columns: 1fr; }
       .lcrd-wide  { grid-column: span 1; }
       .gangs-grid { grid-template-columns: 1fr; }
-      .hero-btns  { flex-direction: column; align-items: center; }
+      .hero-btns  { flex-direction: column; align-items: stretch; }
+      .hero-btns .btn { text-align: center; }
       .stats-row  { grid-template-columns: repeat(2,1fr); }
+      .hero-title { font-size: clamp(2.4rem, 11vw, 4.5rem); }
     }
 
     /* ── MUSIC PLAYER ── */
@@ -726,9 +741,42 @@
       color: rgba(0,245,255,.35); padding: .3rem 1rem;
       border-top: 1px solid rgba(0,245,255,.06);
     }
-  </style>
+  
+    /* NIGHT CITY PHOTO BACKGROUND */
+    html { background: #01000a; }
+    #cityBg {
+      position: fixed; inset: 0; z-index: -2; pointer-events: none;
+      background-image: url('https://images8.alphacoders.com/138/thumb-1920-1383930.png');
+      background-size: cover; background-position: center; background-repeat: no-repeat;
+      filter: brightness(0.95) saturate(1.5) contrast(1.08);
+    }
+    #cityOverlay {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 15% 85%, rgba(255,0,170,.12) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 75%, rgba(0,245,255,.10) 0%, transparent 45%),
+        radial-gradient(ellipse at 50% 60%, rgba(100,0,200,.08) 0%, transparent 55%),
+        linear-gradient(to bottom, rgba(1,0,10,.55) 0%, rgba(1,0,10,.15) 25%, rgba(1,0,10,.15) 65%, rgba(4,2,14,.65) 100%);
+    }
+  @media(max-width:768px){
+    .corps-tease{padding:3rem 1.4rem!important}
+    .corps-grid{grid-template-columns:repeat(2,1fr)!important}
+    .corps-tease .btn{display:block;text-align:center;white-space:normal;word-break:break-word}
+    footer{padding:3rem 1.4rem 2rem!important}
+    .foot-nav{flex-wrap:wrap;gap:1rem 2rem;justify-content:center}
+    .foot-copy{word-break:break-word}
+    .gangs-cta .btn{display:block;text-align:center}
+  }
+  @media(max-width:480px){
+    .corps-grid{grid-template-columns:1fr!important}
+    .foot-nav{gap:.8rem 1.5rem}
+  }
+  @media(pointer:coarse){#cDot,#cH,#cV,#cRing{display:none!important}.btn:active,.mob-nav-link:active,.back-btn:active,.nav-burger:active,.gc:active,.wcard:active,.cc:active,.filter-btn:active,.cat-btn:active,.type-chip:active{opacity:.72!important;transform:scale(.97)!important}}
+</style>
 </head>
 <body>
+<div id="cityBg"></div>
+<div id="cityOverlay"></div>
 
 <div class="scanlines"></div>
 <div class="crt-vignette"></div>
@@ -748,6 +796,8 @@
   <a href="weapons.html" class="mob-nav-link">Оружие</a>
   <a href="cyberware.html" class="mob-nav-link">Киберимпланты</a>
   <a href="gangs.html" class="mob-nav-link">Банды</a>
+  <a href="corporations.html" class="mob-nav-link">Корпорации</a>
+  <a href="districts.html" class="mob-nav-link">Районы</a>
 </div>
 
 <!-- NAV -->
@@ -760,6 +810,8 @@
     <li><a href="weapons.html">Оружие</a></li>
     <li><a href="cyberware.html">Киберимпланты</a></li>
     <li><a href="gangs.html">Банды</a></li>
+    <li><a href="corporations.html">Корпорации</a></li>
+    <li><a href="districts.html">Районы</a></li>
   </ul>
   <div style="display:flex;align-items:center;gap:.8rem">
     <div class="net-status"><div class="net-dot"></div>NET_ONLINE</div>
@@ -1249,6 +1301,48 @@
   </div>
 </section>
 
+<!-- CORPORATIONS TEASER -->
+<section class="corps-tease" style="padding:5rem 3.5rem;background:linear-gradient(180deg,rgba(6,6,9,.6) 0%,rgba(4,6,10,.7) 100%);border-top:1px solid rgba(0,245,255,.07)">
+  <div style="max-width:1100px;margin:0 auto">
+    <div style="font-size:.58rem;letter-spacing:.5em;text-transform:uppercase;color:var(--cyan);text-shadow:0 0 10px var(--cyan);margin-bottom:.7rem">// КОРПОРАТИВНЫЙ СЕКТОР</div>
+    <div style="font-family:'Orbitron',monospace;font-size:clamp(1.6rem,4vw,2.8rem);font-weight:900;margin-bottom:1rem">МЕГАКОРПОРАЦИИ <span style="color:var(--cyan);text-shadow:0 0 16px var(--cyan)">НАЙТ СИТИ</span></div>
+    <p style="font-size:.82rem;color:rgba(232,244,248,.4);letter-spacing:.08em;margin-bottom:2.5rem;max-width:520px">6 корпораций контролируют каждый аспект жизни в Night City. Arasaka, Militech, Kang Tao и другие — сила, перед которой не устоит ни одна банда.</p>
+    <div class="corps-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;margin-bottom:2.5rem">
+      <div class="rv" style="padding:1.2rem 1.4rem;border:1px solid rgba(204,17,17,.25);background:rgba(204,17,17,.04);transition:border-color .3s" onmouseover="this.style.borderColor='rgba(204,17,17,.6)'" onmouseout="this.style.borderColor='rgba(204,17,17,.25)'">
+        <div style="font-size:.5rem;letter-spacing:.4em;text-transform:uppercase;color:#cc1111;margin-bottom:.4rem">// ЯПОНИЯ</div>
+        <div style="font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;color:#cc1111;text-shadow:0 0 12px #cc1111">ARASAKA</div>
+        <div style="font-size:.72rem;color:rgba(232,244,248,.4);margin-top:.4rem">Охрана · Банки · Оружие</div>
+      </div>
+      <div class="rv" style="padding:1.2rem 1.4rem;border:1px solid rgba(26,95,196,.25);background:rgba(26,95,196,.04);transition:border-color .3s" onmouseover="this.style.borderColor='rgba(26,95,196,.6)'" onmouseout="this.style.borderColor='rgba(26,95,196,.25)'">
+        <div style="font-size:.5rem;letter-spacing:.4em;text-transform:uppercase;color:#1a5fc4;margin-bottom:.4rem">// NUSA</div>
+        <div style="font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;color:#1a5fc4;text-shadow:0 0 12px #1a5fc4">MILITECH</div>
+        <div style="font-size:.72rem;color:rgba(232,244,248,.4);margin-top:.4rem">Оружие · Военные операции</div>
+      </div>
+      <div class="rv" style="padding:1.2rem 1.4rem;border:1px solid rgba(224,94,0,.25);background:rgba(224,94,0,.04);transition:border-color .3s" onmouseover="this.style.borderColor='rgba(224,94,0,.6)'" onmouseout="this.style.borderColor='rgba(224,94,0,.25)'">
+        <div style="font-size:.5rem;letter-spacing:.4em;text-transform:uppercase;color:#e05e00;margin-bottom:.4rem">// КИТАЙ</div>
+        <div style="font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;color:#e05e00;text-shadow:0 0 12px #e05e00">KANG TAO</div>
+        <div style="font-size:.72rem;color:rgba(232,244,248,.4);margin-top:.4rem">Умное оружие · Smart-tech</div>
+      </div>
+      <div class="rv" style="padding:1.2rem 1.4rem;border:1px solid rgba(0,170,85,.25);background:rgba(0,170,85,.04);transition:border-color .3s" onmouseover="this.style.borderColor='rgba(0,170,85,.6)'" onmouseout="this.style.borderColor='rgba(0,170,85,.25)'">
+        <div style="font-size:.5rem;letter-spacing:.4em;text-transform:uppercase;color:#00aa55;margin-bottom:.4rem">// ЕВРОПА</div>
+        <div style="font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;color:#00aa55;text-shadow:0 0 12px #00aa55">BIOTECHNICA</div>
+        <div style="font-size:.72rem;color:rgba(232,244,248,.4);margin-top:.4rem">Биотех · Генетика · Питание</div>
+      </div>
+      <div class="rv" style="padding:1.2rem 1.4rem;border:1px solid rgba(255,136,0,.25);background:rgba(255,136,0,.04);transition:border-color .3s" onmouseover="this.style.borderColor='rgba(255,136,0,.6)'" onmouseout="this.style.borderColor='rgba(255,136,0,.25)'">
+        <div style="font-size:.5rem;letter-spacing:.4em;text-transform:uppercase;color:#ff8800;margin-bottom:.4rem">// NUSA</div>
+        <div style="font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;color:#ff8800;text-shadow:0 0 12px #ff8800">PETROCHEM</div>
+        <div style="font-size:.72rem;color:rgba(232,244,248,.4);margin-top:.4rem">Нефтехимия · Синтопласт</div>
+      </div>
+      <div class="rv" style="padding:1.2rem 1.4rem;border:1px solid rgba(255,34,68,.25);background:rgba(255,34,68,.04);transition:border-color .3s" onmouseover="this.style.borderColor='rgba(255,34,68,.6)'" onmouseout="this.style.borderColor='rgba(255,34,68,.25)'">
+        <div style="font-size:.5rem;letter-spacing:.4em;text-transform:uppercase;color:#ff2244;margin-bottom:.4rem">// NUSA</div>
+        <div style="font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;color:#ff2244;text-shadow:0 0 12px #ff2244">TRAUMA TEAM</div>
+        <div style="font-size:.72rem;color:rgba(232,244,248,.4);margin-top:.4rem">Медицина · Экстренная помощь</div>
+      </div>
+    </div>
+    <a href="corporations.html" class="btn btn-c" style="cursor:none">// ОТКРЫТЬ БАЗУ ДАННЫХ КОРПОРАЦИЙ</a>
+  </div>
+</section>
+
 <!-- FOOTER -->
 <footer>
   <div class="foot-logo">CYBER<span>PUNK</span> 2077</div>
@@ -1258,6 +1352,8 @@
     <li><a href="#chars">Персонажи</a></li>
     <li><a href="#city">Night City</a></li>
     <li><a href="gangs.html">Банды</a></li>
+    <li><a href="corporations.html">Корпорации</a></li>
+    <li><a href="districts.html">Районы</a></li>
   </ul>
   <p class="foot-copy">© 2077 ARASAKA CORPORATION · NIGHT CITY NETWORK · Cyberpunk 2077 © CD PROJEKT RED</p>
 </footer>

@@ -6,7 +6,7 @@
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{--ac:#44cc22;--bg:#060609;--white:#e8f4f8;--dim:#3a5060}
-    html{scroll-behavior:smooth}body{background:var(--bg);color:var(--white);font-family:'Rajdhani',sans-serif;overflow-x:hidden;cursor:none}
+    html{scroll-behavior:smooth}body{background: transparent;color:var(--white);font-family:'Rajdhani',sans-serif;overflow-x:hidden;cursor:none}
     ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--ac)}
     .scanlines{position:fixed;inset:0;z-index:9000;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px)}
     .crt{position:fixed;inset:0;z-index:8999;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.65) 100%)}
@@ -84,12 +84,77 @@
       .hero-left{padding:0 1.2rem}
       .hero-right{display:none}
       nav{padding:.9rem 1.2rem}
-    }  </style>
+    }  
+    /* NIGHT CITY PHOTO BACKGROUND */
+    html { background: #01000a; }
+    #cityBg {
+      position: fixed; inset: 0; z-index: -2; pointer-events: none;
+      background-image: url('https://images8.alphacoders.com/138/thumb-1920-1383930.png');
+      background-size: cover; background-position: center; background-repeat: no-repeat;
+      filter: brightness(0.95) saturate(1.5) contrast(1.08);
+    }
+    #cityOverlay {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 15% 85%, rgba(255,0,170,.12) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 75%, rgba(0,245,255,.10) 0%, transparent 45%),
+        radial-gradient(ellipse at 50% 60%, rgba(100,0,200,.08) 0%, transparent 55%),
+        linear-gradient(to bottom, rgba(1,0,10,.55) 0%, rgba(1,0,10,.15) 25%, rgba(1,0,10,.15) 65%, rgba(4,2,14,.65) 100%);
+    }
+  
+/* ── MOBILE NAV ── */
+.nav-burger{display:none;flex-direction:column;justify-content:center;gap:5px;background:none;border:1px solid rgba(0,245,255,.25);padding:.42rem .54rem;cursor:pointer;z-index:601;transition:border-color .3s;-webkit-tap-highlight-color:transparent}
+.nav-burger span{display:block;width:18px;height:1.5px;background:#00f5ff;box-shadow:0 0 4px #00f5ff;transition:transform .3s,opacity .3s}
+.nav-burger.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.nav-burger.open span:nth-child(2){opacity:0}
+.nav-burger.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+.mob-nav{position:fixed;inset:0;z-index:600;background:rgba(4,4,7,.97);backdrop-filter:blur(16px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;opacity:0;pointer-events:none;transition:opacity .3s}
+.mob-nav.open{opacity:1;pointer-events:all}
+.mob-nav-close{font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:.3em;background:none;border:1px solid rgba(0,245,255,.2);color:rgba(0,245,255,.45);padding:.6rem 1.5rem;cursor:pointer;margin-bottom:.5rem;transition:all .3s}
+.mob-nav-close:hover{border-color:#00f5ff;color:#00f5ff}
+.mob-nav-link{font-family:'Orbitron',monospace;font-size:.9rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(232,244,248,.38);text-decoration:none;transition:color .3s,text-shadow .3s;padding:.3rem 1.5rem;display:block;text-align:center}
+.mob-nav-link.active,.mob-nav-link:hover{color:#00f5ff;text-shadow:0 0 18px #00f5ff}
+@media(max-width:768px){
+  .nav-burger{display:flex}
+  .net-status,.ndot+*,.net-status>*:last-child{display:none}
+  input,select,textarea{font-size:16px!important}
+  *{-webkit-tap-highlight-color:transparent}
+  .hero-left{padding:0 1.2rem!important;max-width:100%!important}
+  .hero-right{display:none!important}
+  .char-bio{font-size:.9rem!important}
+  .about-sec{grid-template-columns:1fr!important;padding:3rem 1.2rem!important;gap:2rem!important}
+  .stats-sec,.skills-sec,.quote-sec{padding:3rem 1.2rem!important}
+  .stats-grid{grid-template-columns:repeat(2,1fr)!important;gap:1rem!important}
+  .skills-grid{grid-template-columns:1fr!important}
+  footer{padding:2rem 1.2rem!important;flex-direction:column!important;gap:1rem!important;text-align:center!important}
+  .hero-btns{flex-wrap:wrap!important}
+  .btn{padding:.68rem 1.4rem!important;font-size:.7rem!important}
+}
+@media(max-width:480px){
+  .char-name{font-size:clamp(2.8rem,12vw,4.5rem)!important}
+  .stats-grid{grid-template-columns:1fr 1fr!important}
+  .detail-item{flex-direction:column!important;gap:.3rem!important}
+  .detail-key{min-width:0!important}
+}
+  @media(pointer:coarse){#cDot,#cH,#cV,#cRing{display:none!important}.btn:active,.mob-nav-link:active,.back-btn:active,.nav-burger:active,.gc:active,.wcard:active,.cc:active,.filter-btn:active,.cat-btn:active,.type-chip:active{opacity:.72!important;transform:scale(.97)!important}}
+</style>
 </head>
 <body>
+<div id="cityBg"></div>
+<div id="cityOverlay"></div>
 <div class="scanlines"></div><div class="crt"></div>
 <div class="cDot" id="cDot"></div><div class="cH" id="cH"></div><div class="cV" id="cV"></div><div class="cRing" id="cRing"></div>
-<nav><a href="index.html" class="back-btn">← ВЕРНУТЬСЯ</a><div class="logo">CYBER<span>PUNK</span> 2077</div><div class="net-status"><div class="ndot"></div>NCPD · ACTIVE</div></nav>
+<div class="mob-nav" id="mobNav">
+  <button class="mob-nav-close" id="mobNavClose">✕ ЗАКРЫТЬ</button>
+  <a href="index.html" class="mob-nav-link">Главная</a>
+  <a href="gangs.html" class="mob-nav-link">Банды</a>
+  <a href="corporations.html" class="mob-nav-link">Корпорации</a>
+  <a href="districts.html" class="mob-nav-link">Районы</a>
+  <a href="weapons.html" class="mob-nav-link">Оружие</a>
+  <a href="cyberware.html" class="mob-nav-link">Киберимпланты</a>
+  <a href="rippers.html" class="mob-nav-link">Риперы</a>
+</div>
+<nav><a href="index.html" class="back-btn">← ВЕРНУТЬСЯ</a><div class="logo">CYBER<span>PUNK</span> 2077</div><div class="net-status"><div class="ndot"></div>NCPD · ACTIVE</div><button class="nav-burger" id="navBurger"><span></span><span></span><span></span></button></nav>
 <section class="hero">
   <canvas id="rain"></canvas><div class="grid-bg"></div>
   <div class="hero-left">
@@ -164,5 +229,17 @@ const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target
 document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
 const barObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){const fill=e.target.querySelector('.sbar-fill');if(fill&&!fill.dataset.done){fill.dataset.done='1';fill.style.width=fill.dataset.pct+'%'}}})},{threshold:.5});
 document.querySelectorAll('.sbar-item').forEach(el=>barObs.observe(el));
+</script>
+<script>
+(function(){
+  var b=document.getElementById('navBurger'),mn=document.getElementById('mobNav'),mc=document.getElementById('mobNavClose');
+  if(!b||!mn)return;
+  function cl(){b.classList.remove('open');mn.classList.remove('open');document.body.style.overflow=''}
+  b.addEventListener('click',function(){b.classList.toggle('open');mn.classList.toggle('open');document.body.style.overflow=mn.classList.contains('open')?'hidden':''});
+  if(mc)mc.addEventListener('click',cl);
+  mn.querySelectorAll('.mob-nav-link').forEach(function(a){a.addEventListener('click',cl)});
+  var p=location.pathname.split('/').pop()||'index.html';
+  mn.querySelectorAll('.mob-nav-link[href]').forEach(function(a){if(a.getAttribute('href')===p)a.classList.add('active')});
+})();
 </script>
 </body></html>

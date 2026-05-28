@@ -1,0 +1,509 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Районы Night City — CYBERPUNK 2077</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#060609;--cyan:#00f5ff;--mag:#ff00aa;--yellow:#ffe600;--white:#e8f4f8;--dim:#1e2a3a;--tdim:#3a5060}
+html{scroll-behavior:smooth;background:#01000a}
+body{background:transparent;color:var(--white);font-family:'Rajdhani',sans-serif;overflow-x:hidden;cursor:none}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--cyan)}
+
+#cityBg{position:fixed;inset:0;z-index:-2;pointer-events:none;background-image:url('https://images8.alphacoders.com/138/thumb-1920-1383930.png');background-size:cover;background-position:center;background-repeat:no-repeat;filter:brightness(0.95) saturate(1.5) contrast(1.08)}
+#cityOverlay{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 15% 85%,rgba(255,0,170,.12) 0%,transparent 45%),radial-gradient(ellipse at 85% 75%,rgba(0,245,255,.10) 0%,transparent 45%),linear-gradient(to bottom,rgba(1,0,10,.55) 0%,rgba(1,0,10,.15) 30%,rgba(4,2,14,.65) 100%)}
+.scanlines{position:fixed;inset:0;z-index:9000;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px)}
+.crt{position:fixed;inset:0;z-index:8999;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.65) 100%)}
+
+.cDot{position:fixed;z-index:10003;pointer-events:none;width:5px;height:5px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);top:0;left:0;will-change:transform}
+.cH{position:fixed;z-index:10002;pointer-events:none;width:22px;height:1px;background:var(--cyan);box-shadow:0 0 6px var(--cyan);top:0;left:0;will-change:transform}
+.cV{position:fixed;z-index:10002;pointer-events:none;width:1px;height:22px;background:var(--cyan);box-shadow:0 0 6px var(--cyan);top:0;left:0;will-change:transform}
+.cRing{position:fixed;z-index:10001;pointer-events:none;width:36px;height:36px;border:1px solid rgba(0,245,255,.55);border-radius:50%;top:0;left:0;will-change:transform;transition:width .3s,height .3s,border-color .3s}
+
+nav{position:fixed;inset:0 0 auto 0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 3rem;background:rgba(6,6,9,.88);border-bottom:1px solid rgba(0,245,255,.1);backdrop-filter:blur(14px)}
+.logo{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:900;letter-spacing:.12em;color:var(--cyan);text-shadow:0 0 18px var(--cyan);cursor:none;text-decoration:none}
+.logo span{color:var(--yellow);text-shadow:0 0 18px var(--yellow)}
+nav ul{display:flex;gap:2rem;list-style:none}
+nav a{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(232,244,248,.38);text-decoration:none;position:relative;transition:color .3s;cursor:none}
+nav a::after{content:'';position:absolute;bottom:-3px;left:0;width:0;height:1px;background:var(--cyan);box-shadow:0 0 6px var(--cyan);transition:width .3s}
+nav a:hover,nav a.active{color:var(--cyan)}
+nav a:hover::after,nav a.active::after{width:100%}
+.net-status{display:flex;align-items:center;gap:.5rem;font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;color:var(--tdim)}
+.net-dot{width:6px;height:6px;border-radius:50%;background:#00ff55;box-shadow:0 0 8px #00ff55;animation:blink 1.8s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+.page-hero{padding:6rem 3.5rem 1.6rem;background:linear-gradient(180deg,rgba(4,4,7,.78) 0%,rgba(6,6,9,.4) 100%);backdrop-filter:blur(2px);border-bottom:1px solid rgba(0,245,255,.07);position:relative;overflow:hidden}
+.page-hero::before{content:'MAP';position:absolute;right:-1rem;top:50%;transform:translateY(-50%);font-family:'Orbitron',monospace;font-size:clamp(4rem,13vw,10rem);font-weight:900;color:rgba(0,245,255,.025);pointer-events:none;user-select:none}
+.hero-label{font-size:.58rem;letter-spacing:.5em;text-transform:uppercase;color:var(--cyan);text-shadow:0 0 10px var(--cyan);margin-bottom:.55rem}
+.hero-title{font-family:'Orbitron',monospace;font-size:clamp(1.5rem,3vw,2.6rem);font-weight:900;line-height:1.05}
+.hero-sub{font-size:.8rem;letter-spacing:.14em;color:rgba(232,244,248,.28);margin-top:.45rem;text-transform:uppercase}
+
+.page-wrap{display:flex;min-height:calc(100vh - 200px)}
+
+.map-panel{flex:0 0 57%;display:flex;flex-direction:column;padding:1.2rem 1.4rem 1.2rem 2rem;background:rgba(2,1,10,.72);backdrop-filter:blur(10px);border-right:1px solid rgba(0,245,255,.08);position:sticky;top:72px;height:calc(100vh - 72px);overflow-y:auto}
+.map-panel::-webkit-scrollbar{width:2px}
+.map-panel::-webkit-scrollbar-thumb{background:rgba(0,245,255,.3)}
+.map-header{font-size:.46rem;letter-spacing:.38em;text-transform:uppercase;color:var(--cyan);opacity:.48;margin-bottom:.7rem}
+
+.map-svg-wrap{background:rgba(1,0,8,.88);border:1px solid rgba(0,245,255,.15);overflow:hidden;position:relative;box-shadow:inset 0 0 50px rgba(0,0,0,.5),0 0 3px rgba(0,245,255,.18)}
+.map-svg-wrap::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.06) 3px,rgba(0,0,0,.06) 4px);pointer-events:none;z-index:2}
+.map-svg-wrap svg{width:100%;height:auto;display:block}
+
+.dp{transition:fill-opacity .2s,stroke-opacity .2s,stroke-width .2s;cursor:none}
+.dp:hover{fill-opacity:.46!important;stroke-opacity:1!important}
+.dp.active{fill-opacity:.54!important;stroke-opacity:1!important;stroke-width:2.8!important;animation:dpulse 1.4s ease-in-out infinite alternate}
+@keyframes dpulse{from{stroke-opacity:.65}to{stroke-opacity:1}}
+.ml{font-family:'Orbitron',monospace;font-size:8px;font-weight:700;fill:rgba(232,244,248,.82);letter-spacing:.1em;text-transform:uppercase;pointer-events:none;text-anchor:middle;dominant-baseline:middle}
+.mls{font-family:'Rajdhani',sans-serif;font-size:6.5px;fill:rgba(232,244,248,.32);text-anchor:middle;dominant-baseline:middle;pointer-events:none;letter-spacing:.04em}
+.mlg{font-family:'Rajdhani',sans-serif;font-size:6.8px;fill-opacity:.78;text-anchor:middle;dominant-baseline:middle;pointer-events:none;letter-spacing:.05em;text-transform:uppercase;font-weight:600}
+
+.map-legend{display:flex;flex-wrap:wrap;gap:.28rem;margin-top:.65rem}
+.leg{display:flex;align-items:center;gap:.32rem;font-size:.48rem;letter-spacing:.15em;text-transform:uppercase;padding:.22rem .55rem;border:1px solid;cursor:none;transition:all .2s;opacity:.52}
+.leg:hover,.leg.active{opacity:1}
+.leg-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+.mtt{position:fixed;z-index:9999;pointer-events:none;padding:.28rem .8rem;font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;background:rgba(3,2,12,.94);border:1px solid;opacity:0;transition:opacity .15s;transform:translate(16px,-50%);white-space:nowrap}
+.mtt.show{opacity:1}
+
+.info-panel{flex:1;padding:1.8rem 2rem;display:flex;flex-direction:column;background:rgba(2,1,10,.5);backdrop-filter:blur(8px);overflow-y:auto}
+.info-panel::-webkit-scrollbar{width:2px}
+.info-panel::-webkit-scrollbar-thumb{background:rgba(0,245,255,.3)}
+
+.iph{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;color:rgba(232,244,248,.14);gap:1.2rem;padding:2rem}
+.iph-icon{font-size:2.2rem;opacity:.28}
+.iph-text{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase}
+.iph-hint{font-size:.5rem;letter-spacing:.1em;color:rgba(232,244,248,.07)}
+
+.dc{display:none;flex-direction:column;gap:1.35rem;animation:dcIn .35s ease forwards}
+.dc.show{display:flex}
+@keyframes dcIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.dc-hdr{border-left:3px solid;padding-left:1rem}
+.dc-id{font-size:.46rem;letter-spacing:.42em;text-transform:uppercase;opacity:.48;margin-bottom:.3rem}
+.dc-name{font-family:'Orbitron',monospace;font-size:clamp(1.5rem,2.6vw,2.3rem);font-weight:900;line-height:1}
+.dc-sub{font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;opacity:.38;margin-top:.38rem}
+
+.dc-stats{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.dcs{padding:.78rem .9rem;background:rgba(0,0,0,.38);border:1px solid}
+.dcs-label{font-size:.43rem;letter-spacing:.35em;text-transform:uppercase;opacity:.4;margin-bottom:.36rem}
+.dcs-val{font-family:'Orbitron',monospace;font-size:.9rem;font-weight:700}
+.dbar{display:flex;gap:3px;margin-top:.4rem}
+.dseg{height:5px;flex:1;background:rgba(255,255,255,.1)}
+.dseg.on{background:currentColor}
+
+.dc-stitle{font-size:.44rem;letter-spacing:.4em;text-transform:uppercase;color:var(--tdim);margin-bottom:.6rem;padding-bottom:.28rem;border-bottom:1px solid rgba(0,245,255,.07)}
+.dc-tags{display:flex;flex-wrap:wrap;gap:.3rem}
+.dc-tag{font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;padding:.2rem .62rem;border:1px solid}
+.dc-locs{display:flex;flex-direction:column;gap:.28rem}
+.dc-loc{font-size:.74rem;color:rgba(232,244,248,.56);display:flex;gap:.5rem;align-items:center}
+.dc-loc::before{content:'//';font-size:.52rem;opacity:.3}
+.dc-desc{font-size:.84rem;line-height:1.85;color:rgba(232,244,248,.48)}
+
+footer{padding:1.8rem 2rem;text-align:center;border-top:1px solid rgba(0,245,255,.07);background:rgba(2,1,10,.7);backdrop-filter:blur(8px)}
+.foot-logo{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:900;color:var(--cyan);text-shadow:0 0 20px var(--cyan);margin-bottom:.3rem}
+.foot-logo span{color:var(--yellow)}
+.foot-copy{font-size:.5rem;color:rgba(58,80,96,.32);letter-spacing:.07em}
+
+@media(max-width:900px){
+  nav ul{display:none}
+  nav{padding:.9rem 1.2rem}
+  .page-hero{padding:5rem 1.2rem 1.4rem}
+  .page-wrap{flex-direction:column}
+  .map-panel{flex:none;position:static;height:auto;padding:1rem}
+  .info-panel{padding:1.2rem}
+  .map-header{font-size:.42rem}
+  .leg{font-size:.44rem;padding:.2rem .45rem}
+}
+@media(max-width:480px){
+  .page-hero{padding:4.8rem .9rem 1.2rem}
+  .hero-title{font-size:clamp(1.4rem,8vw,2rem)!important}
+  .hero-sub{font-size:.7rem!important;letter-spacing:.08em!important}
+  .dc-name{font-size:clamp(1.3rem,7vw,2rem)!important}
+  .dc-stats{grid-template-columns:1fr!important}
+  .dcs:last-child{grid-column:span 1!important}
+}
+
+/* ── MOBILE NAV ── */
+.nav-burger{display:none;flex-direction:column;justify-content:center;gap:5px;background:none;border:1px solid rgba(0,245,255,.25);padding:.42rem .54rem;cursor:pointer;z-index:601;transition:border-color .3s;-webkit-tap-highlight-color:transparent}
+.nav-burger span{display:block;width:18px;height:1.5px;background:#00f5ff;box-shadow:0 0 4px #00f5ff;transition:transform .3s,opacity .3s}
+.nav-burger.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.nav-burger.open span:nth-child(2){opacity:0}
+.nav-burger.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+.mob-nav{position:fixed;inset:0;z-index:600;background:rgba(4,4,7,.97);backdrop-filter:blur(16px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;opacity:0;pointer-events:none;transition:opacity .3s}
+.mob-nav.open{opacity:1;pointer-events:all}
+.mob-nav-close{font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:.3em;background:none;border:1px solid rgba(0,245,255,.2);color:rgba(0,245,255,.45);padding:.6rem 1.5rem;cursor:pointer;margin-bottom:.5rem;transition:all .3s;-webkit-tap-highlight-color:transparent}
+.mob-nav-close:hover{border-color:#00f5ff;color:#00f5ff}
+.mob-nav-link{font-family:'Orbitron',monospace;font-size:.9rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(232,244,248,.38);text-decoration:none;transition:color .3s,text-shadow .3s;padding:.3rem 1.5rem;display:block;text-align:center;-webkit-tap-highlight-color:transparent}
+.mob-nav-link.active,.mob-nav-link:hover{color:#00f5ff;text-shadow:0 0 18px #00f5ff}
+@media(max-width:768px){
+  .nav-burger{display:flex}
+  nav ul{display:none}
+  .net-status{display:none}
+  input,select,textarea{font-size:16px!important}
+  *{-webkit-tap-highlight-color:transparent}
+}
+@media(pointer:coarse){#cDot,#cH,#cV,#cRing{display:none!important}.btn:active,.mob-nav-link:active,.back-btn:active,.nav-burger:active,.gc:active,.wcard:active,.cc:active,.filter-btn:active,.cat-btn:active,.type-chip:active{opacity:.72!important;transform:scale(.97)!important}}
+</style>
+</head>
+<body>
+<div id="cityBg"></div>
+<div id="cityOverlay"></div>
+<div class="scanlines"></div>
+<div class="crt"></div>
+<div class="cDot" id="cDot"></div>
+<div class="cH" id="cH"></div>
+<div class="cV" id="cV"></div>
+<div class="cRing" id="cRing"></div>
+<div class="mtt" id="mtt"></div>
+
+<div class="mob-nav" id="mobNav">
+  <button class="mob-nav-close" id="mobNavClose">✕ ЗАКРЫТЬ</button>
+  <a href="index.html" class="mob-nav-link">Главная</a>
+  <a href="gangs.html" class="mob-nav-link">Банды</a>
+  <a href="corporations.html" class="mob-nav-link">Корпорации</a>
+  <a href="districts.html" class="mob-nav-link">Районы</a>
+  <a href="weapons.html" class="mob-nav-link">Оружие</a>
+  <a href="cyberware.html" class="mob-nav-link">Киберимпланты</a>
+  <a href="rippers.html" class="mob-nav-link">Риперы</a>
+</div>
+<nav>
+  <a href="index.html" class="logo">CYBER<span>PUNK</span> <span style="font-size:.72em;opacity:.65">2077</span></a>
+  <ul>
+    <li><a href="index.html">Главная</a></li>
+    <li><a href="gangs.html">Банды</a></li>
+    <li><a href="corporations.html">Корпорации</a></li>
+    <li><a href="districts.html" class="active">Районы</a></li>
+    <li><a href="weapons.html">Оружие</a></li>
+    <li><a href="cyberware.html">Киберимпланты</a></li>
+  </ul>
+  <div style="display:flex;align-items:center;gap:.7rem">
+    <div class="net-status"><div class="net-dot"></div>NET_ONLINE</div>
+    <button class="nav-burger" id="navBurger"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="hero-label">// НАВИГАЦИЯ · NIGHT CITY GRID</div>
+  <div class="hero-title">РАЙОНЫ <span style="color:var(--cyan);text-shadow:0 0 20px var(--cyan)">НАЙТ СИТИ</span></div>
+  <div class="hero-sub">7 районов · кликни на карте — узнай всё о районе</div>
+</div>
+
+<div class="page-wrap">
+
+  <div class="map-panel">
+    <div class="map-header">// ИНТЕРАКТИВНАЯ КАРТА · NIGHT CITY · 2077</div>
+    <div class="map-svg-wrap">
+      <svg viewBox="0 0 760 520" xmlns="http://www.w3.org/2000/svg" id="ncMap">
+
+        <!-- Base -->
+        <rect width="760" height="520" fill="#01000a"/>
+
+        <!-- Grid -->
+        <g stroke="rgba(0,245,255,.028)" stroke-width="1">
+          <line x1="0" y1="100" x2="760" y2="100"/>
+          <line x1="0" y1="200" x2="760" y2="200"/>
+          <line x1="0" y1="300" x2="760" y2="300"/>
+          <line x1="0" y1="400" x2="760" y2="400"/>
+          <line x1="100" y1="0" x2="100" y2="520"/>
+          <line x1="200" y1="0" x2="200" y2="520"/>
+          <line x1="300" y1="0" x2="300" y2="520"/>
+          <line x1="400" y1="0" x2="400" y2="520"/>
+          <line x1="500" y1="0" x2="500" y2="520"/>
+          <line x1="600" y1="0" x2="600" y2="520"/>
+          <line x1="700" y1="0" x2="700" y2="520"/>
+        </g>
+
+        <!-- Pacific Ocean (west strip) -->
+        <rect x="0" y="0" width="79" height="520" fill="rgba(0,30,60,.3)"/>
+        <text x="40" y="260" font-family="Rajdhani,sans-serif" font-size="6" fill="rgba(0,140,220,.16)" writing-mode="tb" letter-spacing="2.5" text-anchor="middle">PACIFIC OCEAN</text>
+
+        <!-- ═══ BADLANDS ═══ -->
+        <!-- Top strip -->
+        <rect class="dp" data-id="badlands"
+          x="79" y="0" width="681" height="37"
+          fill="#5a3e18" fill-opacity=".18" stroke="#a07840" stroke-opacity=".14" stroke-width="1"/>
+        <!-- Right & bottom Badlands -->
+        <path class="dp" data-id="badlands"
+          d="M 665,124 L 760,80 L 760,520 L 197,520 L 88,473 L 201,463 L 221,386 L 357,378 L 499,407 L 655,390 L 687,309 L 708,222 L 665,124 Z"
+          fill="#5a3e18" fill-opacity=".16" stroke="#a07840" stroke-opacity=".12" stroke-width="1"/>
+        <!-- Left Badlands -->
+        <path class="dp" data-id="badlands"
+          d="M 79,124 L 0,80 L 0,520 L 197,520 L 88,473 L 24,420 L 52,309 L 79,200 L 79,124 Z"
+          fill="#5a3e18" fill-opacity=".16" stroke="#a07840" stroke-opacity=".12" stroke-width="1"/>
+
+        <!-- ═══ WATSON ═══ -->
+        <path class="dp" data-id="watson"
+          d="M 143,37 L 624,37 L 665,124 L 597,169 L 163,169 L 79,124 L 143,37 Z"
+          fill="#00f5ff" fill-opacity=".14" stroke="#00f5ff" stroke-opacity=".6" stroke-width="1.5"/>
+
+        <!-- ═══ WESTBROOK ═══ -->
+        <path class="dp" data-id="westbrook"
+          d="M 597,169 L 665,124 L 708,222 L 687,309 L 560,305 L 533,237 L 597,169 Z"
+          fill="#ff00aa" fill-opacity=".14" stroke="#ff00aa" stroke-opacity=".6" stroke-width="1.5"/>
+
+        <!-- ═══ CITY CENTER ═══ -->
+        <path class="dp" data-id="city_center"
+          d="M 271,169 L 597,169 L 533,237 L 479,309 L 271,309 L 235,233 L 271,169 Z"
+          fill="#ffe600" fill-opacity=".14" stroke="#ffe600" stroke-opacity=".6" stroke-width="1.5"/>
+
+        <!-- ═══ HEYWOOD ═══ -->
+        <path class="dp" data-id="heywood"
+          d="M 79,124 L 163,169 L 271,169 L 235,233 L 271,309 L 357,378 L 221,386 L 106,395 L 52,309 L 79,200 L 79,124 Z"
+          fill="#ff6b00" fill-opacity=".14" stroke="#ff6b00" stroke-opacity=".6" stroke-width="1.5"/>
+
+        <!-- ═══ SANTO DOMINGO ═══ -->
+        <path class="dp" data-id="santo_domingo"
+          d="M 479,309 L 533,237 L 560,305 L 687,309 L 655,390 L 499,407 L 357,378 L 479,309 Z"
+          fill="#ff1a4a" fill-opacity=".14" stroke="#ff1a4a" stroke-opacity=".6" stroke-width="1.5"/>
+
+        <!-- ═══ PACIFICA ═══ -->
+        <path class="dp" data-id="pacifica"
+          d="M 52,309 L 106,395 L 221,386 L 201,463 L 88,473 L 24,420 L 52,309 Z"
+          fill="#9900ff" fill-opacity=".14" stroke="#9900ff" stroke-opacity=".6" stroke-width="1.5"/>
+
+        <!-- ═══ LABELS ═══ -->
+
+        <!-- WATSON  centroid ≈ 380,108 -->
+        <text class="ml" x="380" y="93">WATSON</text>
+        <text class="mls" x="380" y="107">Industrial · Port · Север</text>
+        <text class="mlg" x="380" y="123" fill="#00f5ff">◈ MAELSTROM · TYGER CLAWS</text>
+
+        <!-- WESTBROOK  centroid ≈ 622,222 -->
+        <text class="ml" x="622" y="208">WESTBROOK</text>
+        <text class="mls" x="622" y="222">Entertainment · Восток</text>
+        <text class="mlg" x="622" y="238" fill="#ff00aa">◈ TYGER CLAWS</text>
+
+        <!-- CITY CENTER  centroid ≈ 400,238 -->
+        <text class="ml" x="400" y="228">CITY CENTER</text>
+        <text class="mls" x="400" y="243">Corporate Zone · Центр</text>
+        <text class="mlg" x="400" y="259" fill="#ffe600">◈ CORPORATIONS</text>
+
+        <!-- HEYWOOD  centroid ≈ 164,265 -->
+        <text class="ml" x="164" y="252">HEYWOOD</text>
+        <text class="mls" x="164" y="267">Residential · Запад</text>
+        <text class="mlg" x="164" y="283" fill="#ff6b00">◈ VALENTINOS</text>
+
+        <!-- SANTO DOMINGO  centroid ≈ 535,342 -->
+        <text class="ml" x="535" y="328">SANTO DOMINGO</text>
+        <text class="mls" x="535" y="343">Industrial Belt · Юг</text>
+        <text class="mlg" x="535" y="359" fill="#ff1a4a">◈ 6TH STREET</text>
+
+        <!-- PACIFICA  centroid ≈ 118,402 -->
+        <text class="ml" x="118" y="390">PACIFICA</text>
+        <text class="mls" x="118" y="405">Abandoned · Юго-запад</text>
+        <text class="mlg" x="118" y="421" fill="#9900ff">◈ VOODOO BOYS</text>
+
+        <!-- BADLANDS labels -->
+        <text font-family="Rajdhani,sans-serif" font-size="7" fill="rgba(160,120,64,.42)" text-anchor="middle" x="720" y="55" letter-spacing="1.5">BADLANDS</text>
+        <text font-family="Rajdhani,sans-serif" font-size="7" fill="rgba(160,120,64,.42)" text-anchor="middle" x="380" y="18" letter-spacing="1.5">ПУСТОШИ · BADLANDS</text>
+        <text class="mlg" x="720" y="68" fill="#a07840" style="font-size:5.5px">◈ ALDECALDOS · WRAITHS</text>
+
+        <!-- Compass -->
+        <g transform="translate(718,52)">
+          <circle cx="0" cy="0" r="15" fill="rgba(0,0,0,.4)" stroke="rgba(0,245,255,.22)" stroke-width="1"/>
+          <line x1="0" y1="-11" x2="0" y2="11" stroke="rgba(0,245,255,.45)" stroke-width="1"/>
+          <line x1="-11" y1="0" x2="11" y2="0" stroke="rgba(0,245,255,.2)" stroke-width="1"/>
+          <text font-family="Orbitron,monospace" font-size="8.5" fill="rgba(0,245,255,.7)" text-anchor="middle" dominant-baseline="middle" x="0" y="-22">N</text>
+        </g>
+
+        <!-- Scale bar -->
+        <g transform="translate(116,509)">
+          <line x1="0" y1="0" x2="70" y2="0" stroke="rgba(0,245,255,.32)" stroke-width="1"/>
+          <line x1="0" y1="-3" x2="0" y2="3" stroke="rgba(0,245,255,.32)" stroke-width="1"/>
+          <line x1="70" y1="-3" x2="70" y2="3" stroke="rgba(0,245,255,.32)" stroke-width="1"/>
+          <text x="35" y="-6" font-family="Rajdhani,sans-serif" font-size="6.5" fill="rgba(0,245,255,.35)" text-anchor="middle">≈ 5 km</text>
+        </g>
+
+      </svg>
+    </div>
+    <div class="map-legend" id="mapLegend"></div>
+  </div>
+
+  <div class="info-panel">
+    <div class="iph" id="iph">
+      <div class="iph-icon">⬡</div>
+      <div class="iph-text">Выберите район на карте</div>
+      <div class="iph-hint">// NIGHT CITY DISTRICT DATABASE · NETWATCH CLASSIFIED</div>
+    </div>
+    <div class="dc" id="dcard"></div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="foot-logo">CYBER<span>PUNK</span> 2077</div>
+  <p class="foot-copy">© 2077 NETWATCH INTELLIGENCE DIVISION · Cyberpunk 2077 © CD PROJEKT RED</p>
+</footer>
+
+<script>
+const cDot=document.getElementById('cDot'),cH=document.getElementById('cH'),cV=document.getElementById('cV'),cRing=document.getElementById('cRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cDot.style.transform=`translate3d(${mx-2.5}px,${my-2.5}px,0)`;
+  cH.style.transform=`translate3d(${mx-11}px,${my-.5}px,0)`;
+  cV.style.transform=`translate3d(${mx-.5}px,${my-11}px,0)`;
+});
+(function loop(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;cRing.style.transform=`translate3d(${rx-18}px,${ry-18}px,0)`;requestAnimationFrame(loop)})();
+function curHover(on){cRing.style.width=on?'52px':'36px';cRing.style.height=on?'52px':'36px';cRing.style.borderColor=on?'rgba(0,245,255,.9)':'rgba(0,245,255,.55)'}
+
+const DNAME=['','Безопасно','Низкая','Средняя','Высокая','Критическая'];
+const DISTRICTS=[
+  {id:'watson',name:'Watson',ru:'Уотсон',sub:'Промышленный порт · Север',
+   color:'#00f5ff',danger:3,pop:'420 000',police:'NCPD · Регулярное патрулирование',
+   control:'Maelstrom / Tyger Claws',
+   gangs:['Maelstrom','Tyger Claws'],
+   areas:['Little China','Kabuki','Northside Industrial','Med Center'],
+   chars:['T-Bug','Fingers MD','Viktor Vektor'],
+   desc:'Промышленный портовый район на севере Night City — один из самых живых и опасных. Кабуки-рынок торгует всем подряд, рипперы делают модификации в подвалах, а Маэлстром держит заводы железной хваткой. Little China — культурное сердце азиатской диаспоры города.'},
+  {id:'westbrook',name:'Westbrook',ru:'Уэстбрук',sub:'Развлечения и роскошь · Восток',
+   color:'#ff00aa',danger:2,pop:'178 000',police:'NCPD / Тигровые Когти',
+   control:'Tyger Claws',
+   gangs:['Tyger Claws'],
+   areas:['Japantown','Charter Hill','North Oak'],
+   chars:['Evelyn Parker','Judy Alvarez'],
+   desc:'Самый гламурный район Night City. Японский квартал горит в неоне рекламы нейростримов и ночных клубов. Charter Hill — пентхаусы корпоративных элит. North Oak — пригород сверхбогатых. Тигровые Когти контролируют всю развлекательную индустрию.'},
+  {id:'city_center',name:'City Center',ru:'Центр города',sub:'Корпоративное ядро · Центр',
+   color:'#ffe600',danger:1,pop:'95 000',police:'MaxTac · NCPD · Корп. охрана',
+   control:'Корпорации',
+   gangs:['Нет банд (корп. зона)'],
+   areas:['Corpo Plaza','Downtown','Arasaka Waterfront'],
+   chars:['Hanako Arasaka','Yorinobu Arasaka'],
+   desc:'Финансовое и политическое ядро Night City. Небоскрёбы Арасака, Милитек и сотен других корпораций заполняют горизонт. MaxTac и частная охрана следят за каждым шагом. Самый низкий уровень преступности в городе — пока ты не нарушаешь корпоративные правила.'},
+  {id:'heywood',name:'Heywood',ru:'Хейвуд',sub:'Жилой район · Юго-запад',
+   color:'#ff6b00',danger:3,pop:'490 000',police:'NCPD · Ограниченно',
+   control:'Valentinos / 6th Street',
+   gangs:['Valentinos','6th Street'],
+   areas:['The Glen','Wellsprings','Vista del Rey'],
+   chars:['Panam Palmer','Jefferson Peralez'],
+   desc:'Крупнейший жилой район — сердце латиноамериканской культуры Night City. Валентинос чтут честь и традиции, 6-я Улица апеллирует к патриотизму и силе. Их войны наполняют улицы гильзами, но здесь живут, любят и строят жизнь вопреки всему.'},
+  {id:'santo_domingo',name:'Santo Domingo',ru:'Санто Доминго',sub:'Промышленный пояс · Юг',
+   color:'#ff1a4a',danger:4,pop:'340 000',police:'NCPD · Редкое',
+   control:'6th Street / Maelstrom',
+   gangs:['6th Street','Maelstrom'],
+   areas:['Arroyo','Rancho Coronado'],
+   chars:['River Ward'],
+   desc:'Суровый промышленный район на юго-востоке. Электростанции, нефтехимические заводы и бараки рабочих. 6-я Улица вербует солдат обещаниями братства. Маэлстром контролирует заводы. NCPD появляется редко — только с подкреплением.'},
+  {id:'pacifica',name:'Pacifica',ru:'Пасифика',sub:'Заброшенная зона · Юго-запад',
+   color:'#9900ff',danger:5,pop:'84 000',police:'NCPD сюда не ходит',
+   control:'Voodoo Boys / Animals',
+   gangs:['Voodoo Boys','Animals'],
+   areas:['Coastview','West Wind Estate','Grand Imperial Mall'],
+   chars:['Placide','Brigitte','Sasquatch'],
+   desc:'Задуманный как туристический рай, Пасифика была брошена корпорациями после финансового краха. Теперь самый опасный район города. Вуду Бойс — мастера нетраннинга. Животные держат здания силой. NCPD официально сюда не суётся.'},
+  {id:'badlands',name:'Badlands',ru:'Пустоши',sub:'За пределами города',
+   color:'#a07840',danger:5,pop:'Кочевники',police:'Закона нет',
+   control:'Номады / Рейдеры',
+   gangs:['Aldecaldos','Wraiths','Raffen Shiv'],
+   areas:['Rocky Ridge','Biotechnica Flats','Sunset Motel','Trailer Park'],
+   chars:['Panam Palmer','Mitch','Scorpion','Rogue Amendiares'],
+   desc:'Пустоши окружают Night City со всех сторон. Здесь нет законов, нет корпораций — только ветер, пыль и выжившие. Номады путешествуют на бронированных машинах, рейдеры охотятся за слабыми. Биотехника проводит секретные эксперименты в отдалённых лабораториях.'},
+];
+
+const legEl=document.getElementById('mapLegend');
+DISTRICTS.forEach(d=>{
+  const el=document.createElement('div');
+  el.className='leg';
+  el.style.borderColor=d.color+'40';
+  el.style.color=d.color;
+  el.dataset.id=d.id;
+  el.innerHTML=`<div class="leg-dot" style="background:${d.color}"></div>${d.ru}`;
+  el.addEventListener('click',()=>selectDistrict(d.id));
+  el.addEventListener('mouseenter',()=>curHover(true));
+  el.addEventListener('mouseleave',()=>curHover(false));
+  legEl.appendChild(el);
+});
+
+const mtt=document.getElementById('mtt');
+document.querySelectorAll('.dp').forEach(p=>{
+  p.addEventListener('mousemove',e=>{
+    const d=DISTRICTS.find(x=>x.id===p.dataset.id);
+    if(!d)return;
+    mtt.textContent=d.ru+' — '+d.control;
+    mtt.style.left=e.clientX+'px';
+    mtt.style.top=e.clientY+'px';
+    mtt.style.color=d.color;
+    mtt.style.borderColor=d.color;
+    mtt.classList.add('show');
+  });
+  p.addEventListener('mouseleave',()=>mtt.classList.remove('show'));
+  p.addEventListener('click',()=>selectDistrict(p.dataset.id));
+  p.addEventListener('mouseenter',()=>curHover(true));
+  p.addEventListener('mouseleave',()=>curHover(false));
+});
+
+let activeId=null;
+function selectDistrict(id){
+  activeId=id;
+  document.querySelectorAll('.dp').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll(`.dp[data-id="${id}"]`).forEach(p=>p.classList.add('active'));
+  document.querySelectorAll('.leg').forEach(l=>{
+    l.classList.toggle('active',l.dataset.id===id);
+    l.style.background=l.dataset.id===id?'rgba(0,0,0,.35)':'';
+  });
+  const d=DISTRICTS.find(x=>x.id===id);
+  if(!d)return;
+  document.getElementById('iph').style.display='none';
+  const card=document.getElementById('dcard');
+  card.classList.remove('show');
+  void card.offsetWidth;
+  card.classList.add('show');
+  const segs=Array.from({length:5},(_,i)=>
+    `<div class="dseg ${i<d.danger?'on':''}" style="color:${d.color}"></div>`).join('');
+  card.innerHTML=`
+    <div class="dc-hdr" style="border-color:${d.color}">
+      <div class="dc-id" style="color:${d.color}">// РАЙОН · ${d.ru.toUpperCase()} · NIGHT CITY</div>
+      <div class="dc-name" style="color:${d.color};text-shadow:0 0 22px ${d.color}">${d.name}</div>
+      <div class="dc-sub">${d.sub}</div>
+    </div>
+    <div class="dc-stats">
+      <div class="dcs" style="border-color:${d.color}22">
+        <div class="dcs-label">Опасность</div>
+        <div class="dcs-val" style="color:${d.color};font-size:.78rem">${DNAME[d.danger]}</div>
+        <div class="dbar">${segs}</div>
+      </div>
+      <div class="dcs" style="border-color:${d.color}22">
+        <div class="dcs-label">Население</div>
+        <div class="dcs-val" style="color:${d.color};font-size:.8rem">${d.pop}</div>
+      </div>
+      <div class="dcs" style="border-color:${d.color}22;grid-column:span 2">
+        <div class="dcs-label">Силовой контроль</div>
+        <div class="dcs-val" style="color:${d.color};font-size:.7rem;letter-spacing:.05em">${d.police}</div>
+      </div>
+    </div>
+    <div>
+      <div class="dc-stitle">// БАНДЫ И ФРАКЦИИ</div>
+      <div class="dc-tags">${d.gangs.map(g=>`<span class="dc-tag" style="border-color:${d.color}50;color:${d.color}cc">${g}</span>`).join('')}</div>
+    </div>
+    <div>
+      <div class="dc-stitle">// КЛЮЧЕВЫЕ ЛОКАЦИИ</div>
+      <div class="dc-locs">${d.areas.map(a=>`<div class="dc-loc">${a}</div>`).join('')}</div>
+    </div>
+    <div>
+      <div class="dc-stitle">// ОПИСАНИЕ</div>
+      <div class="dc-desc">${d.desc}</div>
+    </div>
+    <div>
+      <div class="dc-stitle">// КЛЮЧЕВЫЕ ПЕРСОНАЖИ</div>
+      <div class="dc-tags">${d.chars.map(c=>`<span class="dc-tag" style="border-color:rgba(232,244,248,.18);color:rgba(232,244,248,.48)">${c}</span>`).join('')}</div>
+    </div>`;
+}
+</script>
+
+<script>
+// Mobile nav
+(function(){
+  var b=document.getElementById('navBurger'),mn=document.getElementById('mobNav'),mc=document.getElementById('mobNavClose');
+  if(!b||!mn)return;
+  function cl(){b.classList.remove('open');mn.classList.remove('open');document.body.style.overflow=''}
+  b.addEventListener('click',function(){b.classList.toggle('open');mn.classList.toggle('open');document.body.style.overflow=mn.classList.contains('open')?'hidden':''});
+  if(mc)mc.addEventListener('click',cl);
+  mn.querySelectorAll('.mob-nav-link').forEach(function(a){a.addEventListener('click',cl)});
+  var p=location.pathname.split('/').pop()||'index.html';
+  mn.querySelectorAll('.mob-nav-link[href]').forEach(function(a){if(a.getAttribute('href')===p)a.classList.add('active')});
+})();
+</script>
+</body>
+</html>

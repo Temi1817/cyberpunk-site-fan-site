@@ -8,7 +8,7 @@
 :root{--cyan:#00f5ff;--mag:#ff00aa;--yellow:#ffe600;--bg:#060609;--white:#e8f4f8;--dim:#3a5060;
   --power:#ff1a4a;--tech:#ffe600;--smart:#00f5ff;--melee:#ff6b00}
 html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--white);font-family:'Rajdhani',sans-serif;cursor:none}
+body{background: transparent;color:var(--white);font-family:'Rajdhani',sans-serif;cursor:none}
 ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--cyan)}
 
 .scanlines{position:fixed;inset:0;z-index:9000;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px)}
@@ -162,9 +162,64 @@ nav{position:fixed;inset:0 0 auto 0;z-index:500;display:flex;align-items:center;
   .weapon-grid{grid-template-columns:1fr}
   .w-art{height:100px}
 }
+
+    /* NIGHT CITY PHOTO BACKGROUND */
+    html { background: #01000a; }
+    #cityBg {
+      position: fixed; inset: 0; z-index: -2; pointer-events: none;
+      background-image: url('https://images8.alphacoders.com/138/thumb-1920-1383930.png');
+      background-size: cover; background-position: center; background-repeat: no-repeat;
+      filter: brightness(0.95) saturate(1.5) contrast(1.08);
+    }
+    #cityOverlay {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 15% 85%, rgba(255,0,170,.12) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 75%, rgba(0,245,255,.10) 0%, transparent 45%),
+        radial-gradient(ellipse at 50% 60%, rgba(100,0,200,.08) 0%, transparent 55%),
+        linear-gradient(to bottom, rgba(1,0,10,.55) 0%, rgba(1,0,10,.15) 25%, rgba(1,0,10,.15) 65%, rgba(4,2,14,.65) 100%);
+    }
+  
+/* ── MOBILE NAV ── */
+.nav-burger{display:none;flex-direction:column;justify-content:center;gap:5px;background:none;border:1px solid rgba(0,245,255,.25);padding:.42rem .54rem;cursor:pointer;z-index:601;transition:border-color .3s;-webkit-tap-highlight-color:transparent}
+.nav-burger span{display:block;width:18px;height:1.5px;background:#00f5ff;box-shadow:0 0 4px #00f5ff;transition:transform .3s,opacity .3s}
+.nav-burger.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.nav-burger.open span:nth-child(2){opacity:0}
+.nav-burger.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+.mob-nav{position:fixed;inset:0;z-index:600;background:rgba(4,4,7,.97);backdrop-filter:blur(16px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;opacity:0;pointer-events:none;transition:opacity .3s}
+.mob-nav.open{opacity:1;pointer-events:all}
+.mob-nav-close{font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:.3em;background:none;border:1px solid rgba(0,245,255,.2);color:rgba(0,245,255,.45);padding:.6rem 1.5rem;cursor:pointer;margin-bottom:.5rem;transition:all .3s;-webkit-tap-highlight-color:transparent}
+.mob-nav-close:hover{border-color:#00f5ff;color:#00f5ff}
+.mob-nav-link{font-family:'Orbitron',monospace;font-size:.9rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(232,244,248,.38);text-decoration:none;transition:color .3s,text-shadow .3s;padding:.3rem 1.5rem;display:block;text-align:center;-webkit-tap-highlight-color:transparent}
+.mob-nav-link.active,.mob-nav-link:hover{color:#00f5ff;text-shadow:0 0 18px #00f5ff}
+@media(max-width:768px){
+  .nav-burger{display:flex}
+  nav ul{display:none}
+  .net-status,.nav-title{display:none}
+  input,select,textarea{font-size:16px!important}
+  *{-webkit-tap-highlight-color:transparent}
+}
+
+/* ── ADDITIONAL MOBILE IMPROVEMENTS ── */
+@media(max-width:768px){
+  nav{padding:.9rem 1.2rem!important}
+  .page-hero{padding:5.5rem 1.2rem 2rem!important}
+  .hero-title{font-size:clamp(1.8rem,8vw,3.5rem)!important}
+  .hero-sub{font-size:.75rem!important;letter-spacing:.1em!important}
+  .main-area{padding:1.2rem!important}
+  .back-btn{font-size:.5rem!important;padding:.45rem .85rem!important}
+}
+@media(max-width:480px){
+  .page-hero{padding:5rem 1rem 1.6rem!important}
+  .hero-title{font-size:clamp(1.6rem,9vw,2.8rem)!important}
+  .mob-filter-btn{bottom:1rem!important;right:1rem!important;font-size:.48rem!important;padding:.6rem 1rem!important}
+}
+@media(pointer:coarse){#cDot,#cH,#cV,#cRing{display:none!important}.btn:active,.mob-nav-link:active,.back-btn:active,.nav-burger:active,.gc:active,.wcard:active,.cc:active,.filter-btn:active,.cat-btn:active,.type-chip:active{opacity:.72!important;transform:scale(.97)!important}}
 </style>
 </head>
 <body>
+<div id="cityBg"></div>
+<div id="cityOverlay"></div>
 
 <div class="scanlines"></div>
 <div class="crt"></div>
@@ -174,6 +229,16 @@ nav{position:fixed;inset:0 0 auto 0;z-index:500;display:flex;align-items:center;
 <div class="cRing" id="cRing"></div>
 <div class="backdrop" id="backdrop"></div>
 
+<div class="mob-nav" id="mobNav">
+  <button class="mob-nav-close" id="mobNavClose">✕ ЗАКРЫТЬ</button>
+  <a href="index.html" class="mob-nav-link">Главная</a>
+  <a href="gangs.html" class="mob-nav-link">Банды</a>
+  <a href="corporations.html" class="mob-nav-link">Корпорации</a>
+  <a href="districts.html" class="mob-nav-link">Районы</a>
+  <a href="weapons.html" class="mob-nav-link">Оружие</a>
+  <a href="cyberware.html" class="mob-nav-link">Киберимпланты</a>
+  <a href="rippers.html" class="mob-nav-link">Риперы</a>
+</div>
 <nav>
   <a href="index.html" class="logo">CYBER<span>PUNK</span>&nbsp;2077</a>
   <div class="nav-title">// WEAPONS DATABASE</div>
@@ -181,6 +246,7 @@ nav{position:fixed;inset:0 0 auto 0;z-index:500;display:flex;align-items:center;
     <a href="cyberware.html" class="back-btn" style="border-color:rgba(255,153,0,.25);color:rgba(255,153,0,.5)">⬡ КИБЕРИМПЛАНТЫ</a>
     <a href="index.html" class="back-btn">← НАЗАД</a>
   </div>
+  <button class="nav-burger" id="navBurger"><span></span><span></span><span></span></button>
 </nav>
 
 <div class="app">
@@ -838,4 +904,16 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 <div class="mob-filter-bg" id="mobFilterBg"></div>
 <button class="mob-filter-btn" id="mobFilterBtn">⚙ ФИЛЬТРЫ</button>
+<script>
+(function(){
+  var b=document.getElementById('navBurger'),mn=document.getElementById('mobNav'),mc=document.getElementById('mobNavClose');
+  if(!b||!mn)return;
+  function cl(){b.classList.remove('open');mn.classList.remove('open');document.body.style.overflow=''}
+  b.addEventListener('click',function(){b.classList.toggle('open');mn.classList.toggle('open');document.body.style.overflow=mn.classList.contains('open')?'hidden':''});
+  if(mc)mc.addEventListener('click',cl);
+  mn.querySelectorAll('.mob-nav-link').forEach(function(a){a.addEventListener('click',cl)});
+  var p=location.pathname.split('/').pop()||'index.html';
+  mn.querySelectorAll('.mob-nav-link[href]').forEach(function(a){if(a.getAttribute('href')===p)a.classList.add('active')});
+})();
+</script>
 </body></html>

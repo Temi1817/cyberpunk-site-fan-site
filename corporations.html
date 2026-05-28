@@ -1,0 +1,871 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Корпорации — CYBERPUNK 2077</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #060609; --cyan: #00f5ff; --mag: #ff00aa; --yellow: #ffe600;
+      --white: #e8f4f8; --dim: #1e2a3a; --tdim: #3a5060;
+    }
+    html { scroll-behavior: smooth; background: #01000a; }
+    body { background: transparent; color: var(--white); font-family: 'Rajdhani', sans-serif; overflow-x: hidden; cursor: none; }
+
+    /* ── NIGHT CITY PHOTO BACKGROUND (fixed, no scroll) ── */
+    #cityBg {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none;
+      background-image: url('https://images8.alphacoders.com/138/thumb-1920-1383930.png');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      filter: brightness(0.95) saturate(1.5) contrast(1.08);
+    }
+    /* Neon colour atmosphere overlay */
+    #cityOverlay {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 15% 85%, rgba(255,0,170,.12) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 75%, rgba(0,245,255,.10) 0%, transparent 45%),
+        radial-gradient(ellipse at 50% 60%, rgba(100,0,200,.08) 0%, transparent 55%),
+        linear-gradient(to bottom, rgba(1,0,10,.55) 0%, rgba(1,0,10,.15) 25%, rgba(1,0,10,.15) 65%, rgba(4,2,14,.65) 100%);
+    }
+
+    /* Content layers above background */
+    .scanlines, .crt-vignette { z-index: 9000; }
+    nav { z-index: 500; }
+    .page-hero {
+      position: relative; z-index: 2;
+      background: linear-gradient(180deg, rgba(1,0,10,.78) 0%, rgba(3,1,14,.55) 70%, rgba(3,1,14,.35) 100%);
+      backdrop-filter: blur(1px);
+    }
+    .page-wrap { position: relative; z-index: 2; }
+    .left-panel { background: rgba(2,1,10,.82); backdrop-filter: blur(14px); }
+    .main-area { background: transparent; }
+    .cc {
+      background: rgba(3,2,12,.80);
+      backdrop-filter: blur(8px);
+    }
+    footer { position: relative; z-index: 2; background: rgba(2,1,10,.88); backdrop-filter: blur(10px); }
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--cyan); }
+
+    .scanlines {
+      position: fixed; inset: 0; z-index: 9000; pointer-events: none;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.07) 2px, rgba(0,0,0,.07) 4px);
+    }
+    .crt-vignette {
+      position: fixed; inset: 0; z-index: 8999; pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.65) 100%);
+    }
+
+    /* ── CURSOR ── */
+    .cur-dot  { position:fixed; z-index:10003; pointer-events:none; width:5px; height:5px; border-radius:50%; background:var(--cyan); box-shadow:0 0 10px var(--cyan); top:0; left:0; will-change:transform; }
+    .cur-h    { position:fixed; z-index:10002; pointer-events:none; width:22px; height:1px; background:var(--cyan); box-shadow:0 0 6px var(--cyan); top:0; left:0; will-change:transform; }
+    .cur-v    { position:fixed; z-index:10002; pointer-events:none; width:1px; height:22px; background:var(--cyan); box-shadow:0 0 6px var(--cyan); top:0; left:0; will-change:transform; }
+    .cur-ring { position:fixed; z-index:10001; pointer-events:none; width:36px; height:36px; border:1px solid rgba(0,245,255,.55); border-radius:50%; top:0; left:0; will-change:transform; transition:width .3s,height .3s,border-color .3s; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; inset: 0 0 auto 0; z-index: 500;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 3.5rem;
+      background: rgba(6,6,9,.88); border-bottom: 1px solid rgba(0,245,255,.1);
+      backdrop-filter: blur(14px);
+    }
+    .logo { font-family:'Orbitron',monospace; font-size:1.15rem; font-weight:900; letter-spacing:.12em; color:var(--cyan); text-shadow:0 0 18px var(--cyan),0 0 35px rgba(0,245,255,.35); cursor:none; text-decoration:none; }
+    .logo span { color:var(--yellow); text-shadow:0 0 18px var(--yellow); }
+    nav ul { display:flex; gap:2.8rem; list-style:none; }
+    nav a { font-size:.78rem; letter-spacing:.22em; text-transform:uppercase; color:rgba(232,244,248,.38); text-decoration:none; position:relative; transition:color .3s; cursor:none; }
+    nav a::after { content:''; position:absolute; bottom:-3px; left:0; width:0; height:1px; background:var(--cyan); box-shadow:0 0 6px var(--cyan); transition:width .3s; }
+    nav a:hover, nav a.active { color:var(--cyan); }
+    nav a:hover::after, nav a.active::after { width:100%; }
+    .net-status { display:flex; align-items:center; gap:.5rem; font-size:.62rem; letter-spacing:.25em; text-transform:uppercase; color:var(--tdim); }
+    .net-dot { width:6px; height:6px; border-radius:50%; background:#00ff55; box-shadow:0 0 8px #00ff55; animation:blink 1.8s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+    /* ── HERO ── */
+    .page-hero {
+      padding: 9rem 3.5rem 4rem;
+      border-bottom: 1px solid rgba(0,245,255,.07);
+      position: relative; overflow: hidden;
+    }
+    .page-hero::before {
+      content: 'CORP'; position: absolute; right: -1rem; top: 50%; transform: translateY(-50%);
+      font-family: 'Orbitron', monospace; font-size: clamp(6rem,18vw,16rem); font-weight: 900;
+      color: rgba(0,245,255,.03); pointer-events: none; user-select: none; letter-spacing: -.04em;
+    }
+    .hero-label { font-size:.62rem; letter-spacing:.5em; text-transform:uppercase; color:var(--cyan); text-shadow:0 0 10px var(--cyan); margin-bottom:.9rem; }
+    .hero-title { font-family:'Orbitron',monospace; font-size:clamp(2.2rem,5vw,4rem); font-weight:900; line-height:1.05; }
+    .hero-sub { font-size:.88rem; letter-spacing:.18em; color:rgba(232,244,248,.35); margin-top:1rem; text-transform:uppercase; }
+    .back-btn {
+      display:inline-flex; align-items:center; gap:.6rem;
+      font-family:'Orbitron',monospace; font-size:.6rem; letter-spacing:.28em; text-transform:uppercase;
+      padding:.55rem 1.4rem; border:1px solid rgba(0,245,255,.25); color:rgba(0,245,255,.5);
+      text-decoration:none; cursor:none; transition:all .3s; margin-bottom:2rem;
+    }
+    .back-btn:hover { border-color:rgba(0,245,255,.65); color:var(--cyan); background:rgba(0,245,255,.06); }
+
+    /* ── LAYOUT ── */
+    .page-wrap { display:flex; min-height:calc(100vh - 200px); }
+
+    /* ── LEFT PANEL ── */
+    .left-panel {
+      width: 260px; flex-shrink: 0;
+      padding: 2rem 1.4rem;
+      border-right: 1px solid rgba(0,245,255,.07);
+      background: rgba(4,4,7,.6);
+      position: sticky; top: 72px; height: calc(100vh - 72px); overflow-y: auto;
+    }
+    .left-panel::-webkit-scrollbar { width: 2px; }
+    .left-panel::-webkit-scrollbar-thumb { background: rgba(0,245,255,.3); }
+
+    .filter-section { margin-bottom: 2rem; }
+    .filter-title { font-size:.52rem; letter-spacing:.4em; text-transform:uppercase; color:var(--tdim); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:1px solid rgba(0,245,255,.07); }
+    .filter-btn {
+      display:block; width:100%; text-align:left;
+      font-family:'Rajdhani',sans-serif; font-size:.75rem; letter-spacing:.15em; text-transform:uppercase;
+      padding:.55rem .85rem; margin-bottom:.3rem;
+      background:transparent; border:1px solid transparent; color:rgba(232,244,248,.35);
+      cursor:none; transition:all .25s; position:relative; overflow:hidden;
+    }
+    .filter-btn:hover { color:var(--cyan); border-color:rgba(0,245,255,.2); background:rgba(0,245,255,.04); }
+    .filter-btn.active { color:var(--cyan); border-color:rgba(0,245,255,.45); background:rgba(0,245,255,.08); }
+    .filter-btn .fbadge {
+      float:right; font-size:.52rem; padding:.1rem .4rem;
+      border:1px solid currentColor; border-radius:2px; opacity:.6;
+    }
+    .filter-dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:.55rem; vertical-align:middle; }
+
+    .search-wrap { position:relative; margin-bottom:1.8rem; }
+    .search-input {
+      width:100%; background:rgba(0,245,255,.04); border:1px solid rgba(0,245,255,.15);
+      color:var(--white); font-family:'Rajdhani',sans-serif; font-size:.78rem; letter-spacing:.1em;
+      padding:.7rem .9rem .7rem 2.2rem; outline:none; cursor:none;
+      transition:border-color .3s;
+    }
+    .search-input::placeholder { color:var(--tdim); }
+    .search-input:focus { border-color:rgba(0,245,255,.45); }
+    .search-icon { position:absolute; left:.7rem; top:50%; transform:translateY(-50%); font-size:.75rem; color:var(--tdim); pointer-events:none; }
+
+    /* ── MAIN AREA ── */
+    .main-area { flex:1; padding: 2.5rem 2rem; min-width: 0; }
+
+    .results-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:2rem; }
+    .results-count { font-size:.62rem; letter-spacing:.3em; text-transform:uppercase; color:var(--tdim); }
+    .results-count span { color:var(--cyan); }
+
+    /* ── CORP GRID ── */
+    .corp-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1.2rem; }
+
+    .cc {
+      position:relative; overflow:hidden; cursor:none;
+      border:1px solid; background:rgba(6,6,9,.95);
+      transition:transform .4s cubic-bezier(.34,1.56,.64,1), box-shadow .4s, border-color .4s;
+      --gc: #00f5ff;
+      border-color: color-mix(in srgb, var(--gc) 20%, transparent);
+    }
+    .cc:hover { transform:translateY(-8px); box-shadow:0 20px 60px color-mix(in srgb, var(--gc) 15%, transparent); border-color:color-mix(in srgb, var(--gc) 55%, transparent); }
+    .cc.selected { border-color:var(--gc); box-shadow:0 0 30px color-mix(in srgb, var(--gc) 25%, transparent); }
+
+    .cc::before,.cc::after { content:''; position:absolute; width:14px; height:14px; transition:width .3s,height .3s; }
+    .cc::before { top:7px; left:7px; border-top:2px solid var(--gc); border-left:2px solid var(--gc); }
+    .cc::after  { bottom:7px; right:7px; border-bottom:2px solid var(--gc); border-right:2px solid var(--gc); }
+    .cc:hover::before,.cc:hover::after { width:20px; height:20px; }
+
+    .cc-banner {
+      height: 140px; position:relative; overflow:hidden;
+      background: linear-gradient(135deg, rgba(6,6,9,.8) 0%, color-mix(in srgb, var(--gc) 8%, #040407) 100%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cc-banner-bg {
+      position:absolute; inset:0;
+      background: radial-gradient(ellipse at 80% 50%, color-mix(in srgb, var(--gc) 18%, transparent) 0%, transparent 65%);
+    }
+    .cc-banner-num {
+      position:absolute; right:1rem; top:50%; transform:translateY(-50%);
+      font-family:'Orbitron',monospace; font-size:4.5rem; font-weight:900;
+      color:color-mix(in srgb, var(--gc) 8%, transparent); line-height:1; user-select:none;
+    }
+    .cc-logo {
+      position: relative; z-index: 2;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cc-logo-frame {
+      background: rgba(255,255,255,0.93);
+      padding: 8px 18px;
+      border: 1px solid color-mix(in srgb, var(--gc) 55%, transparent);
+      box-shadow: 0 0 18px color-mix(in srgb, var(--gc) 35%, transparent),
+                  0 0 40px color-mix(in srgb, var(--gc) 12%, transparent);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cc-logo-frame img {
+      height: 54px; max-width: 200px; object-fit: contain; display: block;
+    }
+    .cc-status {
+      position:absolute; top:.75rem; right:.85rem;
+      font-size:.46rem; letter-spacing:.35em; text-transform:uppercase;
+      padding:.22rem .6rem; border:1px solid color-mix(in srgb, var(--gc) 40%, transparent);
+      color:var(--gc); background:color-mix(in srgb, var(--gc) 8%, transparent);
+    }
+
+    .cc-body { padding:1.4rem 1.4rem 1.2rem; }
+    .cc-region { font-size:.52rem; letter-spacing:.4em; text-transform:uppercase; color:var(--gc); opacity:.65; margin-bottom:.3rem; }
+    .cc-name { font-family:'Orbitron',monospace; font-size:1.25rem; font-weight:900; color:var(--gc); text-shadow:0 0 16px var(--gc); margin-bottom:.6rem; }
+    .cc-desc { font-size:.8rem; line-height:1.7; color:rgba(232,244,248,.5); margin-bottom:1rem; }
+    .cc-tags { display:flex; flex-wrap:wrap; gap:.35rem; }
+    .cc-tag {
+      font-size:.52rem; letter-spacing:.18em; text-transform:uppercase;
+      padding:.18rem .55rem; border:1px solid color-mix(in srgb, var(--gc) 30%, transparent);
+      color:var(--gc); opacity:.7;
+    }
+    .cc-glow { position:absolute; bottom:-30px; right:-30px; width:130px; height:130px; border-radius:50%; background:radial-gradient(circle, color-mix(in srgb, var(--gc) 8%, transparent) 0%, transparent 70%); pointer-events:none; }
+
+    /* ── DETAIL PANEL ── */
+    .detail-panel {
+      position: fixed; top: 72px; right: 0; bottom: 0; width: 440px;
+      background: rgba(4,4,7,.97); border-left: 1px solid rgba(0,245,255,.12);
+      transform: translateX(100%); transition: transform .45s cubic-bezier(.16,1,.3,1);
+      z-index: 400; overflow-y: auto; backdrop-filter: blur(20px);
+    }
+    .detail-panel.open { transform: translateX(0); }
+    .detail-panel::-webkit-scrollbar { width: 2px; }
+    .detail-panel::-webkit-scrollbar-thumb { background: rgba(0,245,255,.3); }
+
+    .dp-close {
+      position: sticky; top: 0; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.4rem; background: rgba(4,4,7,.95);
+      border-bottom: 1px solid rgba(0,245,255,.08);
+    }
+    .dp-close-label { font-size:.52rem; letter-spacing:.4em; text-transform:uppercase; color:var(--tdim); }
+    .dp-close-btn { width:28px; height:28px; border:1px solid rgba(0,245,255,.25); background:transparent; color:var(--cyan); cursor:none; font-size:.9rem; display:flex; align-items:center; justify-content:center; transition:all .25s; }
+    .dp-close-btn:hover { background:rgba(0,245,255,.1); border-color:var(--cyan); }
+
+    .dp-banner {
+      height: 180px; position:relative; overflow:hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .dp-banner-bg { position:absolute; inset:0; }
+    .dp-logo {
+      position: relative; z-index: 2;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .dp-logo-frame {
+      background: rgba(255,255,255,0.93);
+      padding: 12px 28px;
+      border: 1px solid color-mix(in srgb, var(--gc-dp, #00f5ff) 55%, transparent);
+      box-shadow: 0 0 24px color-mix(in srgb, var(--gc-dp, #00f5ff) 40%, transparent),
+                  0 0 60px color-mix(in srgb, var(--gc-dp, #00f5ff) 15%, transparent);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .dp-logo-frame img {
+      height: 70px; max-width: 260px; object-fit: contain; display: block;
+    }
+    .dp-banner-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(4,4,7,.95) 0%, transparent 60%); }
+
+    .dp-content { padding: 1.8rem 1.6rem; }
+    .dp-id { font-size:.52rem; letter-spacing:.4em; text-transform:uppercase; color:var(--tdim); margin-bottom:.4rem; }
+    .dp-name { font-family:'Orbitron',monospace; font-size:1.8rem; font-weight:900; line-height:1.05; margin-bottom:.4rem; }
+    .dp-motto { font-size:.8rem; font-style:italic; color:rgba(232,244,248,.4); margin-bottom:1.6rem; padding-left:.8rem; border-left:2px solid; }
+
+    .dp-tags { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1.8rem; }
+    .dp-tag { font-size:.52rem; letter-spacing:.2em; text-transform:uppercase; padding:.2rem .65rem; border:1px solid; }
+
+    .dp-section { margin-bottom:1.8rem; }
+    .dp-section-title { font-size:.52rem; letter-spacing:.42em; text-transform:uppercase; color:var(--tdim); margin-bottom:.9rem; padding-bottom:.4rem; border-bottom:1px solid rgba(0,245,255,.07); }
+    .dp-text { font-size:.82rem; line-height:1.85; color:rgba(232,244,248,.6); }
+
+    .dp-stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin-bottom:1.8rem; }
+    .dp-stat-box { padding:.9rem 1rem; border:1px solid rgba(0,245,255,.08); background:rgba(0,245,255,.02); }
+    .dp-stat-label { font-size:.48rem; letter-spacing:.35em; text-transform:uppercase; color:var(--tdim); margin-bottom:.3rem; }
+    .dp-stat-value { font-family:'Orbitron',monospace; font-size:.9rem; font-weight:700; }
+
+    .dp-members { display:flex; flex-direction:column; gap:.5rem; }
+    .dp-member { display:flex; align-items:center; gap:.8rem; padding:.65rem .9rem; border:1px solid rgba(255,255,255,.05); background:rgba(255,255,255,.02); }
+    .dp-member-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+    .dp-member-name { font-size:.78rem; font-weight:600; }
+    .dp-member-role { font-size:.62rem; color:rgba(232,244,248,.4); margin-left:auto; text-transform:uppercase; letter-spacing:.12em; }
+
+    .dp-relations { display:flex; flex-direction:column; gap:.45rem; }
+    .dp-rel { display:flex; align-items:center; gap:.75rem; padding:.55rem .9rem; font-size:.76rem; border:1px solid rgba(255,255,255,.04); }
+    .dp-rel-indicator { font-size:.9rem; }
+    .dp-rel-name { flex:1; }
+    .dp-rel-status { font-size:.58rem; letter-spacing:.2em; text-transform:uppercase; padding:.15rem .45rem; border:1px solid; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state { text-align:center; padding:5rem 2rem; }
+    .empty-icon { font-size:3rem; opacity:.2; margin-bottom:1rem; }
+    .empty-text { font-size:.75rem; letter-spacing:.25em; text-transform:uppercase; color:var(--tdim); }
+
+    /* ── FOOTER ── */
+    footer { padding:3.5rem 2rem 2rem; text-align:center; border-top:1px solid rgba(0,245,255,.08); margin-top:4rem; }
+    .foot-logo { font-family:'Orbitron',monospace; font-size:1.5rem; font-weight:900; letter-spacing:.08em; color:var(--cyan); text-shadow:0 0 28px var(--cyan); }
+    .foot-logo span { color:var(--yellow); text-shadow:0 0 22px var(--yellow); }
+    .foot-copy { font-size:.58rem; color:rgba(58,80,96,.4); margin-top:.8rem; }
+
+    /* ── MOBILE ── */
+    .mob-filter-btn{display:none;position:fixed;bottom:1.5rem;right:1.5rem;z-index:330;font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:.25em;text-transform:uppercase;padding:.75rem 1.3rem;background:rgba(5,5,9,.97);border:1px solid rgba(0,245,255,.45);color:var(--cyan);box-shadow:0 0 22px rgba(0,245,255,.18),0 6px 28px rgba(0,0,0,.8);cursor:pointer;align-items:center;gap:.5rem}
+    .mob-filter-bg{display:none;position:fixed;inset:0;z-index:320;background:rgba(0,0,0,.65);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .3s}
+    .mob-filter-bg.show{opacity:1!important;pointer-events:all!important}
+    @media(max-width:768px){
+      .page-wrap{flex-direction:column}
+      .left-panel{position:fixed;top:72px;bottom:0;left:0;width:290px;z-index:350;transform:translateX(-100%);transition:transform .4s cubic-bezier(.16,1,.3,1);height:auto}
+      .left-panel.mob-open{transform:translateX(0)}
+      .main-area{width:100%;padding:1.5rem 1rem}
+      .corp-grid{grid-template-columns:1fr}
+      .detail-panel{width:100%;left:0;top:72px;border-left:none;border-top:1px solid rgba(0,245,255,.12)}
+      .mob-filter-btn{display:flex}
+      .mob-filter-bg{display:block}
+      .page-hero{padding:7rem 1.4rem 3rem}
+      .hero-title{font-size:clamp(1.6rem,7vw,4rem)}
+      nav{padding:1rem 1.4rem}
+      .back-btn{font-size:.52rem;padding:.4rem .9rem}
+    }
+    @media(max-width:480px){
+      .corp-grid{grid-template-columns:1fr}
+      .cc-banner{height:110px}
+      .cc-logo{width:70px;height:70px}
+    }
+  
+/* ── MOBILE NAV ── */
+.nav-burger{display:none;flex-direction:column;justify-content:center;gap:5px;background:none;border:1px solid rgba(0,245,255,.25);padding:.42rem .54rem;cursor:pointer;z-index:601;transition:border-color .3s;-webkit-tap-highlight-color:transparent}
+.nav-burger span{display:block;width:18px;height:1.5px;background:#00f5ff;box-shadow:0 0 4px #00f5ff;transition:transform .3s,opacity .3s}
+.nav-burger.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.nav-burger.open span:nth-child(2){opacity:0}
+.nav-burger.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+.mob-nav{position:fixed;inset:0;z-index:600;background:rgba(4,4,7,.97);backdrop-filter:blur(16px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;opacity:0;pointer-events:none;transition:opacity .3s}
+.mob-nav.open{opacity:1;pointer-events:all}
+.mob-nav-close{font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:.3em;background:none;border:1px solid rgba(0,245,255,.2);color:rgba(0,245,255,.45);padding:.6rem 1.5rem;cursor:pointer;margin-bottom:.5rem;transition:all .3s;-webkit-tap-highlight-color:transparent}
+.mob-nav-close:hover{border-color:#00f5ff;color:#00f5ff}
+.mob-nav-link{font-family:'Orbitron',monospace;font-size:.9rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(232,244,248,.38);text-decoration:none;transition:color .3s,text-shadow .3s;padding:.3rem 1.5rem;display:block;text-align:center;-webkit-tap-highlight-color:transparent}
+.mob-nav-link.active,.mob-nav-link:hover{color:#00f5ff;text-shadow:0 0 18px #00f5ff}
+@media(max-width:768px){
+  .nav-burger{display:flex}
+  nav ul{display:none}
+  .net-status{display:none}
+  input,select,textarea{font-size:16px!important}
+  *{-webkit-tap-highlight-color:transparent}
+}
+
+/* ── ADDITIONAL MOBILE IMPROVEMENTS ── */
+@media(max-width:768px){
+  nav{padding:.9rem 1.2rem!important}
+  .page-hero{padding:5.5rem 1.2rem 2rem!important}
+  .hero-title{font-size:clamp(1.8rem,8vw,3.5rem)!important}
+  .hero-sub{font-size:.75rem!important;letter-spacing:.1em!important}
+  .main-area{padding:1.2rem!important}
+  .back-btn{font-size:.5rem!important;padding:.45rem .85rem!important}
+}
+@media(max-width:480px){
+  .page-hero{padding:5rem 1rem 1.6rem!important}
+  .hero-title{font-size:clamp(1.6rem,9vw,2.8rem)!important}
+  .mob-filter-btn{bottom:1rem!important;right:1rem!important;font-size:.48rem!important;padding:.6rem 1rem!important}
+}
+@media(pointer:coarse){#cDot,#cH,#cV,#cRing{display:none!important}.btn:active,.mob-nav-link:active,.back-btn:active,.nav-burger:active,.gc:active,.wcard:active,.cc:active,.filter-btn:active,.cat-btn:active,.type-chip:active{opacity:.72!important;transform:scale(.97)!important}}
+</style>
+</head>
+<body>
+<div id="cityBg"></div>
+<div id="cityOverlay"></div>
+<div class="scanlines"></div>
+<div class="crt-vignette"></div>
+<div class="cur-dot"  id="cDot"></div>
+<div class="cur-h"    id="cH"></div>
+<div class="cur-v"    id="cV"></div>
+<div class="cur-ring" id="cRing"></div>
+
+<div class="mob-nav" id="mobNav">
+  <button class="mob-nav-close" id="mobNavClose">✕ ЗАКРЫТЬ</button>
+  <a href="index.html" class="mob-nav-link">Главная</a>
+  <a href="gangs.html" class="mob-nav-link">Банды</a>
+  <a href="corporations.html" class="mob-nav-link">Корпорации</a>
+  <a href="districts.html" class="mob-nav-link">Районы</a>
+  <a href="weapons.html" class="mob-nav-link">Оружие</a>
+  <a href="cyberware.html" class="mob-nav-link">Киберимпланты</a>
+  <a href="rippers.html" class="mob-nav-link">Риперы</a>
+</div>
+<nav>
+  <a href="index.html" class="logo">CYBER<span>PUNK</span>&nbsp;2077</a>
+  <ul>
+    <li><a href="index.html#chars">Персонажи</a></li>
+    <li><a href="index.html#city">Night City</a></li>
+    <li><a href="rippers.html">Риперы</a></li>
+    <li><a href="weapons.html">Оружие</a></li>
+    <li><a href="cyberware.html">Киберимпланты</a></li>
+    <li><a href="gangs.html">Банды</a></li>
+    <li><a href="corporations.html" class="active">Корпорации</a></li>
+    <li><a href="districts.html">Районы</a></li>
+  </ul>
+  <div style="display:flex;align-items:center;gap:.7rem">
+    <div class="net-status"><div class="net-dot"></div>NET_ONLINE</div>
+    <button class="nav-burger" id="navBurger"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <a href="index.html" class="back-btn">← ВЕРНУТЬСЯ</a>
+  <div class="hero-label">// CORPORATE DATABASE — NETWATCH INTELLIGENCE</div>
+  <h1 class="hero-title">КОРПОРАЦИИ <span style="color:var(--cyan);text-shadow:0 0 20px var(--cyan)">НАЙТ СИТИ</span></h1>
+  <p class="hero-sub">6 мегакорпораций · Полный корпоративный профиль · Night City 2077</p>
+</div>
+
+<!-- LAYOUT -->
+<div class="page-wrap">
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" class="search-input" id="searchInput" placeholder="Поиск корпорации...">
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">// Регион</div>
+      <button class="filter-btn active" data-filter="all">Все корпорации <span class="fbadge">6</span></button>
+      <button class="filter-btn" data-filter="japan"><span class="filter-dot" style="background:#cc1111"></span>Япония <span class="fbadge">1</span></button>
+      <button class="filter-btn" data-filter="nusa"><span class="filter-dot" style="background:#1a5fc4"></span>NUSA <span class="fbadge">3</span></button>
+      <button class="filter-btn" data-filter="china"><span class="filter-dot" style="background:#e05e00"></span>Китай <span class="fbadge">1</span></button>
+      <button class="filter-btn" data-filter="europe"><span class="filter-dot" style="background:#00aa55"></span>Европа <span class="fbadge">1</span></button>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">// Сфера</div>
+      <button class="filter-btn" data-filter="military">Военные / Оружие</button>
+      <button class="filter-btn" data-filter="security">Охрана / Банки</button>
+      <button class="filter-btn" data-filter="medical">Медицина</button>
+      <button class="filter-btn" data-filter="biotech">Биотехнологии</button>
+      <button class="filter-btn" data-filter="energy">Энергетика</button>
+    </div>
+  </div>
+
+  <!-- MAIN AREA -->
+  <div class="main-area">
+    <div class="results-bar">
+      <div class="results-count">НАЙДЕНО: <span id="countDisplay">6</span> КОРПОРАЦИЙ</div>
+    </div>
+    <div class="corp-grid" id="corpGrid"></div>
+  </div>
+
+  <!-- DETAIL PANEL -->
+  <div class="detail-panel" id="detailPanel">
+    <div class="dp-close">
+      <span class="dp-close-label">// КОРП-ДОСЬЕ</span>
+      <button class="dp-close-btn" id="dpCloseBtn">✕</button>
+    </div>
+    <div class="dp-banner" id="dpBanner">
+      <div class="dp-banner-bg" id="dpBannerBg"></div>
+      <div class="dp-logo" id="dpLogo"></div>
+      <div class="dp-banner-overlay"></div>
+    </div>
+    <div class="dp-content">
+      <div class="dp-id" id="dpId"></div>
+      <div class="dp-name" id="dpName"></div>
+      <div class="dp-motto" id="dpMotto"></div>
+      <div class="dp-tags" id="dpTags"></div>
+      <div class="dp-stat-grid" id="dpStats"></div>
+      <div class="dp-section">
+        <div class="dp-section-title">// О КОРПОРАЦИИ</div>
+        <div class="dp-text" id="dpAbout"></div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-section-title">// ПРИСУТСТВИЕ В NIGHT CITY</div>
+        <div class="dp-text" id="dpPresence"></div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-section-title">// КЛЮЧЕВЫЕ ФИГУРЫ</div>
+        <div class="dp-members" id="dpFigures"></div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-section-title">// ОТНОШЕНИЯ С ДРУГИМИ КОРПОРАЦИЯМИ</div>
+        <div class="dp-relations" id="dpRelations"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="foot-logo">CYBER<span>PUNK</span> 2077</div>
+  <p class="foot-copy">© 2077 NETWATCH INTELLIGENCE DIVISION · Cyberpunk 2077 © CD PROJEKT RED</p>
+</footer>
+
+<script>
+// ── CURSOR ──
+const cDot=document.getElementById('cDot'),cH=document.getElementById('cH'),cV=document.getElementById('cV'),cRing=document.getElementById('cRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cDot.style.transform=`translate3d(${mx-2.5}px,${my-2.5}px,0)`;
+  cH.style.transform=`translate3d(${mx-11}px,${my-.5}px,0)`;
+  cV.style.transform=`translate3d(${mx-.5}px,${my-11}px,0)`;
+});
+(function rl(now){
+  const dt=Math.min((now-(rl.t=rl.t||now))/16.667,3);rl.t=now;
+  const s=1-Math.pow(0.88,dt);rx+=(mx-rx)*s;ry+=(my-ry)*s;
+  cRing.style.transform=`translate3d(${rx-18}px,${ry-18}px,0)`;
+  requestAnimationFrame(rl);
+})(performance.now());
+function curHover(on){cRing.style.width=on?'54px':'36px';cRing.style.height=on?'54px':'36px';cRing.style.borderColor=on?'rgba(0,245,255,.9)':'rgba(0,245,255,.55)';}
+document.querySelectorAll('a,button,.filter-btn').forEach(el=>{el.addEventListener('mouseenter',()=>curHover(true));el.addEventListener('mouseleave',()=>curHover(false));});
+
+// ── REAL GAME LOGOS (Cyberpunk Wiki) ──
+const LOGOS = {
+  arasaka:     'https://static.wikia.nocookie.net/cyberpunk/images/5/5f/Arasaka_Logo_CP2077.png/revision/latest?cb=20200408033100',
+  militech:    'https://static.wikia.nocookie.net/cyberpunk/images/6/67/Militech_Logo_CP2077.png/revision/latest?cb=20230305182911',
+  kang_tao:    'https://static.wikia.nocookie.net/cyberpunk/images/5/5d/Kang_Tao_Logo_CP2077.png/revision/latest?cb=20200408033102',
+  biotechnica: 'https://static.wikia.nocookie.net/cyberpunk/images/5/5e/Biotechnica_Logo_CP2077.png/revision/latest?cb=20250303172525',
+  petrochem:   'https://static.wikia.nocookie.net/cyberpunk/images/9/99/Petrochem_Logo_CP2077.png/revision/latest?cb=20250303170306',
+  trauma_team: 'https://static.wikia.nocookie.net/cyberpunk/images/c/c8/Trauma_Team_Logo_CP2077.png/revision/latest?cb=20250304010938',
+};
+
+// ── CORP DATA ──
+const CORPS = [
+  {
+    id: 'arasaka',
+    name: 'ARASAKA',
+    region: 'Япония · Глобал',
+    regionKey: 'japan',
+    sphere: ['military', 'security'],
+    color: '#cc1111',
+    status: 'DOMINANT · GLOBAL',
+    motto: '"Безопасность. Лояльность. Богатство." — Корпоративный девиз',
+    shortDesc: 'Крупнейший мегакорп мира. Банковское дело, производство оружия и частная охрана — три кита власти Arasaka.',
+    about: 'Arasaka Corporation — японский мегакорп, основанный в 1915 году Соро Аразакой. После Второй Мировой войны компания трансформировалась в военно-промышленный гигант. Сегодня Arasaka — крупнейший международный банк, ведущий производитель оружия и самая влиятельная частная охранная компания в мире. Проигранная Корпоративная война 4 не сломила корпорацию — она восстановилась и стала ещё сильнее.',
+    presence: 'Башня Arasaka доминирует над City Center. Корпорация контролирует морской порт, финансовый квартал и значительную часть охранных структур. Сотни частных охранников патрулируют зоны влияния корпорации.',
+    tags: ['Военные', 'Охрана', 'Банки', 'Япония'],
+    stats: [
+      {l: 'ОСНОВАНА', v: '1915'},
+      {l: 'ШТАБ-КВАРТИРА', v: 'Токио, Япония'},
+      {l: 'СФЕРА', v: 'Охрана · Оружие · Банки'},
+      {l: 'УГРОЗА', v: 'КРИТИЧЕСКАЯ'},
+    ],
+    figures: [
+      {name: 'Сабуро Аразака', role: 'Основатель / Председатель'},
+      {name: 'Йориноубу Аразака', role: 'CEO'},
+      {name: 'Ханако Аразака', role: 'Наследница'},
+      {name: 'Ёсики Аразака', role: 'Глава безопасности'},
+    ],
+    relations: [
+      {name: 'Militech', status: 'Открытое противостояние', icon: '⚠', sentiment: 'hostile'},
+      {name: 'Kang Tao', status: 'Конкуренты', icon: '⚡', sentiment: 'neutral'},
+      {name: 'NUSA', status: 'Противники', icon: '⚠', sentiment: 'hostile'},
+    ]
+  },
+  {
+    id: 'militech',
+    name: 'MILITECH',
+    region: 'NUSA · Глобал',
+    regionKey: 'nusa',
+    sphere: ['military'],
+    color: '#1a5fc4',
+    status: 'DOMINANT · RIVAL',
+    motto: '"Сила в защите." — Официальный слоган',
+    shortDesc: 'Крупнейший американский военный подрядчик. Поставщик оружия для NUSA. Главный конкурент Arasaka по всему миру.',
+    about: 'Militech International Armaments — американская корпорация, тесно связанная с правительством NUSA. Производит оружие, бронетехнику, боевых дронов и предоставляет частные военные услуги. В Night City Militech активно противостоит влиянию Arasaka, поддерживает проамериканские структуры и ведёт скрытые операции против японского конкурента.',
+    presence: 'Оперативные базы в Watson и City Center. Тайные склады оружия в промышленных зонах. Сотрудничество с NCPD и рядом фиксеров для выполнения нестандартных задач.',
+    tags: ['Военные', 'Оружие', 'NUSA', 'Бронетехника'],
+    stats: [
+      {l: 'ОСНОВАНА', v: '2002'},
+      {l: 'ШТАБ-КВАРТИРА', v: 'Вашингтон, NUSA'},
+      {l: 'СФЕРА', v: 'Оружие · Военные услуги'},
+      {l: 'УГРОЗА', v: 'ОЧЕНЬ ВЫСОКАЯ'},
+    ],
+    figures: [
+      {name: 'Розалинд Майерс', role: 'CEO / Президент NUSA'},
+      {name: 'Майка Неварра', role: 'Агент / Союзник V'},
+    ],
+    relations: [
+      {name: 'Arasaka', status: 'Открытое противостояние', icon: '⚠', sentiment: 'hostile'},
+      {name: 'NUSA', status: 'Стратегический партнёр', icon: '✓', sentiment: 'friendly'},
+      {name: 'Kang Tao', status: 'Конкуренты', icon: '⚡', sentiment: 'neutral'},
+    ]
+  },
+  {
+    id: 'kang_tao',
+    name: 'KANG TAO',
+    region: 'Китай · Глобал',
+    regionKey: 'china',
+    sphere: ['military'],
+    color: '#e05e00',
+    status: 'ACTIVE · EXPANDING',
+    motto: '"Точность превыше силы." — Инженерный принцип',
+    shortDesc: 'Китайский производитель умного оружия с самонаведением. Быстро наращивает глобальное присутствие и долю рынка.',
+    about: 'Kang Tao — китайский оружейный мегакорп, специализирующийся на производстве умного оружия с системами самонаведения. Их технологии считаются наиболее передовыми в области таргетирования. Рикошетные пистолеты и смарт-снайперские винтовки Kang Tao — одни из самых опасных в Night City.',
+    presence: 'Растущее коммерческое присутствие в City Center и Watson. Поставляют оружие частным охранным компаниям и фиксерам. Ведут активную экспансию на рынок Северной Америки.',
+    tags: ['Оружие', 'Китай', 'Smart-tech', 'Расширение'],
+    stats: [
+      {l: 'ОСНОВАНА', v: '2008'},
+      {l: 'ШТАБ-КВАРТИРА', v: 'Шанхай, Китай'},
+      {l: 'СФЕРА', v: 'Умное оружие'},
+      {l: 'УГРОЗА', v: 'ВЫСОКАЯ'},
+    ],
+    figures: [
+      {name: 'Засекречено', role: 'CEO'},
+      {name: 'Директорат Шанхая', role: 'Совет директоров'},
+    ],
+    relations: [
+      {name: 'Arasaka', status: 'Конкуренты', icon: '⚡', sentiment: 'neutral'},
+      {name: 'Militech', status: 'Конкуренты', icon: '⚡', sentiment: 'neutral'},
+      {name: 'Китайское правительство', status: 'Господдержка', icon: '✓', sentiment: 'friendly'},
+    ]
+  },
+  {
+    id: 'biotechnica',
+    name: 'BIOTECHNICA',
+    region: 'Европа · Глобал',
+    regionKey: 'europe',
+    sphere: ['biotech'],
+    color: '#00aa55',
+    status: 'ACTIVE · NEUTRAL',
+    motto: '"Жизнь — это технология." — Научный манифест',
+    shortDesc: 'Европейский биотех-гигант. Кормит половину человечества синтетической едой. Занимается генной инженерией и фармацевтикой.',
+    about: 'Biotechnica — итальянская корпорация, ставшая ведущим игроком в сфере биотехнологий и синтетического питания. Их пищевые синтезаторы кормят миллиарды людей по всему миру. Biotechnica также занимается генной инженерией, ветеринарными технологиями и фармацевтикой. Считаются одними из наиболее нейтральных в корпоративных войнах.',
+    presence: 'Несколько лабораторий, теплиц и дистрибьюторских центров в Night City. Обеспечивают синтетическим питанием большинство жилых кварталов. Активно в Santo Domingo.',
+    tags: ['Биотех', 'Европа', 'Питание', 'Генетика'],
+    stats: [
+      {l: 'ОСНОВАНА', v: '1992'},
+      {l: 'ШТАБ-КВАРТИРА', v: 'Рим, Италия'},
+      {l: 'СФЕРА', v: 'Биотех · Питание · Фарма'},
+      {l: 'УГРОЗА', v: 'НИЗКАЯ'},
+    ],
+    figures: [
+      {name: 'Засекречено', role: 'CEO'},
+      {name: 'Исследовательский отдел', role: 'Главная движущая сила'},
+    ],
+    relations: [
+      {name: 'Arasaka', status: 'Нейтралитет', icon: '⚡', sentiment: 'neutral'},
+      {name: 'Militech', status: 'Нейтралитет', icon: '⚡', sentiment: 'neutral'},
+      {name: 'Trauma Team', status: 'Партнёрство', icon: '✓', sentiment: 'friendly'},
+    ]
+  },
+  {
+    id: 'petrochem',
+    name: 'PETROCHEM',
+    region: 'NUSA · Глобал',
+    regionKey: 'nusa',
+    sphere: ['energy'],
+    color: '#ff8800',
+    status: 'ACTIVE · STRATEGIC',
+    motto: '"Энергия движет миром." — Корпоративный лозунг',
+    shortDesc: 'Американский нефтехимический гигант. Производитель синтопласта — основного строительного материала мира 2077 года.',
+    about: 'Petrochem — один из крупнейших энергетических мегакорпов мира, специализирующийся на нефтехимии и синтетических материалах. Синтопласт Petrochem стал главным строительным материалом в мире 2077 года. Корпорация также производит топливо, химические соединения и синтетические заменители природных ресурсов.',
+    presence: 'Перерабатывающие заводы и огромные хранилища в Badlands. Обширная дистрибьюторская сеть по всему Night City. Несколько трубопроводов к промышленным зонам.',
+    tags: ['Энергия', 'Химия', 'NUSA', 'Синтопласт'],
+    stats: [
+      {l: 'ОСНОВАНА', v: '1973'},
+      {l: 'ШТАБ-КВАРТИРА', v: 'Хьюстон, NUSA'},
+      {l: 'СФЕРА', v: 'Нефтехимия · Синтетика'},
+      {l: 'УГРОЗА', v: 'СРЕДНЯЯ'},
+    ],
+    figures: [
+      {name: 'Засекречено', role: 'CEO'},
+      {name: 'Промышленный совет', role: 'Управление операциями'},
+    ],
+    relations: [
+      {name: 'NUSA', status: 'Стратегический партнёр', icon: '✓', sentiment: 'friendly'},
+      {name: 'Biotechnica', status: 'Нейтралитет', icon: '⚡', sentiment: 'neutral'},
+      {name: 'Arasaka', status: 'Нейтралитет', icon: '⚡', sentiment: 'neutral'},
+    ]
+  },
+  {
+    id: 'trauma_team',
+    name: 'TRAUMA TEAM',
+    region: 'NUSA · Глобал',
+    regionKey: 'nusa',
+    sphere: ['medical'],
+    color: '#ff2244',
+    status: 'ACTIVE · NEUTRAL',
+    motto: '"Мы прибываем первыми. Всегда." — Боевой клич медиков',
+    shortDesc: 'Корпоративная скорая помощь. Если есть подписка — вытащат из любой передряги. Если нет — выживай сам.',
+    about: 'Trauma Team International предоставляет экстренную медицинскую помощь по подписке. Вооружённые боевые медики прилетают на бронированных AV-вертолётах с эскортом. Их услуги — роскошь для богатых. Для остальных жителей Night City медицинская помощь остаётся лишь мечтой. Персонал Trauma Team имеет право применять оружие при угрозе пациенту или себе.',
+    presence: 'Диспетчерские центры и посадочные площадки по всему Night City. Приоритетные зоны быстрого реагирования — City Center и Westbrook. Патрули над кварталами богатых клиентов.',
+    tags: ['Медицина', 'NUSA', 'Премиум', 'Экстренка'],
+    stats: [
+      {l: 'ОСНОВАНА', v: '2025'},
+      {l: 'ШТАБ-КВАРТИРА', v: 'Чикаго, NUSA'},
+      {l: 'СФЕРА', v: 'Медицина · Охрана'},
+      {l: 'УГРОЗА', v: 'НИЗКАЯ'},
+    ],
+    figures: [
+      {name: 'Засекречено', role: 'CEO'},
+      {name: 'TT-804', role: 'Ст. боевой медик, Night City'},
+      {name: 'Отряд «Красный Крест»', role: 'Элитное подразделение'},
+    ],
+    relations: [
+      {name: 'Biotechnica', status: 'Фармацевтическое партнёрство', icon: '✓', sentiment: 'friendly'},
+      {name: 'Arasaka', status: 'Нейтралитет', icon: '⚡', sentiment: 'neutral'},
+      {name: 'Militech', status: 'Нейтралитет', icon: '⚡', sentiment: 'neutral'},
+    ]
+  },
+];
+
+// ── RENDER ──
+const grid = document.getElementById('corpGrid');
+const panel = document.getElementById('detailPanel');
+let selected = null;
+
+function renderCards(list) {
+  grid.innerHTML = '';
+  document.getElementById('countDisplay').textContent = list.length;
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:span 2"><div class="empty-icon">⌀</div><div class="empty-text">Ничего не найдено</div></div>';
+    return;
+  }
+  list.forEach((c, i) => {
+    const card = document.createElement('div');
+    card.className = 'cc' + (selected === c.id ? ' selected' : '');
+    card.style.setProperty('--gc', c.color);
+    card.innerHTML = `
+      <div class="cc-banner">
+        <div class="cc-banner-bg" style="background:radial-gradient(ellipse at 75% 50%,color-mix(in srgb,${c.color} 22%,transparent) 0%,transparent 70%)"></div>
+        <div class="cc-logo">
+          <div class="cc-logo-frame" style="border-color:color-mix(in srgb,${c.color} 60%,transparent);box-shadow:0 0 18px color-mix(in srgb,${c.color} 40%,transparent),0 0 40px color-mix(in srgb,${c.color} 12%,transparent)">
+            <img src="${LOGOS[c.id]}" alt="${c.name} logo" loading="lazy">
+          </div>
+        </div>
+        <div class="cc-banner-num">${String(i+1).padStart(2,'0')}</div>
+        <div class="cc-status">${c.status}</div>
+      </div>
+      <div class="cc-body">
+        <div class="cc-region">// ${c.region.toUpperCase()}</div>
+        <div class="cc-name">${c.name}</div>
+        <div class="cc-desc">${c.shortDesc}</div>
+        <div class="cc-tags">${c.tags.map(t=>`<span class="cc-tag">${t}</span>`).join('')}</div>
+      </div>
+      <div class="cc-glow"></div>`;
+    card.addEventListener('click', () => selectCorp(c));
+    card.addEventListener('mouseenter', () => curHover(true));
+    card.addEventListener('mouseleave', () => curHover(false));
+    grid.appendChild(card);
+  });
+}
+
+function selectCorp(c) {
+  selected = c.id;
+  renderCards(currentList);
+
+  const rc = c.color;
+  document.getElementById('dpId').textContent = `// CORP-PROFILE · ${c.regionKey.toUpperCase()}`;
+  document.getElementById('dpId').style.color = rc;
+  document.getElementById('dpName').textContent = c.name;
+  document.getElementById('dpName').style.color = rc;
+  document.getElementById('dpName').style.textShadow = `0 0 20px ${rc}`;
+  document.getElementById('dpMotto').textContent = c.motto;
+  document.getElementById('dpMotto').style.borderColor = rc;
+  document.getElementById('dpMotto').style.color = `color-mix(in srgb,${rc} 65%,#e8f4f8)`;
+
+  document.getElementById('dpBannerBg').style.background = `radial-gradient(ellipse at 50% 60%,color-mix(in srgb,${rc} 30%,transparent) 0%,transparent 70%), linear-gradient(135deg,#040407 0%,color-mix(in srgb,${rc} 10%,#040407) 100%)`;
+
+  const dpLogoEl = document.getElementById('dpLogo');
+  dpLogoEl.innerHTML = `<div class="dp-logo-frame" style="border-color:color-mix(in srgb,${rc} 60%,transparent);box-shadow:0 0 28px color-mix(in srgb,${rc} 45%,transparent),0 0 60px color-mix(in srgb,${rc} 18%,transparent)"><img src="${LOGOS[c.id]}" alt="${c.name} logo"></div>`;
+  dpLogoEl.style.setProperty('--gc-dp', rc);
+
+  const tagsEl = document.getElementById('dpTags');
+  tagsEl.innerHTML = c.tags.map(t=>`<span class="dp-tag" style="border-color:color-mix(in srgb,${rc} 40%,transparent);color:${rc}">${t}</span>`).join('');
+
+  const statsEl = document.getElementById('dpStats');
+  statsEl.innerHTML = c.stats.map(s=>`
+    <div class="dp-stat-box">
+      <div class="dp-stat-label">${s.l}</div>
+      <div class="dp-stat-value" style="color:${rc}">${s.v}</div>
+    </div>`).join('');
+
+  document.getElementById('dpAbout').textContent = c.about;
+  document.getElementById('dpPresence').textContent = c.presence;
+
+  const figuresEl = document.getElementById('dpFigures');
+  figuresEl.innerHTML = c.figures.map(f=>`
+    <div class="dp-member">
+      <div class="dp-member-dot" style="background:${rc};box-shadow:0 0 6px ${rc}"></div>
+      <div class="dp-member-name">${f.name}</div>
+      <div class="dp-member-role">${f.role}</div>
+    </div>`).join('');
+
+  const relsEl = document.getElementById('dpRelations');
+  relsEl.innerHTML = c.relations.map(r=>{
+    const sc = r.sentiment==='hostile'?'#ff3355':r.sentiment==='friendly'?'#44dd22':'#aaa';
+    return `<div class="dp-rel">
+      <div class="dp-rel-indicator">${r.icon}</div>
+      <div class="dp-rel-name">${r.name}</div>
+      <div class="dp-rel-status" style="color:${sc};border-color:${sc}40">${r.status}</div>
+    </div>`;
+  }).join('');
+
+  panel.classList.add('open');
+}
+
+document.getElementById('dpCloseBtn').addEventListener('click', () => {
+  panel.classList.remove('open');
+  selected = null;
+  renderCards(currentList);
+});
+
+// ── FILTERS ──
+let currentList = [...CORPS];
+let activeFilter = 'all';
+let searchQuery = '';
+
+function applyFilters() {
+  let list = CORPS.filter(c => {
+    const matchSearch = !searchQuery || c.name.toLowerCase().includes(searchQuery) || c.region.toLowerCase().includes(searchQuery);
+    const matchFilter = activeFilter === 'all' || c.regionKey === activeFilter || c.sphere.includes(activeFilter);
+    return matchSearch && matchFilter;
+  });
+  currentList = list;
+  renderCards(list);
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = btn.dataset.filter || 'all';
+    applyFilters();
+  });
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQuery = e.target.value.toLowerCase().trim();
+  applyFilters();
+});
+
+renderCards(CORPS);
+
+// ── MOBILE FILTER PANEL ──
+document.addEventListener('DOMContentLoaded', function() {
+  const btn = document.getElementById('mobFilterBtn');
+  const bg = document.getElementById('mobFilterBg');
+  const pl = document.querySelector('.left-panel');
+  if (!btn) return;
+  function openFilter() { pl.classList.add('mob-open'); bg.classList.add('show'); }
+  function closeFilter() { pl.classList.remove('mob-open'); bg.classList.remove('show'); }
+  btn.addEventListener('click', () => pl.classList.contains('mob-open') ? closeFilter() : openFilter());
+  bg.addEventListener('click', closeFilter);
+  pl.querySelectorAll('.filter-btn').forEach(b => b.addEventListener('click', () => { if (window.innerWidth <= 768) closeFilter(); }));
+});
+
+</script>
+<div class="mob-filter-bg" id="mobFilterBg"></div>
+<button class="mob-filter-btn" id="mobFilterBtn">⚙ ФИЛЬТРЫ</button>
+
+<script>
+// Mobile nav
+(function(){
+  var b=document.getElementById('navBurger'),mn=document.getElementById('mobNav'),mc=document.getElementById('mobNavClose');
+  if(!b||!mn)return;
+  function cl(){b.classList.remove('open');mn.classList.remove('open');document.body.style.overflow=''}
+  b.addEventListener('click',function(){b.classList.toggle('open');mn.classList.toggle('open');document.body.style.overflow=mn.classList.contains('open')?'hidden':''});
+  if(mc)mc.addEventListener('click',cl);
+  mn.querySelectorAll('.mob-nav-link').forEach(function(a){a.addEventListener('click',cl)});
+  var p=location.pathname.split('/').pop()||'index.html';
+  mn.querySelectorAll('.mob-nav-link[href]').forEach(function(a){if(a.getAttribute('href')===p)a.classList.add('active')});
+})();
+</script>
+</body>
+</html>
