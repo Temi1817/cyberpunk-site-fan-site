@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CYBERPUNK 2077 — NIGHT CITY ONLINE</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -774,7 +775,7 @@
   @media(pointer:coarse){#cDot,#cH,#cV,#cRing{display:none!important}.btn:active,.mob-nav-link:active,.back-btn:active,.nav-burger:active,.gc:active,.wcard:active,.cc:active,.filter-btn:active,.cat-btn:active,.type-chip:active{opacity:.72!important;transform:scale(.97)!important}}
 </style>
 </head>
-<body>
+<body data-cursor-accent="rgba(0,245,255,.9)" data-cursor-base="rgba(0,245,255,.55)">
 <div id="cityBg"></div>
 <div id="cityOverlay"></div>
 
@@ -823,7 +824,7 @@
 
 <!-- HERO -->
 <section class="hero">
-  <canvas id="rain"></canvas>
+  <canvas id="rain" data-rain-color="#00f5ff" data-rain-secondary="#ff00aa" data-rain-secondary-chance="0.07"></canvas>
   <div class="hero-grid-lines"></div>
   <div class="hero-glow-l"></div>
   <div class="hero-glow-r"></div>
@@ -1385,85 +1386,6 @@
 </iframe>
 
 <script>
-// ── CURSOR ──
-const cDot  = document.getElementById('cDot');
-const cH    = document.getElementById('cH');
-const cV    = document.getElementById('cV');
-const cRing = document.getElementById('cRing');
-let mx=0, my=0, rx=0, ry=0;
-
-document.addEventListener('mousemove', e => {
-  mx = e.clientX; my = e.clientY;
-  cDot.style.transform = `translate3d(${mx-2.5}px,${my-2.5}px,0)`;
-  cH.style.transform   = `translate3d(${mx-11}px,${my-.5}px,0)`;
-  cV.style.transform   = `translate3d(${mx-.5}px,${my-11}px,0)`;
-});
-(function rl(now) {
-  const dt = Math.min((now-(rl.t=rl.t||now))/16.667, 3); rl.t = now;
-  const s = 1 - Math.pow(0.88, dt);
-  rx += (mx-rx)*s; ry += (my-ry)*s;
-  cRing.style.transform = `translate3d(${rx-18}px,${ry-18}px,0)`;
-  requestAnimationFrame(rl);
-})(performance.now());
-document.querySelectorAll('a,.ccard,.lcrd').forEach(el => {
-  el.addEventListener('mouseenter', () => { cRing.style.width='54px'; cRing.style.height='54px'; cRing.style.borderColor='rgba(0,245,255,.9)'; });
-  el.addEventListener('mouseleave', () => { cRing.style.width='36px'; cRing.style.height='36px'; cRing.style.borderColor='rgba(0,245,255,.55)'; });
-});
-
-// ── MATRIX RAIN ──
-const cv = document.getElementById('rain');
-const ctx = cv.getContext('2d');
-function rsz() { cv.width=innerWidth; cv.height=innerHeight; }
-rsz(); addEventListener('resize', rsz);
-
-const CHARS = '01アイウカキクコサシスタチツナニネノ!@#$%&ABCDEF9876543210';
-const FS = 13;
-let drops = [];
-
-function initDrops() {
-  const cols = Math.floor(cv.width / FS);
-  drops = Array.from({length: cols}, (_, i) => ({
-    x: i * FS,
-    y: Math.random() * -cv.height,
-    spd: Math.random() * .9 + .35,
-    len: Math.floor(Math.random() * 22) + 6,
-    col: Math.random() < .07 ? '#ff00aa' : '#00f5ff',
-    chars: Array.from({length:35}, () => CHARS[Math.floor(Math.random()*CHARS.length)])
-  }));
-}
-initDrops(); addEventListener('resize', initDrops);
-
-(function rain() {
-  ctx.fillStyle = 'rgba(6,6,9,.12)';
-  ctx.fillRect(0, 0, cv.width, cv.height);
-  ctx.font = `${FS}px monospace`;
-  drops.forEach(d => {
-    for (let j=0; j<d.len; j++) {
-      const y = d.y - j*FS;
-      if (y < -FS || y > cv.height) continue;
-      const a = Math.max(0, 1 - j/d.len);
-      if (j===0)     ctx.fillStyle = '#ffffff';
-      else if (j<3)  ctx.fillStyle = d.col;
-      else           ctx.fillStyle = d.col + Math.floor(a*180).toString(16).padStart(2,'0');
-      if (Math.random()<.06) d.chars[j] = CHARS[Math.floor(Math.random()*CHARS.length)];
-      ctx.fillText(d.chars[j], d.x, y);
-    }
-    d.y += d.spd;
-    if ((d.y - d.len*FS) > cv.height) {
-      d.y = 0; d.spd = Math.random()*.9+.35;
-      d.len = Math.floor(Math.random()*22)+6;
-      d.col = Math.random()<.07 ? '#ff00aa' : '#00f5ff';
-    }
-  });
-  requestAnimationFrame(rain);
-})();
-
-// ── SCROLL REVEAL ──
-const rvObs = new IntersectionObserver(entries => {
-  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('in'); });
-}, {threshold:.1});
-document.querySelectorAll('.rv').forEach(el => rvObs.observe(el));
-
 // ── COUNTER ──
 function countUp(el) {
   const target = +el.dataset.target;
@@ -1511,79 +1433,9 @@ showBtn.addEventListener('click', () => {
     revealed = false;
   }
 });
-document.querySelectorAll('.ccard.more').forEach(el => {
-  el.addEventListener('mouseenter', () => { cRing.style.width='54px'; cRing.style.height='54px'; cRing.style.borderColor='rgba(0,245,255,.9)'; });
-  el.addEventListener('mouseleave', () => { cRing.style.width='36px'; cRing.style.height='36px'; cRing.style.borderColor='rgba(0,245,255,.55)'; });
-});
 
-// ── HAMBURGER MENU ──
-(function(){
-  const burger = document.getElementById('navBurger');
-  const mobNav = document.getElementById('mobNav');
-  const closeBtn = document.getElementById('mobNavClose');
-  if (!burger) return;
-  function openMenu(){ burger.classList.add('open'); mobNav.classList.add('open'); document.body.style.overflow='hidden'; }
-  function closeMenu(){ burger.classList.remove('open'); mobNav.classList.remove('open'); document.body.style.overflow=''; }
-  burger.addEventListener('click', () => mobNav.classList.contains('open') ? closeMenu() : openMenu());
-  closeBtn.addEventListener('click', closeMenu);
-  document.querySelectorAll('.mob-nav-link').forEach(a => a.addEventListener('click', closeMenu));
-})();
 </script>
 
-<!-- MUSIC PLAYER LOGIC -->
-<script>
-(function() {
-  var mpWrap  = document.getElementById('mpWrap');
-  var mpBtn   = document.getElementById('mpBtn');
-  var mpFill  = document.getElementById('mpFill');
-  var mpTitle = document.getElementById('mpTitle');
-  var iframe  = document.getElementById('ytIframe');
-  var isPlaying = false;
-  var LS = 'cp_music';
-
-  // Scrolling title if overflows
-  setTimeout(function() {
-    var wrap = mpTitle.parentElement;
-    if (mpTitle.scrollWidth > wrap.clientWidth + 4) {
-      mpTitle.style.setProperty('--scroll-dist', -(mpTitle.scrollWidth - wrap.clientWidth + 10) + 'px');
-      mpTitle.classList.add('scrolling');
-    }
-  }, 300);
-
-  function ytCmd(fn) {
-    try {
-      iframe.contentWindow.postMessage(
-        JSON.stringify({ event: 'command', func: fn, args: [] }),
-        'https://www.youtube.com'
-      );
-    } catch(e) {}
-  }
-
-  function setPlay(p) {
-    isPlaying = p;
-    mpBtn.textContent = p ? '⏸' : '▶';
-    p ? mpWrap.classList.add('playing') : mpWrap.classList.remove('playing');
-    try { localStorage.setItem(LS, p ? '1' : '0'); } catch(e) {}
-  }
-
-  mpBtn.addEventListener('click', function() {
-    if (isPlaying) { ytCmd('pauseVideo'); setPlay(false); }
-    else           { ytCmd('playVideo');  setPlay(true);  }
-  });
-
-  // Restore state from previous page
-  try { if (localStorage.getItem(LS) === '1') { setTimeout(function(){ ytCmd('playVideo'); setPlay(true); }, 2500); } } catch(e) {}
-
-  // Cursor hover
-  mpWrap.addEventListener('mouseenter', function() {
-    var r = document.getElementById('cRing');
-    if (r) { r.style.width='54px'; r.style.height='54px'; r.style.borderColor='rgba(0,245,255,.9)'; }
-  });
-  mpWrap.addEventListener('mouseleave', function() {
-    var r = document.getElementById('cRing');
-    if (r) { r.style.width='36px'; r.style.height='36px'; r.style.borderColor='rgba(0,245,255,.55)'; }
-  });
-})();
-</script>
+<script src="js/main.js"></script>
 </body>
 </html>
